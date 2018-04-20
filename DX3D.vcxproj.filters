@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="System\cWindow.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="system\D3D.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\cSingletone.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="cGameMain.h" />
+    <ClInclude Include="Common\iClass.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="System\cKeyboard.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\cMouse.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\cFrame.h">
+      <Filter>System</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="System\cWindow.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="system\D3D.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="cGameMain.cpp" />
+    <ClCompile Include="System\cKeyboard.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\cMouse.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\cFrame.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="System">
+      <UniqueIdentifier>{f78f6aa6-c2cc-477c-baad-8b0ac0cf7245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{84cffa9a-a09f-419e-a11d-dff7aaf465a7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
