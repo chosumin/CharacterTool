@@ -8,7 +8,7 @@ IDXGISwapChain* D3D::m_pSwapChain = nullptr;
 
 D3D::D3D()
 	:m_uNumerator(0)
-	,m_uDenominator(0)
+	,m_uDenominator(1)
 {
 	SetGpuInfo();
 
@@ -23,8 +23,8 @@ D3D::~D3D()
 	if (m_pSwapChain)
 		m_pSwapChain->SetFullscreenState(false, nullptr);
 
-	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pDeviceContext);
+	SAFE_RELEASE(m_pSwapChain);
 	HRESULT hr = m_pDevice->Release();
 	assert(SUCCEEDED(hr) && "디바이스이용 생성된 객체중 해체되지 않는 객체 있음");
 }
@@ -119,7 +119,7 @@ void D3D::SetGpuInfo()
 			DXGI_FORMAT_R8G8B8A8_UNORM
 			, DXGI_ENUM_MODES_INTERLACED
 			, &modeCount
-			, NULL
+			, nullptr
 		);
 		assert(SUCCEEDED(hr));
 
@@ -206,9 +206,9 @@ void D3D::CreateSwapChainAndDevice()
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain
 	(
-		NULL
+		nullptr
 		, D3D_DRIVER_TYPE_HARDWARE
-		, NULL
+		, nullptr
 		, creationFlags
 		, featureLevels
 		, 1
@@ -216,7 +216,7 @@ void D3D::CreateSwapChainAndDevice()
 		, &swapChainDesc
 		, &m_pSwapChain
 		, &m_pDevice
-		, NULL
+		, nullptr
 		, &m_pDeviceContext
 	);
 	assert(SUCCEEDED(hr));
@@ -224,6 +224,9 @@ void D3D::CreateSwapChainAndDevice()
 
 void D3D::CreateBackBuffer(float width, float height)
 {
+	if (width <= D3DX_16F_EPSILON && height <= D3DX_16F_EPSILON)
+		return;
+
 	HRESULT hr;
 
 	/********************

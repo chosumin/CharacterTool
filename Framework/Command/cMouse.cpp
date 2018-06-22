@@ -4,6 +4,7 @@
 cMouse::cMouse()
 {
 	position = D3DXVECTOR3(0, 0, 0);
+	prevPosition = D3DXVECTOR3(0, 0, 0);
 
 	wheelStatus = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	wheelOldStatus = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -114,6 +115,7 @@ LRESULT cMouse::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (message == WM_LBUTTONDOWN || message == WM_MOUSEMOVE)
 	{
+		prevPosition = position;
 		position.x = (float)LOWORD(lParam);
 		position.y = (float)HIWORD(lParam);
 	}
@@ -129,32 +131,32 @@ LRESULT cMouse::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 	return TRUE;
 }
 
-inline bool cMouse::Down(DWORD button) const
+bool cMouse::Down(DWORD button) const
 {
 	return buttonMap[button] == BUTTON_INPUT_STATUS_DOWN;
 }
 
-inline bool cMouse::Up(DWORD button) const
+bool cMouse::Up(DWORD button) const
 {
 	return buttonMap[button] == BUTTON_INPUT_STATUS_UP;
 }
 
-inline bool cMouse::Press(DWORD button) const
+bool cMouse::Press(DWORD button) const
 {
 	return buttonMap[button] == BUTTON_INPUT_STATUS_PRESS;
 }
 
-inline bool cMouse::DbClick(DWORD button) const
+bool cMouse::DbClick(DWORD button) const
 {
 	return buttonMap[button] == BUTTON_INPUT_STATUS_DBLCLK;
 }
 
-inline bool cMouse::WheelUp() const
+bool cMouse::WheelUp() const
 {
 	return wheelMoveValue.z > 0;
 }
 
-inline bool cMouse::WheelDown() const
+bool cMouse::WheelDown() const
 {
 	return wheelMoveValue.z < 0;
 }

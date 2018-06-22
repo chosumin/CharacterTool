@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "./System/cWindow.h"
 
 class cWindow;
 template<typename T>
@@ -8,24 +8,25 @@ class cSingletone
 public:
 	static T* Get()
 	{
-		if (m_pInstance == nullptr)
+		if (mInstance == nullptr)
 		{
-			m_pInstance = new T();
+			mInstance = new T();
 			cWindow::m_uSingletoneCount++;
 		}
-		return m_pInstance;
+		return mInstance;
 	}
 
 	static void Delete()
 	{
 		cWindow::m_uSingletoneCount--;
-		SAFE_DELETE(m_pInstance);
+		SAFE_DELETE(mInstance);
 	}
 protected:
+	cSingletone() {}
 	virtual ~cSingletone() {}
 private:
-	static T*	m_pInstance;
+	static T* mInstance;
 };
 
 template<typename T>
-T* cSingletone<T>::m_pInstance = nullptr;
+T* cSingletone<T>::mInstance = nullptr;

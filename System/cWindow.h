@@ -1,5 +1,6 @@
 #pragma once
 
+struct D3DDesc;
 class cGameMain;
 class cWindow
 {

@@ -29,17 +29,17 @@ void cKeyboard::Update()
 	}
 }
 
-inline bool cKeyboard::Down(DWORD key) const
+bool cKeyboard::Down(DWORD key) const
 {
 	return keyMap[key] == KEY_INPUT_STATUS_DOWN;
 }
 
-inline bool cKeyboard::Up(DWORD key) const
+bool cKeyboard::Up(DWORD key) const
 {
 	return keyMap[key] == KEY_INPUT_STATUS_UP;
 }
 
-inline bool cKeyboard::Press(DWORD key) const
+bool cKeyboard::Press(DWORD key) const
 {
 	return keyMap[key] == KEY_INPUT_STATUS_PRESS;
 }

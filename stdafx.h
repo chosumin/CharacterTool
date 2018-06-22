@@ -4,12 +4,25 @@
 #include <assert.h>
 #include <time.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <functional>
+#include <forward_list>
 #include <list>
 #include <map>
+#include <unordered_map>
+#include <set>
+#include <memory>
+#include <algorithm>
+#include <fstream>
+#include <typeinfo.h>
 using namespace std;
+
+#pragma comment(lib, "winmm.lib")
+
+//디버그 콘솔
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console") 
 
 //DX11 헤더, 라이브러리
 #include <dxgi1_2.h>
@@ -28,21 +41,53 @@ using namespace std;
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
+//Json Cpp 라이브러리
+#include <json/json.h>
+#pragma comment(lib, "jsoncpp.lib")
+#pragma warning( disable : 4996 )
+
 //ImGui 헤더 라이브러리
 #include <imgui.h>
 #include <imguiDx11.h>
 #pragma comment(lib, "ImGui.lib")
+
+//Fbx SDK 라이브러리
+#define FBXSDK_SHARED
+#include <fbxsdk.h>
+#pragma comment(lib, "libfbxsdk.lib")
+using namespace fbxsdk;
+
+//DirectX Tex 라이브러리
+#include <DirectXTex.h>
+#pragma comment(lib, "directxtex.lib")
 
 #define SAFE_RELEASE(p){ if(p){ (p)->Release(); (p) = NULL; } }
 #define SAFE_DELETE(p){ if(p){ delete (p); (p) = NULL; } }
 #define SAFE_DELETE_ARRAY(p){ if(p){ delete [] (p); (p) = NULL; } }
 
 const wstring Shader = L"../Shader/";
-
-#include "./Common/iClass.h"
+const wstring Asset = L"../Asset/";
+const wstring Model = Asset + L"Model/";
+#include "./Common/iExecutable.h"
 #include "./Common/cSingletone.h"
+#include "./Common/GlobalData.h"
 
+#include "./Command/cKeyboard.h"
+#include "./Command/cMouse.h"
+
+#include "./System/cDebug.h"
 #include "./System/D3D.h"
-#include "./System/cKeyboard.h"
-#include "./System/cMouse.h"
 #include "./System/cFrame.h"
+
+#include "./Graphic/VertexLayouts.h"
+#include "./Graphic/cCBuffer.h"
+#include "./Graphic/GlobalBuffers.h"
+#include "./Graphic/cShader.h"
+#include "./Graphic/cStates.h"
+
+//#include "./Component/Transform/sTransform.h"
+
+using ModelVertexType = VertexTNB;
+
+const float PI = 3.1415926f;
+const float RADIAN = (PI / 180.0f);

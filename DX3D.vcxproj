@@ -91,12 +91,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>./;../Library/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;../Library;../Shader;./Common;./Framework;./Concrete;</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./;../Library/;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -106,10 +107,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;../Library;../Shader;./Common;./Framework;./Concrete;</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,16 +122,19 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;../Library;../Shader;./Common;./Framework;./Concrete;</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,37 +142,144 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;../Library;../Shader;./Common;./Framework;./Concrete;</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cGameMain.h" />
     <ClInclude Include="Common\cSingletone.h" />
-    <ClInclude Include="Common\iClass.h" />
+    <ClInclude Include="Common\iExecutable.h" />
+    <ClInclude Include="Common\GlobalData.h" />
+    <ClInclude Include="Concrete\Command\Actor\ActorMoveCommand.h" />
+    <ClInclude Include="Concrete\Command\cInputHandler.h" />
+    <ClInclude Include="Execution\cEnvironmentExecuter.h" />
+    <ClInclude Include="Execution\cModels.h" />
+    <ClInclude Include="Framework\Collider\cArrowCollider.h" />
+    <ClInclude Include="Framework\Collider\cBoxCollider.h" />
+    <ClInclude Include="Framework\Collider\cBoxLineCollider.h" />
+    <ClInclude Include="Framework\Collider\cLineCollider.h" />
+    <ClInclude Include="Framework\Collider\cQuadCollider.h" />
+    <ClInclude Include="Framework\Collider\cSphereCollider.h" />
+    <ClInclude Include="Framework\Collider\cSphereLineCollider.h" />
+    <ClInclude Include="Framework\Command\cKeyboard.h" />
+    <ClInclude Include="Framework\Command\cMouse.h" />
+    <ClInclude Include="Framework\Command\cCommand.h" />
+    <ClInclude Include="Framework\Environment\cSky.h" />
+    <ClInclude Include="Framework\Environment\cWorldGrid.h" />
+    <ClInclude Include="Framework\Graphic\cCBuffer.h" />
+    <ClInclude Include="Framework\Graphic\cMaterial.h" />
+    <ClInclude Include="Framework\Graphic\ConstBuffer\cColliderBuffer.h" />
+    <ClInclude Include="Framework\Graphic\cShader.h" />
+    <ClInclude Include="Framework\Graphic\cTexture.h" />
+    <ClInclude Include="Framework\Graphic\GlobalBuffers.h" />
+    <ClInclude Include="Framework\Graphic\cStates.h" />
+    <ClInclude Include="Framework\Graphic\VertexLayouts.h" />
+    <ClInclude Include="Framework\Helper\cBinary.h" />
+    <ClInclude Include="Framework\Helper\cMath.h" />
+    <ClInclude Include="Framework\Helper\cPath.h" />
+    <ClInclude Include="Framework\Helper\cString.h" />
+    <ClInclude Include="Framework\Helper\Json.h" />
+    <ClInclude Include="Framework\Interface\iClonable.h" />
+    <ClInclude Include="Framework\Interface\iCollidable.h" />
+    <ClInclude Include="Framework\Interface\iRenderable.h" />
+    <ClInclude Include="Framework\Interface\iTransformable.h" />
+    <ClInclude Include="Framework\Model\cModel.h" />
+    <ClInclude Include="Framework\Model\cModelFactory.h" />
+    <ClInclude Include="Framework\Model\FbxExporter\Exporter.h" />
+    <ClInclude Include="Framework\Model\FbxExporter\FbxBoneWeights.h" />
+    <ClInclude Include="Framework\Model\FbxExporter\FbxType.h" />
+    <ClInclude Include="Framework\Model\FbxExporter\FbxUtility.h" />
+    <ClInclude Include="Framework\Model\ModelPart\cModelBone.h" />
+    <ClInclude Include="Framework\Model\ModelPart\cModelMesh.h" />
+    <ClInclude Include="Framework\Model\ModelPart\cModelMeshPart.h" />
+    <ClInclude Include="Framework\Polygon\cArrow.h" />
+    <ClInclude Include="Framework\Polygon\cBox.h" />
+    <ClInclude Include="Framework\Polygon\cLine.h" />
+    <ClInclude Include="Framework\Polygon\cRectangle.h" />
+    <ClInclude Include="Framework\Polygon\cSphere.h" />
+    <ClInclude Include="Framework\Polygon\PolygonUtility.h" />
+    <ClInclude Include="Framework\Transform\cBasicGizmo.h" />
+    <ClInclude Include="Framework\Transform\cGizmo.h" />
+    <ClInclude Include="Framework\Transform\cMovingGizmo.h" />
+    <ClInclude Include="Framework\Transform\cRotatingGizmo.h" />
+    <ClInclude Include="Framework\Transform\cScalingGizmo.h" />
+    <ClInclude Include="Framework\Transform\sTransform.h" />
+    <ClInclude Include="Framework\Viewer\cCamera.h" />
+    <ClInclude Include="Framework\Viewer\cFreePointCamera.h" />
+    <ClInclude Include="Framework\Viewer\cPerspective.h" />
+    <ClInclude Include="Framework\Viewer\cViewport.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="System\cDebug.h" />
     <ClInclude Include="System\cFrame.h" />
-    <ClInclude Include="System\cKeyboard.h" />
-    <ClInclude Include="System\cMouse.h" />
     <ClInclude Include="System\cWindow.h" />
-    <ClInclude Include="system\D3D.h" />
+    <ClInclude Include="System\D3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cGameMain.cpp" />
+    <ClCompile Include="Concrete\Command\Actor\ActorMoveCommand.cpp" />
+    <ClCompile Include="Concrete\Command\cInputHandler.cpp" />
+    <ClCompile Include="Execution\cEnvironmentExecuter.cpp" />
+    <ClCompile Include="Execution\cModels.cpp" />
+    <ClCompile Include="Framework\Collider\cArrowCollider.cpp" />
+    <ClCompile Include="Framework\Collider\cBoxCollider.cpp" />
+    <ClCompile Include="Framework\Collider\cBoxLineCollider.cpp" />
+    <ClCompile Include="Framework\Collider\cLineCollider.cpp" />
+    <ClCompile Include="Framework\Collider\cQuadCollider.cpp" />
+    <ClCompile Include="Framework\Collider\cSphereCollider.cpp" />
+    <ClCompile Include="Framework\Collider\cSphereLineCollider.cpp" />
+    <ClCompile Include="Framework\Command\cKeyboard.cpp" />
+    <ClCompile Include="Framework\Command\cMouse.cpp" />
+    <ClCompile Include="Framework\Command\cCommand.cpp" />
+    <ClCompile Include="Framework\Environment\cSky.cpp" />
+    <ClCompile Include="Framework\Environment\cWorldGrid.cpp" />
+    <ClCompile Include="Framework\Graphic\cMaterial.cpp" />
+    <ClCompile Include="Framework\Graphic\cShader.cpp" />
+    <ClCompile Include="Framework\Graphic\cTexture.cpp" />
+    <ClCompile Include="Framework\Graphic\cStates.cpp" />
+    <ClCompile Include="Framework\Helper\cBinary.cpp" />
+    <ClCompile Include="Framework\Helper\cMath.cpp" />
+    <ClCompile Include="Framework\Helper\cPath.cpp" />
+    <ClCompile Include="Framework\Helper\cString.cpp" />
+    <ClCompile Include="Framework\Helper\Json.cpp" />
+    <ClCompile Include="Framework\Model\cModel.cpp" />
+    <ClCompile Include="Framework\Model\cModelFactory.cpp" />
+    <ClCompile Include="Framework\Model\FbxExporter\Exporter.cpp" />
+    <ClCompile Include="Framework\Model\FbxExporter\FbxUtility.cpp" />
+    <ClCompile Include="Framework\Model\ModelPart\cModelBone.cpp" />
+    <ClCompile Include="Framework\Model\ModelPart\cModelMesh.cpp" />
+    <ClCompile Include="Framework\Model\ModelPart\cModelMeshPart.cpp" />
+    <ClCompile Include="Framework\Polygon\cArrow.cpp" />
+    <ClCompile Include="Framework\Polygon\cBox.cpp" />
+    <ClCompile Include="Framework\Polygon\cLine.cpp" />
+    <ClCompile Include="Framework\Polygon\cRectangle.cpp" />
+    <ClCompile Include="Framework\Polygon\cSphere.cpp" />
+    <ClCompile Include="Framework\Transform\cBasicGizmo.cpp" />
+    <ClCompile Include="Framework\Transform\cGizmo.cpp" />
+    <ClCompile Include="Framework\Transform\cMovingGizmo.cpp" />
+    <ClCompile Include="Framework\Transform\cRotatingGizmo.cpp" />
+    <ClCompile Include="Framework\Transform\cScalingGizmo.cpp" />
+    <ClCompile Include="Framework\Transform\sTransform.cpp" />
+    <ClCompile Include="Framework\Viewer\cCamera.cpp" />
+    <ClCompile Include="Framework\Viewer\cFreePointCamera.cpp" />
+    <ClCompile Include="Framework\Viewer\cPerspective.cpp" />
+    <ClCompile Include="Framework\Viewer\cViewport.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="System\cDebug.cpp" />
     <ClCompile Include="System\cFrame.cpp" />
-    <ClCompile Include="System\cKeyboard.cpp" />
-    <ClCompile Include="System\cMouse.cpp" />
     <ClCompile Include="System\cWindow.cpp" />
-    <ClCompile Include="system\D3D.cpp" />
+    <ClCompile Include="System\D3D.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

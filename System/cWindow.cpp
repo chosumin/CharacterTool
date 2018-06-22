@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "cWindow.h"
 #include "cGameMain.h"
+#include "./Command/cKeyboard.h"
+
+//todo : 지우기
+#include "./Transform/cGizmo.h"
+#include "./Model/cModelFactory.h"
 
 cGameMain* cWindow::m_pGameMain = nullptr;
 UINT cWindow::m_uSingletoneCount = 0;
@@ -72,12 +77,13 @@ void cWindow::Run()
 	D3DDesc desc;
 	D3D::GetDesc(&desc);
 
-	//TODO : 생성 잘됐나 찾아보기
 	D3D::Get();
+
+	cFrame::Get()->Start();
 
 	//ImGui 생성
 	ImGui::Create(desc.Hwnd, D3D::GetDevice(), D3D::GetDC());
-	ImGui::StyleColorsDark();
+	ImGui::StyleColorsClassic();
 
 	//객체 초기화
 	m_pGameMain = new cGameMain();
@@ -100,7 +106,7 @@ void cWindow::Run()
 			cFrame::Get()->Update(); 
 
 			//ImGui에 마우스 없을 때
-			if(!ImGui::IsMouseHoveringAnyWindow())
+			if(!ImGui::GetIO().WantCaptureMouse)
 			{
 				//마우스, 키보드 입력
 				cMouse::Get()->Update();
@@ -115,6 +121,7 @@ void cWindow::Run()
 			{
 				m_pGameMain->Render();
 				m_pGameMain->PostRender(); //ImGui 관련된 코드
+				ImGui::Render();
 			}
 			D3D::Get()->Present();
 		}
@@ -206,6 +213,11 @@ void cWindow::DeleteSingletone()
 	cKeyboard::Delete();
 	cMouse::Delete();
 	D3D::Delete();
+	cStates::Delete();
+
+	//todo : 지우기
+	cModelFactory::Delete();
+	cGizmo::Delete();
 
 	assert(m_uSingletoneCount <= 0 && "삭제 안된 싱글턴 객체가 있습니다!");
 }

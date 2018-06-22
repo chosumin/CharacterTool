@@ -6,9 +6,9 @@ class cKeyboard : public cSingletone<cKeyboard>
 public:
 	void Update();
 public:
-	inline bool Down(DWORD key) const;
-	inline bool Up(DWORD key) const;
-	inline bool Press(DWORD key) const;
+	bool Down(DWORD key) const;
+	bool Up(DWORD key) const;
+	bool Press(DWORD key) const;
 private:
 	cKeyboard();
 	~cKeyboard();

@@ -1,27 +1,33 @@
 #pragma once
 #define MAX_INPUT_MOUSE 8
+#include "./Common/cSingletone.h"
 
 class cMouse : public cSingletone<cMouse>
 {
+private:
+	friend class cSingletone<cMouse>;
 public:
 	void		Update();
 	LRESULT		WndProc(UINT message, WPARAM wParam, LPARAM lParam);
 public:
 	void		SetHandle(HWND handle)	{ this->handle = handle; }
 	D3DXVECTOR3 GetPosition() const		{ return position; }
+	D3DXVECTOR3 GetDelta() const { return position - prevPosition; }
 	D3DXVECTOR3 GetMoveValue() const	{ return wheelMoveValue; }
 public:
-	inline bool Down(DWORD button) const;
-	inline bool Up(DWORD button) const;
-	inline bool Press(DWORD button) const;
-	inline bool DbClick(DWORD button) const;
-	inline bool WheelUp() const;
-	inline bool WheelDown() const;
+	bool Down(DWORD button) const;
+	bool Up(DWORD button) const;
+	bool Press(DWORD button) const;
+	bool DbClick(DWORD button) const;
+	bool WheelUp() const;
+	bool WheelDown() const;
 private:
 	cMouse();
 	~cMouse();
 private:
 	HWND		handle;
+
+	D3DXVECTOR3 prevPosition;
 	D3DXVECTOR3 position; //마우스 위치
 
 	byte		buttonStatus[MAX_INPUT_MOUSE];
@@ -51,7 +57,5 @@ private:
 		BUTTON_INPUT_STATUS_PRESS,
 		BUTTON_INPUT_STATUS_DBLCLK
 	};
-
-	friend class cSingletone<cMouse>;
 };
 
