@@ -61,28 +61,59 @@ string Fbx::Utility::GetTextureFile(FbxProperty & prop)
 	return "";
 }
 
-string Fbx::Utility::GetMaterialName(FbxMesh * mesh, int cpIndex)
+string Fbx::Utility::GetMaterialName(FbxMesh * mesh, int polygonIndex, int cpIndex)
 {
-	int result = -1;
+	auto node = mesh->GetNode();
+	if (node == nullptr)
+		return "";
 
 	auto material = mesh->GetLayer(0)->GetMaterials();
 	if (material == nullptr)
 		return "";
 
 	auto mappingMode = material->GetMappingMode();
+	auto refMode = material->GetReferenceMode();
 
-	//모두 일치할 때
-	if (mappingMode == FbxLayerElement::eAllSame)
-		result = material->GetIndexArray().GetAt(0);
-	//cp와 노드의 머터리얼 번호 일치
-	else
-		result = material->GetIndexArray().GetAt(cpIndex);
+	int mappingIndex = -1;
+	switch (mappingMode)
+	{
+		//머터리얼 번호가 모두 일치
+		case FbxLayerElement::eAllSame: mappingIndex = 0; break;
+		//폴리곤에 의해서 인덱스가 정해진다
+		case FbxLayerElement::eByPolygon: mappingIndex = polygonIndex; break;
+		//컨트롤 포인트와 일치
+		case FbxLayerElement::eByControlPoint: mappingIndex = cpIndex; break;
+			//p * 3 + vi으로 vi가 들어가야하지만 폴리곤 하나당 머터리얼은 모두 같으므로 굳이 정점번호까지 더할 필요 없다.
+		case FbxLayerElement::eByPolygonVertex: mappingIndex = polygonIndex * 3; break;
+		default: assert(false); break;
+	}
 
-	if (result < 0)
-		return "";
+	FbxSurfaceMaterial *findMaterial = nullptr;
+	//직접 매핑
+	if (refMode == FbxLayerElement::eDirect)
+	{
+		if (mappingIndex < node->GetMaterialCount())
+			findMaterial = node->GetMaterial(mappingIndex);
+	}
+	//인덱스를 통해 매핑한다.
+	else if (refMode == FbxLayerElement::eIndexToDirect)
+	{
+		//머터리얼 번호를 가진 배열
+		FbxLayerElementArrayTemplate<int>& indexArray = material->GetIndexArray();
 
-	FbxNode* node = mesh->GetNode();
-	return node->GetMaterial(result)->GetName();
+		//머터리얼 번호보다 작아야함
+		if (mappingIndex < indexArray.GetCount())
+		{
+			int tempIndex = indexArray.GetAt(mappingIndex);
+
+			if (tempIndex < node->GetMaterialCount())
+				findMaterial = node->GetMaterial(tempIndex);
+		}
+	}
+
+	if (findMaterial == nullptr) return "";
+
+	return findMaterial->GetName();
 }
 
 D3DXVECTOR2 Fbx::Utility::GetUv(FbxMesh * mesh, int cpIndex, int uvIndex)

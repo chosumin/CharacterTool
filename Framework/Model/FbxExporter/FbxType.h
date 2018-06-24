@@ -51,6 +51,7 @@ namespace Fbx
 		int Parent;
 		string Name;
 
+		//todo : 둘다 굳이 있어야할까
 		D3DXMATRIX Transform;
 		D3DXMATRIX AbsoluteTransform;
 	};
@@ -67,9 +68,11 @@ namespace Fbx
 
 	struct FbxKeyFrameData
 	{
+		//todo : transform이 필요한 것일까
 		D3DXMATRIX Transform;
 		D3DXQUATERNION Rotation;
 		D3DXVECTOR3 Translation;
+		D3DXVECTOR3 Scale;
 	};
 
 	struct FbxKeyFrame

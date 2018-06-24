@@ -1,10 +1,10 @@
 #pragma once
 
-class cEnvironmentExecuter : public iExecutable
+class cEnvironment : public iExecutable
 {
 public:
-	cEnvironmentExecuter();
-	~cEnvironmentExecuter();
+	cEnvironment();
+	~cEnvironment();
 public:
 	/**********************************
 		iExecutable을(를) 통해 상속됨

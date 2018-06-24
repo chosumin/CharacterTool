@@ -1,9 +1,9 @@
 #pragma once
-#include "./Interface/iClonable.h"
+#include "./Interface/iCloneable.h"
 
 class cModelBone;
 class cModelMeshPart;
-class cModelMesh : public iClonable<cModelMesh>
+class cModelMesh : public iCloneable<cModelMesh>
 {
 private:
 	friend class cModel;
@@ -11,6 +11,8 @@ private:
 public:
 	cModelMesh();
 	~cModelMesh();
+
+	void Render();
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMesh> Clone() const override;
@@ -24,11 +26,13 @@ private:
 	void SetWorld(const D3DXMATRIX& world) { _worldBuffer->SetMatrix(world); }
 private:
 	void Binding();
-	void Render();
 private:
 	wstring _name;
 
 	int _parentBoneIndex;
+
+	//todo : 필요할까?
+	weak_ptr<cModelBone> _parentBone;
 
 	unique_ptr<cWorldBuffer> _worldBuffer;
 

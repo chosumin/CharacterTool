@@ -2,7 +2,7 @@
 #include <memory>
 
 template<typename T>
-__interface iClonable
+__interface iCloneable
 {
 	std::unique_ptr<T> Clone() const;
 };

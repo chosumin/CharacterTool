@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "cGameMain.h"
+
 #include "./Execution/cModels.h"
-#include "./Execution/cEnvironmentExecuter.h"
+#include "./Execution/cEnvironment.h"
+#include "./Execution/cMenuBar.h"
+
 #include "./Viewer/cFreePointCamera.h"
 #include "./Helper/cMath.h"
 
@@ -17,7 +20,7 @@ cGameMain::cGameMain()
 	_globalVariable->Perspective = make_shared<cPerspective>(desc.Width, desc.Height);
 	_globalVariable->Viewport = make_shared<cViewport>(desc.Width, desc.Height);
 	_globalVariable->GlobalLight = make_shared<cLightBuffer>();
-
+	_globalVariable->GuiSettings = make_shared<sGuiSettings>();
 	_globalVariable->MainCamera = make_shared<cFreePointCamera>(100.0f);
 	_globalVariable->MainCamera->SetPosition(0, 0, -5);
 	_globalVariable->MainCamera->SetRotationDegree(0, 0);
@@ -28,7 +31,8 @@ cGameMain::cGameMain()
 void cGameMain::Init()
 {
 	_vecObject.push_back(new cModels(_globalVariable));
-	_vecObject.push_back(new cEnvironmentExecuter());
+	_vecObject.push_back(new cEnvironment());
+	_vecObject.push_back(new cMenuBar(_globalVariable));
 	for (auto& i : _vecObject)
 		i->Init();
 }

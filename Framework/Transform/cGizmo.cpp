@@ -86,6 +86,19 @@ void cGizmo::SetMyTransform()
 	_myTransform->Update();
 }
 
+void cGizmo::GetScaleRate(const D3DXVECTOR3 & camPos)
+{
+	auto temp = _myTransform->Position - camPos;
+	auto length = D3DXVec3Length(&temp);
+
+	if (length <= 10.0f)
+		_myTransform->Scaling = { 0.5f,0.5f,0.5f };
+	else
+	{
+		_myTransform->Scaling = D3DXVECTOR3{ length , length, length } * 0.025f;
+	}
+}
+
 void cGizmo::GetInverseVector(OUT D3DXVECTOR3 *transPos, OUT D3DXVECTOR3* transDir, const D3DXVECTOR3& originPos, const D3DXVECTOR3& originDir)
 {
 	D3DXMATRIX invWorld;
@@ -106,6 +119,9 @@ void cGizmo::SelectMode()
 
 void cGizmo::Update()
 {
+	if (_delegateTransform.expired())
+		return;
+
 	SelectMode();
 
 	auto globalPtr = _global.lock();
@@ -113,6 +129,8 @@ void cGizmo::Update()
 
 	D3DXVECTOR3 pos;
 	globalPtr->MainCamera->GetPosition(&pos);
+
+	GetScaleRate(pos);
 
 	//역변환 행렬로 위치, 방향 구함
 	D3DXVECTOR3 transPos, transDir;
@@ -125,6 +143,10 @@ void cGizmo::Update()
 
 void cGizmo::Render()
 {
+	if (_delegateTransform.expired())
+		return;
+
+	//todo : 이걸 지우면 잘 나옴
 	D3D::GetDC()->OMSetDepthStencilState(_depthStenciler[1], 1);
 	D3D::GetDC()->RSSetState(_rasterizer[1]);
 	D3D::GetDC()->OMSetBlendState(_blender[1], NULL, 0xFF);
@@ -139,6 +161,9 @@ void cGizmo::Render()
 
 void cGizmo::PostRender()
 {
+	if (_delegateTransform.expired())
+		return;
+
 	auto modelPtr = _delegateTransform.lock();
 	ImGui::Begin("Inspector");
 	{

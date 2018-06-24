@@ -27,10 +27,13 @@ namespace Fbx
 	{
 	private:
 		using Pair = pair<int, float>;
-		//todo : 변경
+		//todo : 변경, 벡터가 굳이 필요한가?
 		//multimap<float, int> _boneWeights;
 		vector<Pair> _boneWeights;
 	public:
+		//본 가중치 정보를 컨테이너에 삽입
+		//@param : 본 번호
+		//@param : 본 가중치
 		void AddBoneWeight(int boneIndex, float boneWeight)
 		{
 			if (boneWeight < 0.0f)
@@ -71,6 +74,7 @@ namespace Fbx
 			}
 		}
 
+		//0~1 사이로 정규화
 		void Normalize()
 		{
 			float totalWeight = 0.0f;

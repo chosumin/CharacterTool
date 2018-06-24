@@ -1,14 +1,21 @@
 #include "stdafx.h"
 #include "cModel.h"
+
 #include "./ModelPart/cModelBone.h"
 #include "./ModelPart/cModelMesh.h"
 #include "./ModelPart/cModelMeshPart.h"
+#include "./ModelPart/cModelAnimClip.h"
+
 #include "./Graphic/cMaterial.h"
+#include "./Graphic/ConstBuffer/cModelBoneBuffer.h"
+
 #include "./Transform/sTransform.h"
+
+#include "./Helper/cString.h"
 
 cModel::cModel()
 {
-	_transform = make_shared<sTransform>();
+	_buffer = make_shared<cModelBoneBuffer>();
 }
 
 std::unique_ptr<cModel> cModel::Clone() const
@@ -17,8 +24,6 @@ std::unique_ptr<cModel> cModel::Clone() const
 	struct make_unique_enabler : public cModel {};
 	auto model = make_unique<make_unique_enabler>();
 	
-	model->_transform = make_shared<sTransform>(*_transform.get());
-
 	for (auto&& material : _materials)
 		model->_materials.push_back(material->Clone());
 
@@ -43,19 +48,39 @@ void cModel::Update()
 
 void cModel::Render()
 {
-	/*cDebugLog::Log(&typeid(this), [this]() {
-		cout << _transform->m_vPosition.x << ", " << _transform->m_vPosition.y << ", " << _transform->m_vPosition.z << endl;
-	});*/
-	vector<D3DXMATRIX> transforms;
-	CopyAbsoluteBoneTo(transforms);
-
 	for (auto&& mesh : _meshes)
 	{
-		int index = mesh->GetParentBoneIndex();
-		auto transform = transforms[index];
-		mesh->SetWorld(transform);
 		mesh->Render();
 	}
+}
+
+void cModel::ShowHierarchy()
+{
+	if (ImGui::TreeNode(cString::String(_root->GetName()).c_str()))
+	{
+		auto bOpen = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		if (ImGui::TreeNodeEx(cString::String(_root->GetName()).c_str(), bOpen))
+		{
+			_root->ShowHierarchy();
+			ImGui::TreePop();
+		}
+
+		if(ImGui::IsItemClicked())
+		{
+			/*cDebug::Log(&typeid(this), []()
+			{
+				cout << "클릭!" << endl;
+			});*/
+			//todo : 인스펙터 띄우기
+		}
+		ImGui::TreePop();
+	}
+	
+}
+
+vector<shared_ptr<cMaterial>>& cModel::GetMaterials()
+{
+	return _materials;
 }
 
 weak_ptr<cMaterial> cModel::GetMaterial(wstring name) const
@@ -101,13 +126,9 @@ void cModel::CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms)
 		if (bone->_parent.expired() == false)
 		{
 			int index = bone->_parent.lock()->_index;
-			transforms[i] = bone->_transform * transforms[index];
+			transforms[i] = bone->_transform->Matrix * transforms[index];
 		}
 		else
-			transforms[i] = bone->_transform;
-
-		//루트 본
-		if (bone->_parentIndex == -1)
-			transforms[i] *= _transform->Matrix;
+			transforms[i] = bone->_transform->Matrix;
 	}
 }

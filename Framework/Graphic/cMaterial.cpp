@@ -52,7 +52,7 @@ void cMaterial::SetShader(wstring file)
 
 void cMaterial::SetShader(shared_ptr<cShader> shader)
 {
-	_shader = move(shader);
+	_shader = shader;
 }
 
 D3DXCOLOR * cMaterial::GetTextureColor(ColorType eType)

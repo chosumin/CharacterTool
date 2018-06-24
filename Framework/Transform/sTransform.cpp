@@ -44,6 +44,7 @@ void sTransform::Update()
 	Translation();
 
 	Matrix = _scaleMatrix * _rotationMatrix * _positionMatrix;
+
 	_worldBuffer->SetMatrix(Matrix);
 }
 

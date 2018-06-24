@@ -1,11 +1,12 @@
 #pragma once
-#include "./Interface/iClonable.h"
+#include "./Interface/iCloneable.h"
 
 class cModelBone;
 class cModelMesh;
 class cMaterial;
+class cModelAnimClip;
 struct sTransform;
-class cModel : public iClonable<cModel>
+class cModel : public iCloneable<cModel>
 {
 private:
 	friend class cModelFactory;
@@ -14,12 +15,14 @@ public:
 
 	void Update();
 	void Render();
+
+	void ShowHierarchy();
 public:
 	/*******************
 		Getter Setter
 	********************/
-	weak_ptr<sTransform> GetTransform() { return _transform; }
-	
+	vector<shared_ptr<cMaterial>>& GetMaterials();
+
 	weak_ptr<cMaterial> GetMaterial(wstring name) const;
 
 	vector<shared_ptr<cModelMesh>>& GetMeshes() { return _meshes; }
@@ -31,6 +34,13 @@ public:
 	weak_ptr<cModelBone> GetBone(wstring name);
 					   
 	weak_ptr<cModelBone> GetRoot() { return _root; }
+
+	weak_ptr<cModelAnimClip> GetClip(UINT index) { return _clips[index]; }
+
+	weak_ptr<class cModelBoneBuffer> GetBuffer()
+	{
+		return _buffer;
+	}
 public:
 	void CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms);
 protected:
@@ -46,11 +56,11 @@ protected:
 private:
 	shared_ptr<cModelBone> _root;
 
-	vector<shared_ptr<cMaterial>>	_materials;
-	vector<shared_ptr<cModelBone>>	_bones;
-	vector<shared_ptr<cModelMesh>>	_meshes;
+	vector<shared_ptr<cMaterial>> _materials;
+	vector<shared_ptr<cModelBone>> _bones;
+	vector<shared_ptr<cModelMesh>> _meshes;
+	vector<shared_ptr<cModelAnimClip>> _clips;
 
-	//todo : 복합체 패턴으로 변경
-	shared_ptr<sTransform> _transform;
+	shared_ptr<class cModelBoneBuffer> _buffer;
 };
 

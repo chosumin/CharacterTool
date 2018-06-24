@@ -1,5 +1,5 @@
 #pragma once
-#include "./Interface/iClonable.h"
+#include "./Interface/iCloneable.h"
 
 enum class ColorType
 {
@@ -12,7 +12,7 @@ enum class TextureType
 
 class cMaterialBuffer;
 class cTexture;
-class cMaterial : public iClonable<cMaterial>
+class cMaterial : public iCloneable<cMaterial>
 {
 public:
 	/******************

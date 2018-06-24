@@ -22,4 +22,7 @@ private:
 	weak_ptr<sGlobalVariable> _global;
 
 	//class cMoveGizmo *gizmo;
+
+	class cModelAnimPlayer *animPlayer;
+	class cHierarchy *hierarchy;
 };

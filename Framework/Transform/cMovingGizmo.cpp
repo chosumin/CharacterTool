@@ -55,6 +55,7 @@ void cMovingGizmo::Move(const D3DXMATRIX& matrix)
 		//누른 축을 트랜스폼 행렬로 변환
 		auto delta = axis[i];
 		D3DXVec3TransformNormal(&delta, &delta, &matrix);
+		D3DXVec3Normalize(&delta, &delta);
 
 		//방향과 마우스 델타 값 내적
 		auto deltaF = D3DXVec3Dot(&dir, &mouse);

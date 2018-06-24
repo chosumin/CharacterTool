@@ -79,11 +79,14 @@ const wstring Model = Asset + L"Model/";
 #include "./System/D3D.h"
 #include "./System/cFrame.h"
 
+#include "./Viewer/cPerspective.h"
+#include "./Viewer/cViewport.h"
+
+#include "./Graphic/cStates.h"
 #include "./Graphic/VertexLayouts.h"
 #include "./Graphic/cCBuffer.h"
 #include "./Graphic/GlobalBuffers.h"
 #include "./Graphic/cShader.h"
-#include "./Graphic/cStates.h"
 
 //#include "./Component/Transform/sTransform.h"
 

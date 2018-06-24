@@ -12,7 +12,7 @@ namespace Fbx
 		static D3DXMATRIX ToMatrix(FbxAMatrix& matrix);
 
 		static string GetTextureFile(FbxProperty& prop);
-		static string GetMaterialName(FbxMesh* mesh, int cpIndex);
+		static string GetMaterialName(FbxMesh* mesh, int polygonIndex, int cpIndex);
 		static D3DXVECTOR2 GetUv(FbxMesh* mesh, int cpIndex, int uvIndex);
 	};
 }

@@ -1,8 +1,8 @@
 #pragma once
-#include "./Interface/iClonable.h"
+#include "./Interface/iCloneable.h"
 
 class cMaterial;
-class cModelMeshPart : public iClonable<cModelMeshPart>
+class cModelMeshPart : public iCloneable<cModelMeshPart>
 {
 private:
 	friend class cModel;
