@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "cBoxCollider.h"
 #include "./Helper/cMath.h"
-#include "./Polygon/cBox.h"
+#include "./Mesh/cBox.h"
 #include "./Graphic/ConstBuffer/cColliderBuffer.h"
 
 cBoxCollider::cBoxCollider(D3DXVECTOR3 min, D3DXVECTOR3 max)
@@ -11,7 +11,7 @@ cBoxCollider::cBoxCollider(D3DXVECTOR3 min, D3DXVECTOR3 max)
 	_box = make_unique<cBox>(min, max, true);
 
 	_shader = cShader::Create(Shader + L"002_Collider.hlsl");
-	_cbuffer = make_unique < cColliderBuffer>();
+	_cbuffer = make_unique<cColliderBuffer>();
 }
 
 cBoxCollider::~cBoxCollider()
@@ -145,4 +145,9 @@ bool cBoxCollider::CheckBasis(float& single, float& single1, int i, D3DXVECTOR3 
 	}
 
 	return true;
+}
+
+bool cBoxCollider::IntersectsWithCylinder(sLine line, float radius)
+{
+	return false;
 }

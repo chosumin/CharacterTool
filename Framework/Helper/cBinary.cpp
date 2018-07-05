@@ -79,6 +79,11 @@ void cBinaryWriter::Vector4(const D3DXVECTOR4 & data)
 	WriteFile(fileHandle, &data, sizeof(D3DXVECTOR4), &size, nullptr);
 }
 
+void cBinaryWriter::Vector4(const D3DXQUATERNION & data)
+{
+	WriteFile(fileHandle, &data, sizeof(D3DXQUATERNION), &size, nullptr);
+}
+
 void cBinaryWriter::Color3f(const D3DXCOLOR & data)
 {
 	WriteFile(fileHandle, &data, sizeof(D3DXCOLOR) - 4, &size, nullptr);
@@ -224,6 +229,16 @@ D3DXVECTOR4 cBinaryReader::Vector4()
 	float w = Float();
 
 	return{ x, y, z, w };
+}
+
+D3DXQUATERNION cBinaryReader::Quaternion()
+{
+	float x = Float();
+	float y = Float();
+	float z = Float();
+	float w = Float();
+
+	return{ x,y,z,w };
 }
 
 D3DXCOLOR cBinaryReader::Color3f()

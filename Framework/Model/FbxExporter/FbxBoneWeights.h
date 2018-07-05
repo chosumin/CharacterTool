@@ -62,7 +62,7 @@ namespace Fbx
 				AddBoneWeight(boneWeight.first, boneWeight.second);
 		}
 
-		void GetBlendWeights(OUT FbxBlendWeight& blendWeights)
+		void GetBlendWeights(OUT FbxBlendWeight& blendWeights) const
 		{
 			int i = 0;
 			for (auto&& boneWeight : _boneWeights)

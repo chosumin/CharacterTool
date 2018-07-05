@@ -16,5 +16,7 @@ public:
 	virtual void PostRender() override;
 	virtual void ResizeScreen() override;
 private:
+
 	unique_ptr<class cWorldGrid> _grid;
+	unique_ptr<class cBasicMap> _map;
 };

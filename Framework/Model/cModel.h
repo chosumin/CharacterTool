@@ -6,7 +6,9 @@ class cModelMesh;
 class cMaterial;
 class cModelAnimClip;
 struct sTransform;
-class cModel : public iCloneable<cModel>
+class cModel :
+	public iCloneable<cModel>,
+	public enable_shared_from_this<cModel>
 {
 private:
 	friend class cModelFactory;
@@ -27,20 +29,24 @@ public:
 
 	vector<shared_ptr<cModelMesh>>& GetMeshes() { return _meshes; }
 
-	weak_ptr<cModelMesh> GetMesh(UINT index) { return _meshes[index]; }
+	UINT GetMeshCount() const { return _meshes.size(); }
+	weak_ptr<cModelMesh> GetMesh(UINT index) const { return _meshes[index]; }
 	weak_ptr<cModelMesh> GetMesh(wstring name);
-					   
-	weak_ptr<cModelBone> GetBone(UINT index) { return _bones[index]; }
+				
+	UINT GetBoneCount() const { return _bones.size(); }
+	weak_ptr<cModelBone> GetBone(UINT index) const { return _bones[index]; }
 	weak_ptr<cModelBone> GetBone(wstring name);
 					   
-	weak_ptr<cModelBone> GetRoot() { return _root; }
+	weak_ptr<cModelBone> GetRoot() const { return _root; }
 
-	weak_ptr<cModelAnimClip> GetClip(UINT index) { return _clips[index]; }
+	weak_ptr<cModelAnimClip> GetClip(UINT index) const { return _clips[index]; }
 
-	weak_ptr<class cModelBoneBuffer> GetBuffer()
+	weak_ptr<class cModelBoneBuffer> GetBuffer() const
 	{
 		return _buffer;
 	}
+
+	
 public:
 	void CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms);
 protected:

@@ -16,6 +16,7 @@
 #include <memory>
 #include <algorithm>
 #include <fstream>
+#include <thread>
 #include <typeinfo.h>
 using namespace std;
 
@@ -67,7 +68,9 @@ using namespace fbxsdk;
 
 const wstring Shader = L"../Shader/";
 const wstring Asset = L"../Asset/";
-const wstring Model = Asset + L"Model/";
+const wstring Content = L"../Content/";
+const wstring Model = Content + L"Model/";
+
 #include "./Common/iExecutable.h"
 #include "./Common/cSingletone.h"
 #include "./Common/GlobalData.h"
@@ -88,6 +91,7 @@ const wstring Model = Asset + L"Model/";
 #include "./Graphic/GlobalBuffers.h"
 #include "./Graphic/cShader.h"
 
+#include "./Mesh/MeshUtility.h"
 //#include "./Component/Transform/sTransform.h"
 
 using ModelVertexType = VertexTNB;

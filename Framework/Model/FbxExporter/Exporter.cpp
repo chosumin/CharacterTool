@@ -58,7 +58,7 @@ void Fbx::Exporter::ExportMaterial(wstring saveFolder, wstring saveName)
 
 	//사용자 머터리얼 컨테이너 순회
 	for (auto&& material : _materials)
-		WriteMaterialDataOnJson(root, saveFolder, move(material));
+		WriteMaterialData(root, saveFolder, move(material));
 	
 	//Json 저장
 	Json::WriteData(saveFolder + saveName + L".material", &root);
@@ -68,16 +68,11 @@ void Fbx::Exporter::ExportMaterial(wstring saveFolder, wstring saveName)
 
 void Fbx::Exporter::ExportMesh(wstring saveFolder, wstring saveName)
 {
-	ReadJointData(_scene->GetRootNode(), -1, -1);
-
-	ReadMeshData(_scene->GetRootNode(), -1, -1);
-
-	CreateBoneFromMeshData();
-	CreateBoneFromJointData();
+	ReadBoneData(_scene->GetRootNode(), -1, -1);
+	ReadSkinData();
 
 	WriteMeshData(saveFolder, saveName);
 
-	_joints.clear();
 	_bones.clear();
 	_meshes.clear();
 }
@@ -87,10 +82,6 @@ void Fbx::Exporter::ExportAnimation(wstring saveFolder, wstring saveName)
 	//한 프레임의 시간 가져옴
 	auto mode = _scene->GetGlobalSettings().GetTimeMode();
 	float frameRate = static_cast<float>(FbxTime::GetFrameRate(mode));
-
-	/*FbxArray<FbxString *> animationArray;
-	auto document = dynamic_cast<FbxDocument*>(scene);
-	document->FillAnimStackNameArray(animationArray);*/
 
 	ReadAnimation(frameRate);
 
@@ -143,7 +134,7 @@ void Fbx::Exporter::PushMaterials(int number)
 	_materials.push_back(move(material));
 }
 
-void Fbx::Exporter::WriteMaterialDataOnJson(Json::Value & root, wstring saveFolder, unique_ptr<FbxMaterial> material)
+void Fbx::Exporter::WriteMaterialData(Json::Value & root, wstring saveFolder, unique_ptr<FbxMaterial> material)
 {
 	Json::Value val;
 	Json::SetValue(val, "Name", material->Name);
@@ -179,10 +170,7 @@ void Fbx::Exporter::CopyTextureFile(string & textureFile, wstring saveFolder)
 {
 	//파일 없으면 종료
 	if (textureFile.length() < 1)
-	{
-		//cDebugLog::Log(&typeid(this), []() { cout << "존재하지 않는 파일명" << endl; });
 		return;
-	}
 
 	auto file = cString::Wstring(textureFile);
 	auto fileName = cPath::GetFileName(file);
@@ -194,7 +182,7 @@ void Fbx::Exporter::CopyTextureFile(string & textureFile, wstring saveFolder)
 	textureFile = cString::String(fileName);
 }
 
-void Fbx::Exporter::ReadJointData(FbxNode * node, int index, int parent)
+void Fbx::Exporter::ReadBoneData(FbxNode * node, int index, int parent)
 {
 	auto attribute = node->GetNodeAttribute();
 
@@ -202,133 +190,78 @@ void Fbx::Exporter::ReadJointData(FbxNode * node, int index, int parent)
 	{
 		auto nodeType = attribute->GetAttributeType();
 
-		if (nodeType == FbxNodeAttribute::eSkeleton)
+		if (IsBoneType(nodeType))
 		{
-			auto joint = make_unique<FbxJoint>();
-			joint->Parent = parent;
-			joint->Name = node->GetName();
+			auto bone = CreateBoneData(index, 
+							   parent, 
+							   node->GetName(), 
+							   Utility::ToMatrix(node->EvaluateLocalTransform()), 
+							   Utility::ToMatrix(node->EvaluateGlobalTransform()));
+			_bones.emplace_back(move(bone));
 
-			_joints.emplace_back(move(joint));
-		}
-	}
-
-	//자식 노드 재귀
-	for (int i = 0; i < node->GetChildCount(); i++)
-		ReadJointData(node->GetChild(i), _joints.size(), index);
-}
-
-void Fbx::Exporter::ReadMeshData(FbxNode * node, int index, int parent)
-{
-	auto attribute = node->GetNodeAttribute();
-	if (attribute != nullptr)
-	{
-		auto nodeType = attribute->GetAttributeType();
-		if (nodeType == FbxNodeAttribute::eMesh)
-		{
-			_converter->Triangulate(attribute, true, true);
-			auto mesh = node->GetMesh();
-			int polygonCount = mesh->GetPolygonCount();
-
-			////////////////////////디포머/////////////////////////
-
-			int deformerCount = mesh->GetDeformerCount();
-
-			//가중치는 정점 내부의 자료이므로 컨트롤 포인트 개수와 같다.
-			vector<FbxBoneWeights> boneWeights(mesh->GetControlPointsCount(), FbxBoneWeights());
-
-			for (int i = 0; i < deformerCount; i++)
-				PushBoneWeight(mesh, boneWeights, i);
-
-			for (UINT i = 0; i < boneWeights.size(); i++)
-				boneWeights[i].Normalize();
-
-			//todo : 확인 요망, 이 루프의 목적은 무엇일까?
-			vector<FbxBoneWeights> meshBoneWeights(boneWeights.size(), FbxBoneWeights());
-			for (UINT i = 0; i < boneWeights.size(); i++)
-				meshBoneWeights[i].AddBoneWeights(boneWeights[i]);
-
-			///////////////////////정점///////////////////////////
-			vector<shared_ptr<FbxVertex>> vertices;
-
-			//삼각형 개수만큼 순회
-			for (int p = 0; p < polygonCount; p++)
+			//메쉬 노드라면 메쉬 데이터도 같이 읽어옴
+			if (nodeType == FbxNodeAttribute::eMesh)
 			{
-				int vertexInPolygon = mesh->GetPolygonSize(p);
-				assert(vertexInPolygon == 3 && "폴리곤 개수 오류!");
-
-				//삼각형 정점 순회
-				for (int vi = 0; vi < vertexInPolygon; vi++)
-				{
-					vertices.emplace_back(move(CreatePolygonVertex(mesh, p, vi, meshBoneWeights)));
-				}
+				_converter->Triangulate(attribute, true, true);
+				ReadMeshData(node, index);
 			}
-
-			_meshes.emplace_back(CreateMeshData(node, parent, vertices));
 		}
 	}
 
 	//자식 노드 재귀
 	for (int i = 0; i < node->GetChildCount(); i++)
-		ReadMeshData(node->GetChild(i), _meshes.size(), index);
+		ReadBoneData(node->GetChild(i), _bones.size(), index);
 }
 
-void Fbx::Exporter::PushBoneWeight(FbxMesh * mesh, OUT vector<struct FbxBoneWeights>& boneWeights, UINT i)
+bool Fbx::Exporter::IsBoneType(FbxNodeAttribute::EType nodeType)
 {
-	auto deformer = mesh->GetDeformer(i, FbxDeformer::eSkin);
-
-	//스킨 타입으로 다운캐스팅
-	auto skin = reinterpret_cast<FbxSkin*>(deformer);
-	if (skin == nullptr)
-		return;
-
-	//디포머 내부의 클러스터 순회
-	for (int clusterIndex = 0; clusterIndex < skin->GetClusterCount(); clusterIndex++)
-	{
-		auto cluster = skin->GetCluster(clusterIndex);
-		assert(cluster->GetLinkMode() == FbxCluster::eNormalize);
-
-		//joint 번호 받음
-		string linkName = cluster->GetLink()->GetName();
-		UINT jointIndex = GetJointIndexByName(linkName);
-
-		//조인트 로컬, 월드 행렬 가져옴
-		FbxAMatrix transform, absoluteTransform;
-		cluster->GetTransformMatrix(transform);
-		cluster->GetTransformLinkMatrix(absoluteTransform);
-
-		_joints[jointIndex]->Transform = Utility::ToMatrix(transform);
-		_joints[jointIndex]->AbsoluteTransform = Utility::ToMatrix(absoluteTransform);
-
-		//블렌드 정보를 얻기 위하여 컨트롤 포인트 번호 순회
-		for (int index = 0; index < cluster->GetControlPointIndicesCount(); index++)
-		{
-			int temp = cluster->GetControlPointIndices()[index];
-
-			double *weights = cluster->GetControlPointWeights();
-
-			boneWeights[temp].AddBoneWeight(jointIndex, (float)weights[index]);
-		}
-	}//for(clusterIndex : skin->GetClusterCount())
+	bool bCheck = false;
+	bCheck |= (nodeType == FbxNodeAttribute::eSkeleton);
+	bCheck |= (nodeType == FbxNodeAttribute::eMesh);
+	bCheck |= (nodeType == FbxNodeAttribute::eNull);
+	bCheck |= (nodeType == FbxNodeAttribute::eMarker);
+	return bCheck;
 }
 
-UINT Fbx::Exporter::GetJointIndexByName(string name)
+unique_ptr<Fbx::FbxBoneData> Fbx::Exporter::CreateBoneData(int index, int parent, string name, const D3DXMATRIX & transform, const D3DXMATRIX & absoluteTransform)
 {
-	for (UINT i = 0; i < _joints.size(); i++)
+	auto root = make_unique<FbxBoneData>();
+	root->Index = index;
+	root->Parent = parent;
+	root->Name = name;
+	root->Transform = transform;
+	root->AbsoluteTransform = absoluteTransform;
+
+	return move(root);
+}
+
+void Fbx::Exporter::ReadMeshData(FbxNode* node, int parentBone)
+{
+	auto mesh = node->GetMesh();
+	
+	vector<shared_ptr<FbxVertex>> vertices;
+
+	//삼각형 개수만큼 순회
+	int polygonCount = mesh->GetPolygonCount();
+	for (int p = 0; p < polygonCount; p++)
 	{
-		if (_joints[i]->Name == name)
-			return i;
+		int vertexInPolygon = mesh->GetPolygonSize(p);
+		assert(vertexInPolygon == 3 && "폴리곤 개수 오류!");
+
+		//삼각형 정점 순회
+		for (int vi = 0; vi < vertexInPolygon; vi++)
+			vertices.emplace_back(move(CreatePolygonVertex(mesh, p, vi)));
 	}
 
-	return 0;
+	_meshes.emplace_back(CreateMeshData(node, parentBone, vertices));
 }
 
-unique_ptr<Fbx::FbxVertex> Fbx::Exporter::CreatePolygonVertex(FbxMesh * mesh, int p, int vi, vector<struct FbxBoneWeights>& meshBoneWeights)
+unique_ptr<Fbx::FbxVertex> Fbx::Exporter::CreatePolygonVertex(FbxMesh *mesh, int p, int vi)
 {
 	auto vertex = make_unique<FbxVertex>();
 
 	int cpIndex = mesh->GetPolygonVertex(p, vi);
 
-	//todo : 굳이 저장 안해도될거같은데
 	vertex->ControlPoint = cpIndex;
 
 	//위치 삽입
@@ -348,12 +281,6 @@ unique_ptr<Fbx::FbxVertex> Fbx::Exporter::CreatePolygonVertex(FbxMesh * mesh, in
 	int uvIndex = mesh->GetTextureUVIndex(p, vi);
 	vertex->Vertex.uv = Fbx::Utility::GetUv(mesh, cpIndex, uvIndex);
 
-	//가중치 삽입
-	FbxBlendWeight weight;
-	meshBoneWeights[cpIndex].GetBlendWeights(weight);
-	vertex->Vertex.blendIndices = weight.Indices;
-	vertex->Vertex.blendWeights = weight.Weights;
-
 	return move(vertex);
 }
 
@@ -362,24 +289,130 @@ unique_ptr<Fbx::FbxMeshData> Fbx::Exporter::CreateMeshData(FbxNode * node, int p
 	auto meshData = make_unique<FbxMeshData>();
 	meshData->Name = node->GetName();
 	meshData->ParentBone = parent;
-
-	//메쉬 데이터에 메쉬 파트 삽입
-	for (int i = 0; i < _scene->GetMaterialCount(); i++)
-	{
-		auto meshPart = move(CreateMeshPart(i, vertices));
-		if (meshPart)
-			meshData->MeshParts.emplace_back(move(meshPart));
-	}
-
-	//로컬 행렬
-	FbxAMatrix matrix = node->EvaluateLocalTransform();
-	meshData->Transform = Utility::ToMatrix(matrix);
-
-	//월드 행렬
-	matrix = node->EvaluateGlobalTransform();
-	meshData->AbsoluteTransform = Utility::ToMatrix(matrix);
+	meshData->Vertices = vertices;
+	meshData->Mesh = node->GetMesh();
 
 	return move(meshData);
+}
+
+void Fbx::Exporter::ReadSkinData()
+{
+	for (auto&& meshData : _meshes)
+	{
+		auto mesh = meshData->Mesh;
+
+		int deformerCount = mesh->GetDeformerCount();
+
+		//가중치는 정점 내부의 자료이므로 컨트롤 포인트 개수와 같다.
+		vector<FbxBoneWeights> boneWeights(mesh->GetControlPointsCount(), FbxBoneWeights());
+
+		//가중치 삽입
+		for (int i = 0; i < deformerCount; i++)
+			PushBoneWeight(mesh, boneWeights, i);
+
+		//메쉬 데이터의 부모 본 삽입
+		for (int i = 0; i < deformerCount; i++)
+			PushMeshParent(meshData, i);
+
+		for (UINT i = 0; i < boneWeights.size(); i++)
+			boneWeights[i].Normalize();
+
+		PushWeightInVertices(meshData->Vertices, boneWeights);
+		
+		//메쉬 컨테이너 순회하며 메쉬 파트 생성
+		for (int i = 0; i < _scene->GetMaterialCount(); i++)
+		{
+			auto meshPart = CreateMeshPart(i, meshData->Vertices);
+			meshData->MeshParts.emplace_back(move(meshPart));
+		}
+	}//for(meshData : _meshes)
+}
+
+void Fbx::Exporter::PushBoneWeight(FbxMesh * mesh, OUT vector<struct FbxBoneWeights>& boneWeights, UINT i)
+{
+	auto deformer = mesh->GetDeformer(i, FbxDeformer::eSkin);
+
+	//스킨 타입으로 다운캐스팅
+	auto skin = reinterpret_cast<FbxSkin*>(deformer);
+	if (skin == nullptr)
+		return;
+
+	//디포머 내부의 클러스터 순회
+	for (int clusterIndex = 0; clusterIndex < skin->GetClusterCount(); clusterIndex++)
+	{
+		auto cluster = skin->GetCluster(clusterIndex);
+		assert(cluster->GetLinkMode() == FbxCluster::eNormalize);
+
+		//본 번호 받음
+		string linkName = cluster->GetLink()->GetName();
+		UINT jointIndex = GetBoneIndexByName(linkName);
+
+		//조인트 로컬, 월드 행렬 가져옴
+		FbxAMatrix transform, absoluteTransform;
+		cluster->GetTransformMatrix(transform);
+		cluster->GetTransformLinkMatrix(absoluteTransform);
+
+		//FIXME : SRT값 다 넣어주어야할듯
+		_bones[jointIndex]->Transform = Utility::ToMatrix(transform);
+		_bones[jointIndex]->AbsoluteTransform = Utility::ToMatrix(absoluteTransform);
+
+		//블렌드 정보를 얻기 위하여 컨트롤 포인트 번호 순회
+		for (int index = 0; index < cluster->GetControlPointIndicesCount(); index++)
+		{
+			int temp = cluster->GetControlPointIndices()[index];
+
+			double *weights = cluster->GetControlPointWeights();
+
+			boneWeights[temp].AddBoneWeight(jointIndex, (float)weights[index]);
+		}
+	}//for(clusterIndex : skin->GetClusterCount())
+}
+
+void Fbx::Exporter::PushMeshParent(unique_ptr<FbxMeshData>& meshData, int i)
+{
+	auto deformer = meshData->Mesh->GetDeformer(i, FbxDeformer::eSkin);
+
+	//스킨 타입으로 다운캐스팅
+	auto skin = reinterpret_cast<FbxSkin*>(deformer);
+	if (skin == nullptr)
+		return;
+
+	//디포머 내부의 클러스터 순회
+	for (int clusterIndex = 0; clusterIndex < skin->GetClusterCount(); clusterIndex++)
+	{
+		auto cluster = skin->GetCluster(clusterIndex);
+		assert(cluster->GetLinkMode() == FbxCluster::eNormalize);
+
+		//본 번호 받음
+		string linkName = cluster->GetLink()->GetName();
+		UINT jointIndex = GetBoneIndexByName(linkName);
+
+		meshData->ParentBone = jointIndex;
+	}//for(clusterIndex : skin->GetClusterCount())
+}
+
+UINT Fbx::Exporter::GetBoneIndexByName(string name)
+{
+	for (UINT i = 0; i < _bones.size(); i++)
+	{
+		if (_bones[i]->Name == name)
+			return i;
+	}
+
+	return 0;
+}
+
+void Fbx::Exporter::PushWeightInVertices(OUT vector<shared_ptr<FbxVertex>>& vertices, const vector<FbxBoneWeights>& boneWeights)
+{
+	for (auto&& vertex : vertices)
+	{
+		int cpIndex = vertex->ControlPoint;
+
+		FbxBlendWeight weights;
+		boneWeights[cpIndex].GetBlendWeights(weights);
+		vertex->Vertex.blendIndices = weights.Indices;
+		vertex->Vertex.blendWeights = weights.Weights;
+	}
 }
 
 unique_ptr<Fbx::FbxMeshPartData> Fbx::Exporter::CreateMeshPart(int i, const vector<shared_ptr<FbxVertex>>& vertices)
@@ -410,78 +443,6 @@ unique_ptr<Fbx::FbxMeshPartData> Fbx::Exporter::CreateMeshPart(int i, const vect
 	return move(meshPart);
 }
 
-void Fbx::Exporter::CreateBoneFromMeshData()
-{
-	if (_joints.size() > 0)
-		return;
-
-	for (size_t i = 0; i < _meshes.size(); i++)
-	{
-		auto bone = make_unique<FbxBoneData>();
-		bone->Index = i; //부모 메쉬 데이터가 참조하는 값
-		bone->Parent = _meshes[i]->ParentBone;
-		bone->Name = _meshes[i]->Name;
-		bone->Transform = _meshes[i]->Transform;
-
-		//렌더링이 될 주체는 본이다
-		_meshes[i]->ParentBone = bone->Index;
-
-		_bones.emplace_back(move(bone));
-	}
-}
-
-void Fbx::Exporter::CreateBoneFromJointData()
-{
-	if (_joints.size() < 1)
-		return;
-
-	//본 데이터 푸쉬
-	D3DXMATRIX matrix;
-	D3DXMatrixIdentity(&matrix);
-	auto bone = CreateBoneData(0, -1, "RootNode", matrix, matrix);
-	_bones.emplace_back(move(bone));
-	//본 트리
-	for (UINT i = 0; i < _joints.size(); i++)
-	{
-		//todo : 오류날시에 부모 번호를 원래대로 변경
-		auto bone = CreateBoneData
-		(
-			_bones.size(),
-			_joints[i]->Parent + 1,
-			_joints[i]->Name,
-			_joints[i]->Transform,
-			_joints[i]->AbsoluteTransform
-		);
-		_bones.emplace_back(move(bone));
-	}
-
-	//메쉬 노드
-	for (UINT i = 0; i < _meshes.size(); i++)
-	{
-		auto bone = CreateBoneData
-		(
-			_bones.size(),
-			0,
-			_meshes[i]->Name,
-			_meshes[i]->Transform,
-			_meshes[i]->AbsoluteTransform
-		);
-		_bones.emplace_back(move(bone));
-	}
-}
-
-unique_ptr<Fbx::FbxBoneData> Fbx::Exporter::CreateBoneData(int index, int parent, string name, const D3DXMATRIX & transform, const D3DXMATRIX & absoluteTransform)
-{
-	auto root = make_unique<FbxBoneData>();
-	root->Index = index;
-	root->Parent = parent;
-	root->Name = name;
-	root->Transform = transform;
-	root->AbsoluteTransform = absoluteTransform;
-
-	return move(root);
-}
-
 void Fbx::Exporter::WriteMeshData(wstring saveFolder, wstring saveName)
 {
 	if (cPath::ExistDirectory(saveFolder) == false)
@@ -506,6 +467,12 @@ void Fbx::Exporter::WriteBoneDataOnBinaryFile(cBinaryWriter * w)
 		w->Int(bone->Parent);
 		w->Matrix(bone->Transform);
 		w->Matrix(bone->AbsoluteTransform);
+
+		w->Vector3(bone->Scale);
+		w->Vector3(bone->Rotation);
+		w->Vector3(bone->Translation);
+		//todo : 쿼터니언 확인
+		w->Vector4(bone->Quaternion);
 	}
 }
 
@@ -544,21 +511,19 @@ void Fbx::Exporter::ReadAnimation(float frameRate)
 
 		//시간 계산
 		auto span = takeInfo->mLocalTimeSpan;
-		float start = (float)span.GetStart().GetSecondDouble();
-		float end = (float)span.GetStop().GetSecondDouble();
+		auto start = (int)span.GetStart().GetFrameCount();
+		auto end = (int)span.GetStop().GetFrameCount();
 
 		if (start < end)
-		{
-			animation->TotalFrame = (int)((end - start) * frameRate) + 1;
+			ReadAnimation(*animation, _scene->GetRootNode(), start, end);
 
-			ReadAnimation(*animation, _scene->GetRootNode(), frameRate, start, end);
-		}
+		animation->TotalFrame = (int)animation->KeyFrames[0]->Transform.size();
 
 		_animations.emplace_back(move(animation));
 	}
 }
 
-void Fbx::Exporter::ReadAnimation(OUT FbxAnimation & animation, FbxNode * node, float frameRate, float start, float end)
+void Fbx::Exporter::ReadAnimation(OUT FbxAnimation& animation, FbxNode *node, int start, int end)
 {
 	auto attribute = node->GetNodeAttribute();
 
@@ -567,27 +532,27 @@ void Fbx::Exporter::ReadAnimation(OUT FbxAnimation & animation, FbxNode * node, 
 		auto nodeType = attribute->GetAttributeType();
 		if (nodeType == FbxNodeAttribute::eSkeleton)
 		{
-			auto keyFrame = CreateKeyFrame(node, end, frameRate);
+			auto keyFrame = CreateKeyFrame(node, start, end);
 			animation.KeyFrames.emplace_back(move(keyFrame));
 		}
 	}
 
 	for (int i = 0; i < node->GetChildCount(); i++)
-		ReadAnimation(animation, node->GetChild(i), frameRate, start, end);
+		ReadAnimation(animation, node->GetChild(i), start, end);
 }
 
-unique_ptr<Fbx::FbxKeyFrame> Fbx::Exporter::CreateKeyFrame(FbxNode * node, float end, float frameRate)
+unique_ptr<Fbx::FbxKeyFrame> Fbx::Exporter::CreateKeyFrame(FbxNode * node, int start, int end)
 {
 	auto keyFrame = make_unique<FbxKeyFrame>();
 	keyFrame->BoneName = node->GetName();
 
-	float time = 0.0f;
-	while (time <= end)
+	//프레임마다
+	for (int i = start; i <= end; i++)
 	{
 		FbxTime animationTime;
 
-		//1초 기준으로 프레임을 끊는다.
-		animationTime.SetSecondDouble(time);
+		//i번째 프레임 가져옴
+		animationTime.SetFrame(i);
 
 		//해당 시간의 로컬 트랜스폼
 		auto matrix = node->EvaluateLocalTransform(animationTime);
@@ -595,9 +560,6 @@ unique_ptr<Fbx::FbxKeyFrame> Fbx::Exporter::CreateKeyFrame(FbxNode * node, float
 
 		auto data = CreateKeyFrameData(node, transform, animationTime);
 		keyFrame->Transform.push_back(data);
-
-		//1프레임 - 1/24를 하나의 프레임으로 생각한다.
-		time += 1.0f / frameRate;
 	}
 
 	return move(keyFrame);

@@ -18,6 +18,8 @@ public:
 	void Vector2(const D3DXVECTOR2& data);
 	void Vector3(const D3DXVECTOR3& data);
 	void Vector4(const D3DXVECTOR4& data);
+	void Vector4(const D3DXQUATERNION& data);
+
 	void Color3f(const D3DXCOLOR& data);
 	void Color4f(const D3DXCOLOR& data);
 	void Matrix(const D3DXMATRIX& data);
@@ -52,6 +54,8 @@ public:
 	D3DXVECTOR2 Vector2();
 	D3DXVECTOR3 Vector3();
 	D3DXVECTOR4 Vector4();
+	D3DXQUATERNION Quaternion();
+
 	D3DXCOLOR Color3f();
 	D3DXCOLOR Color4f();
 	D3DXMATRIX Matrix();

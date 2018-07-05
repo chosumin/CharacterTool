@@ -12,6 +12,8 @@ public:
 	//¼Ò¸êÀÚ
 	~cTexture();
 public:
+	D3D11_TEXTURE2D_DESC ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels);
+public:
 	/************
 	Getter Setter
 	*************/

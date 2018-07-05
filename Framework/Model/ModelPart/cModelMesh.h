@@ -13,6 +13,11 @@ public:
 	~cModelMesh();
 
 	void Render();
+
+	//todo : 콜라이더 부모 테스트
+	weak_ptr<struct sTransform> GetParentTransform() const;
+
+	D3DXVECTOR3 GetMeshPoint() const;
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMesh> Clone() const override;
@@ -20,18 +25,18 @@ private:
 	/*******************
 		Getter Setter
 	********************/
-	wstring				GetName() const { return _name; }
-	int					GetParentBoneIndex() const { return _parentBoneIndex; }
+	wstring	GetName() const { return _name; }
+	int	GetParentBoneIndex() const { return _parentBoneIndex; }
 
 	void SetWorld(const D3DXMATRIX& world) { _worldBuffer->SetMatrix(world); }
+
+	
 private:
 	void Binding();
 private:
 	wstring _name;
 
 	int _parentBoneIndex;
-
-	//todo : 필요할까?
 	weak_ptr<cModelBone> _parentBone;
 
 	unique_ptr<cWorldBuffer> _worldBuffer;

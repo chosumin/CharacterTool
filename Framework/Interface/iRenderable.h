@@ -1,6 +1,8 @@
 #pragma once
 
-__interface iRenderable
+class iRenderable
 {
-	void Render();
+public:
+	virtual ~iRenderable() {}
+	virtual void Render() = 0;
 };

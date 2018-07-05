@@ -2,8 +2,10 @@
 #include "stdafx.h"
 #include "./Transform/sTransform.h"
 
-__interface iTransformable
+class iTransformable
 {
-	void Transform(const D3DXMATRIX& matrix);
-	void Transform(const sTransform& transform);
+public:
+	virtual ~iTransformable() {}
+	virtual void Transform(const D3DXMATRIX& matrix) = 0;
+	virtual void Transform(const sTransform& transform) = 0;
 };

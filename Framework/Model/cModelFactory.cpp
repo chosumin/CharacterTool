@@ -16,21 +16,23 @@
 #include "./Helper/cPath.h"
 #include "./Helper/cBinary.h"
 
-shared_ptr<cModel> cModelFactory::Create(wstring file)
+unique_ptr<cModel> cModelFactory::Create(wstring filePath, wstring meshName, const vector<wstring>& animNames)
 {
 	//트릭 구조체
-	struct make_shared_enabler : public cModel {};
+	struct make_unique_enabler : public cModel {};
 
-	_model = make_unique<make_shared_enabler>();
+	_model = make_unique<make_unique_enabler>();
 
-	ReadMaterials(file + L".material");
-	ReadMesh(file + L".mesh");
-	ReadAnimation(file + L".anim");
+	ReadMaterials(filePath + meshName + L".material");
+	ReadMesh(filePath + meshName + L".mesh");
+
+	for (auto&& anim : animNames)
+		ReadAnimation(filePath + anim + L".anim");
 
 	return move(_model);
 }
 
-shared_ptr<cModel> cModelFactory::Clone(weak_ptr<cModel> model)
+unique_ptr<cModel> cModelFactory::Clone(weak_ptr<cModel> model)
 {
 	_model = model.lock()->Clone();
 
@@ -127,6 +129,78 @@ void cModelFactory::ReadMesh(wstring file)
 	BindMeshData();
 }
 
+void cModelFactory::ReadModelBoneData(weak_ptr<cBinaryReader> r, weak_ptr<cModelBone> bone)
+{
+	auto bonePtr = bone.lock();
+	auto readerPtr = r.lock();
+	bonePtr->_index = readerPtr->Int();
+	bonePtr->_name = cString::Wstring(readerPtr->String());
+	bonePtr->_parentIndex = readerPtr->Int();
+	bonePtr->_transform->Matrix = readerPtr->Matrix();
+	bonePtr->_absoluteTransform->Matrix = readerPtr->Matrix();
+
+	//todo : 확인, 익스포터에서 이거 지우기
+	bonePtr->_absoluteTransform->Scaling = readerPtr->Vector3();
+	bonePtr->_absoluteTransform->Rotation = readerPtr->Vector3();
+	bonePtr->_absoluteTransform->Position = readerPtr->Vector3();
+	bonePtr->_absoluteTransform->Quaternion = readerPtr->Quaternion();
+}
+
+void cModelFactory::ReadMeshData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMesh> mesh)
+{
+	auto meshPtr = mesh.lock();
+	auto readerPtr = r.lock();
+	meshPtr->_name = cString::Wstring(readerPtr->String());
+
+	int parentBoneIndex = readerPtr->Int();
+	LinkMeshToBone(mesh, parentBoneIndex);
+
+	UINT partCount = readerPtr->UInt();
+	for (UINT k = 0; k < partCount; k++)
+	{
+		auto meshPart = make_shared<cModelMeshPart>();
+		ReadMeshPartData(r, meshPart);
+		meshPtr->_meshParts.push_back(move(meshPart));
+	}
+}
+
+void cModelFactory::LinkMeshToBone(weak_ptr<cModelMesh> mesh, int parentBoneIndex)
+{
+	auto meshPtr = mesh.lock();
+	for (auto&& bone : _model->_bones)
+	{
+		if (parentBoneIndex == bone->_index)
+		{
+			meshPtr->_parentBoneIndex = parentBoneIndex;
+			meshPtr->_parentBone = bone;
+			break;
+		}
+	}
+}
+
+void cModelFactory::ReadMeshPartData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMeshPart> meshPart)
+{
+	meshPart.lock()->_materialName = cString::Wstring(r.lock()->String());
+
+	//VertexData
+	{
+		UINT count = r.lock()->UInt();
+		meshPart.lock()->_vertices.assign(count, ModelVertexType());
+
+		void* ptr = (void*)&(meshPart.lock()->_vertices[0]);
+		r.lock()->Byte(&ptr, sizeof(ModelVertexType) * count);
+	}
+
+	//IndexData
+	{
+		UINT count = r.lock()->UInt();
+		meshPart.lock()->_indices.assign(count, UINT());
+
+		void* ptr = (void*)&(meshPart.lock()->_indices[0]);
+		r.lock()->Byte(&ptr, sizeof(UINT) * count);
+	}
+}
+
 void cModelFactory::ReadAnimation(wstring file)
 {
 	shared_ptr<cBinaryReader> r = cBinaryReader::Open(file);
@@ -156,7 +230,7 @@ void cModelFactory::ReadAnimation(wstring file)
 				clip->_keyFrames[keyframe->BoneName] = move(keyframe);
 			}//for(frame)
 
-			_model->_clips.push_back(move(clip));
+			_model->_clips.emplace_back(move(clip));
 		}
 	}
 	r->Close();
@@ -170,11 +244,10 @@ void cModelFactory::BindMeshData()
 			part->_material = _model->GetMaterial(part->_materialName);
 	}
 
+	_model->_root = _model->_bones[0];
 	for (auto&& bone : _model->_bones)
 	{
-		if (bone->_parentIndex < 0)
-			_model->_root = bone;
-		else
+		if (bone->_parentIndex > -1)
 		{
 			bone->_parent = _model->_bones[bone->_parentIndex];
 			bone->_parent.lock()->_children.push_back(bone);
@@ -182,79 +255,14 @@ void cModelFactory::BindMeshData()
 	}
 
 	for (auto&& mesh : _model->_meshes)
+	{
+		mesh->_parentBone = _model->_bones[mesh->_parentBoneIndex];
 		mesh->Binding();
+	}
 }
 
 void cModelFactory::ReadTextureMap(cMaterial * material, TextureType type, string directory, string fileName)
 {
 	if (fileName.length() > 0)
 		material->SetTextureMap(type, directory + fileName);
-}
-
-void cModelFactory::ReadModelBoneData(weak_ptr<cBinaryReader> r, weak_ptr<cModelBone> bone)
-{
-	auto bonePtr = bone.lock();
-	auto readerPtr = r.lock();
-	bonePtr->_index = readerPtr->Int();
-	bonePtr->_name = cString::Wstring(readerPtr->String());
-	bonePtr->_parentIndex = readerPtr->Int();
-	{
-		bonePtr->_transform->Matrix = readerPtr->Matrix();
-	}
-	bonePtr->_absoluteTransform = readerPtr->Matrix();
-}
-
-void cModelFactory::ReadMeshData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMesh> mesh)
-{
-	auto meshPtr = mesh.lock();
-	auto readerPtr = r.lock();
-	meshPtr->_name = cString::Wstring(readerPtr->String());
-
-	int parentBoneIndex = readerPtr->Int();
-	LinkMeshToBone(mesh, parentBoneIndex);
-
-	UINT partCount = readerPtr->UInt();
-	for (UINT k = 0; k < partCount; k++)
-	{
-		auto meshPart = make_shared<cModelMeshPart>();
-		ReadMeshPartData(r, meshPart);
-		meshPtr->_meshParts.push_back(move(meshPart));
-	}
-}
-
-void cModelFactory::ReadMeshPartData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMeshPart> meshPart)
-{
-	meshPart.lock()->_materialName = cString::Wstring(r.lock()->String());
-
-	//VertexData
-	{
-		UINT count = r.lock()->UInt();
-		meshPart.lock()->_vertices.assign(count, ModelVertexType());
-
-		void* ptr = (void*)&(meshPart.lock()->_vertices[0]);
-		r.lock()->Byte(&ptr, sizeof(ModelVertexType) * count);
-	}
-
-	//IndexData
-	{
-		UINT count = r.lock()->UInt();
-		meshPart.lock()->_indices.assign(count, UINT());
-
-		void* ptr = (void*)&(meshPart.lock()->_indices[0]);
-		r.lock()->Byte(&ptr, sizeof(UINT) * count);
-	}
-}
-
-void cModelFactory::LinkMeshToBone(weak_ptr<cModelMesh> mesh, int parentBoneIndex)
-{
-	auto meshPtr = mesh.lock();
-	for (auto&& bone : _model->_bones)
-	{
-		if (parentBoneIndex == bone->_index)
-		{
-			meshPtr->_parentBoneIndex = parentBoneIndex;
-			meshPtr->_parentBone = bone;
-			break;
-		}
-	}
 }

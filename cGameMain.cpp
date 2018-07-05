@@ -4,6 +4,7 @@
 #include "./Execution/cModels.h"
 #include "./Execution/cEnvironment.h"
 #include "./Execution/cMenuBar.h"
+#include "./Execution/cUI.h"
 
 #include "./Viewer/cFreePointCamera.h"
 #include "./Helper/cMath.h"
@@ -33,6 +34,10 @@ void cGameMain::Init()
 	_vecObject.push_back(new cModels(_globalVariable));
 	_vecObject.push_back(new cEnvironment());
 	_vecObject.push_back(new cMenuBar(_globalVariable));
+
+	//제일 마지막에 추가
+	_vecObject.push_back(new cUI(_globalVariable));
+
 	for (auto& i : _vecObject)
 		i->Init();
 }

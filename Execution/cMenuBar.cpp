@@ -40,6 +40,7 @@ void cMenuBar::PostRender()
 	ShowMenuBar();
 	ShowGlobalLight();
 	ShowDemo();
+	ShowSystemInfo();
 }
 
 void cMenuBar::ShowMenuBar()
@@ -64,6 +65,11 @@ void cMenuBar::ShowMenuBar()
 				ChangeShowDemoWindow();
 			ImGui::EndMenu();
 		}
+
+		//소프트코딩 변환
+		ImGui::SetCursorScreenPos(ImVec2(1200, 0));
+		ImGui::Text("FPS : %4.0f", ImGui::GetIO().Framerate);
+
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -93,6 +99,10 @@ void cMenuBar::ShowDemo()
 	{
 		ImGui::ShowDemoWindow(&globalPtr->GuiSettings->bShowDemoWindow);
 	}
+}
+
+void cMenuBar::ShowSystemInfo()
+{
 }
 
 void cMenuBar::ChangeShowGlobalLightWindow()

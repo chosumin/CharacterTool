@@ -3,10 +3,6 @@
 #include "cGameMain.h"
 #include "./Command/cKeyboard.h"
 
-//todo : 지우기
-#include "./Transform/cGizmo.h"
-#include "./Model/cModelFactory.h"
-
 cGameMain* cWindow::m_pGameMain = nullptr;
 UINT cWindow::m_uSingletoneCount = 0;
 
@@ -117,7 +113,7 @@ void cWindow::Run()
 			ImGui::Update();
 
 			m_pGameMain->PreRender();
-			D3D::Get()->Clear();
+			D3D::Get()->Clear(0xFF0000cd);
 			{
 				m_pGameMain->Render();
 				m_pGameMain->PostRender(); //ImGui 관련된 코드
@@ -214,10 +210,6 @@ void cWindow::DeleteSingletone()
 	cMouse::Delete();
 	D3D::Delete();
 	cStates::Delete();
-
-	//todo : 지우기
-	cModelFactory::Delete();
-	cGizmo::Delete();
 
 	assert(m_uSingletoneCount <= 0 && "삭제 안된 싱글턴 객체가 있습니다!");
 }

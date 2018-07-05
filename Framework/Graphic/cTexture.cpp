@@ -72,6 +72,69 @@ cTexture::~cTexture()
 	SAFE_RELEASE(_view);
 }
 
+D3D11_TEXTURE2D_DESC cTexture::ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels)
+{
+	HRESULT hr;
+
+	ID3D11Texture2D* srcTexture;
+	_view->GetResource((ID3D11Resource **)&srcTexture);
+
+	D3D11_TEXTURE2D_DESC srcDesc;
+	srcTexture->GetDesc(&srcDesc);
+
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
+	desc.Width = srcDesc.Width;
+	desc.Height = srcDesc.Height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = readFormat;
+	desc.SampleDesc = srcDesc.SampleDesc;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.Usage = D3D11_USAGE_STAGING;
+
+	ID3D11Texture2D* texture;
+	hr = D3D::GetDevice()->CreateTexture2D(&desc, NULL, &texture);
+	assert(SUCCEEDED(hr));
+
+	hr = D3DX11LoadTextureFromTexture(D3D::GetDC(), srcTexture, NULL, texture);
+	assert(SUCCEEDED(hr));
+
+
+	D3D11_MAPPED_SUBRESOURCE map;
+	UINT* colors = new UINT[desc.Width * desc.Height];
+	D3D::GetDC()->Map(texture, 0, D3D11_MAP_READ, NULL, &map);
+	{
+		memcpy(colors, map.pData, sizeof(UINT) * desc.Width * desc.Height);
+	}
+	D3D::GetDC()->Unmap(texture, 0);
+
+
+	pixels->reserve(desc.Width * desc.Height);
+	for (UINT y = 0; y < desc.Height; y++)
+	{
+		for (UINT x = 0; x < desc.Width; x++)
+		{
+			UINT index = desc.Width * y + x;
+
+			CONST FLOAT f = 1.0f / 255.0f;
+			float r = f * (float)((0xFF000000 & colors[index]) >> 24);
+			float g = f * (float)((0x00FF0000 & colors[index]) >> 16);
+			float b = f * (float)((0x0000FF00 & colors[index]) >> 8);
+			float a = f * (float)((0x000000FF & colors[index]) >> 0);
+
+			pixels->push_back(D3DXCOLOR(a, b, g, r));
+		}
+	}
+
+	SAFE_DELETE_ARRAY(colors);
+	SAFE_RELEASE(srcTexture);
+	SAFE_RELEASE(texture);
+
+	return desc;
+}
+
 void cTexture::Load(cTexture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 {
 	ScratchImage image; //복사 이미지

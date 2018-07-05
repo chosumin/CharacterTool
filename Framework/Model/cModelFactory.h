@@ -11,8 +11,8 @@ class cModelFactory : public cSingletone<cModelFactory>
 private:
 	friend class cSingletone<cModelFactory>;
 public:
-	shared_ptr<cModel> Create(wstring file);
-	shared_ptr<cModel> Clone(weak_ptr<cModel> model);
+	unique_ptr<cModel> Create(wstring filePath, wstring meshName, const vector<wstring>& animNames);
+	unique_ptr<cModel> Clone(weak_ptr<cModel> model);
 private:
 	cModelFactory();
 	~cModelFactory();
@@ -41,6 +41,6 @@ private:
 	//메쉬와 본을 연결
 	void LinkMeshToBone(weak_ptr<cModelMesh> mesh, int parentBoneIndex);
 private:
-	//todo : 머터리얼, 메쉬, 애니메이션 캐시 만들기
+	//todo : 머터리얼 캐시 만들기
 	unique_ptr<cModel> _model;
 };

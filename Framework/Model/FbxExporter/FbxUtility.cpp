@@ -11,6 +11,11 @@ D3DXVECTOR3 Fbx::Utility::ToVector3(FbxVector4 & vec)
 	return D3DXVECTOR3((float)vec.mData[0], (float)vec.mData[1], (float)vec.mData[2]);
 }
 
+D3DXQUATERNION Fbx::Utility::ToQuaternion(FbxQuaternion & q)
+{
+	return D3DXQUATERNION{ (float)q.mData[0],(float)q.mData[1] ,(float)q.mData[2] ,(float)q.mData[3] };
+}
+
 D3DXCOLOR Fbx::Utility::ToColor(FbxVector4 & vec)
 {
 	return D3DXCOLOR((float)vec.mData[0], (float)vec.mData[1], (float)vec.mData[2], 1);

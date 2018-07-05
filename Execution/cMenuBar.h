@@ -19,6 +19,7 @@ private:
 	void ShowMenuBar();
 	void ShowGlobalLight();
 	void ShowDemo();
+	void ShowSystemInfo();
 private:
 	void ChangeShowGlobalLightWindow();
 	void ChangeShowEnvironmentWindow();

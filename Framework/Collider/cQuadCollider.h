@@ -24,6 +24,7 @@ public:
 	virtual bool IntersectsWithDot(D3DXVECTOR3 point) override;
 	virtual bool IntersectsWithSphere(D3DXVECTOR3 center, float radius) override;
 	virtual bool IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max) override;
+	virtual bool IntersectsWithCylinder(sLine line, float radius) override;
 private:
 	shared_ptr<cShader> _shader;
 	unique_ptr<class cColliderBuffer> _cbuffer;

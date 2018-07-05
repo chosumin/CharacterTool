@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "cWorldGrid.h"
-#include "./Polygon/PolygonUtility.h"
+#include "./Mesh/MeshUtility.h"
 
 cWorldGrid::cWorldGrid()
 {
@@ -23,7 +23,7 @@ void cWorldGrid::Render()
 	_world->SetVSBuffer(1);
 	_shader->Render();
 
-	cPolygon<VertexType>::Render(_vb, _vertices.size(), D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	cMeshUtility<VertexType>::Render(_vb, _vertices.size(), D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
 void cWorldGrid::CreateVertices(int nNumHalfTile, float fInterval)
@@ -66,5 +66,5 @@ void cWorldGrid::CreateVertices(int nNumHalfTile, float fInterval)
 	v.position = D3DXVECTOR3(0, 0, fMin); _vertices.push_back(v);
 	v.position = D3DXVECTOR3(0, 0, fMax); _vertices.push_back(v);
 
-	cPolygon<VertexType>::CreateVertexBuffer(&_vb, _vertices);
+	cMeshUtility<VertexType>::CreateVertexBuffer(&_vb, _vertices);
 }

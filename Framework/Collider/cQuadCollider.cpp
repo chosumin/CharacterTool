@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "cQuadCollider.h"
-#include "./Polygon/cRectangle.h"
+#include "./Mesh/cRectangle.h"
 #include "./Graphic/ConstBuffer/cColliderBuffer.h"
 
 cQuadCollider::cQuadCollider(D3DXVECTOR3 min, D3DXVECTOR3 max, D3DXCOLOR color)
@@ -68,6 +68,11 @@ bool cQuadCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
 }
 
 bool cQuadCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)
+{
+	return false;
+}
+
+bool cQuadCollider::IntersectsWithCylinder(sLine line, float radius)
 {
 	return false;
 }

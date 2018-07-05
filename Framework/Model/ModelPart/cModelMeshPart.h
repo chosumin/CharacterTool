@@ -17,12 +17,8 @@ public:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMeshPart> Clone() const override;
 private:
-	
-private:
 	void Binding();
-	//void Render();
 private:
-	//todo : 있어야하나?
 	wstring _materialName;
 	weak_ptr<cMaterial> _material;
 

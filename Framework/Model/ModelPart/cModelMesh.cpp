@@ -2,6 +2,9 @@
 #include "cModelMesh.h"
 #include "cModelMeshPart.h"
 
+#include "./Transform/sTransform.h"
+#include "./Model/ModelPart/cModelBone.h"
+
 cModelMesh::cModelMesh()
 {
 	_worldBuffer = make_unique<cWorldBuffer>();
@@ -24,6 +27,22 @@ unique_ptr<cModelMesh> cModelMesh::Clone() const
 	}
 
 	return move(mesh);
+}
+
+weak_ptr<sTransform> cModelMesh::GetParentTransform() const
+{
+	return _parentBone.lock()->GetTransform();
+}
+
+D3DXVECTOR3 cModelMesh::GetMeshPoint() const
+{
+	if (_meshParts.empty())
+		return{ 0,0,0 };
+
+	if (_meshParts[0]->_vertices.empty())
+		return{ 0,0,0 };
+
+	return _meshParts[0]->_vertices[0].position;
 }
 
 void cModelMesh::Binding()

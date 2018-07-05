@@ -40,20 +40,11 @@ namespace Fbx
 	{
 		string Name;
 		int ParentBone;
-		D3DXMATRIX Transform;
-		D3DXMATRIX AbsoluteTransform;
+		
+		FbxMesh *Mesh;
 
+		vector<shared_ptr<FbxVertex>> Vertices;
 		vector<shared_ptr<FbxMeshPartData>> MeshParts;
-	};
-
-	struct FbxJoint
-	{
-		int Parent;
-		string Name;
-
-		//todo : 둘다 굳이 있어야할까
-		D3DXMATRIX Transform;
-		D3DXMATRIX AbsoluteTransform;
 	};
 
 	struct FbxBoneData
@@ -64,6 +55,12 @@ namespace Fbx
 		int Parent;
 		D3DXMATRIX Transform;
 		D3DXMATRIX AbsoluteTransform;
+
+		//todo : 확인
+		D3DXVECTOR3 Scale = { 1,1,1 };
+		D3DXVECTOR3 Rotation = { 0,0,0 };
+		D3DXVECTOR3 Translation = { 0,0,0 };
+		D3DXQUATERNION Quaternion;
 	};
 
 	struct FbxKeyFrameData

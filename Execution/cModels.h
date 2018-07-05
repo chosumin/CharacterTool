@@ -17,12 +17,8 @@ public:
 	virtual void PostRender() override;
 	virtual void ResizeScreen() override {}
 private:
-	shared_ptr<cModel> model;
-
+	shared_ptr<class cActor> _actor;
 	weak_ptr<sGlobalVariable> _global;
 
-	//class cMoveGizmo *gizmo;
-
-	class cModelAnimPlayer *animPlayer;
-	class cHierarchy *hierarchy;
+	class cCylinderCollider *col;
 };

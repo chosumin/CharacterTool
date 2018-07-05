@@ -19,22 +19,20 @@ public:
 
 	void GetTransform(D3DXMATRIX& transform);
 
-	void AbsoluteTransform(D3DXMATRIX& transform)
-	{
-		_absoluteTransform = transform;
-	}
+	void AbsoluteTransform(D3DXMATRIX& transform);
 
 	D3DXMATRIX& Transform();
 
-	D3DXMATRIX& AbsoluteTransform()
-	{
-		return _absoluteTransform;
-	}
+	D3DXMATRIX& AbsoluteTransform();
 
 	UINT ChildCount() { return _children.size(); }
 	shared_ptr<cModelBone> Child(UINT index) { return _children[index]; }
 
 	void ShowHierarchy();
+
+	//test : 콜라이더 테스트
+	weak_ptr<struct sTransform> GetTransform() const;
+	void SetTransform(D3DXMATRIX& matrix);
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelBone> Clone() const override;
@@ -47,7 +45,10 @@ private:
 	vector<shared_ptr<cModelBone>> _children;
 
 	shared_ptr<struct sTransform> _transform;
+	shared_ptr<struct sTransform> _absoluteTransform;
 	//D3DXMATRIX				_transform;
+	//D3DXMATRIX				_absoluteTransform;
 
-	D3DXMATRIX				_absoluteTransform;
+	//test : 콜라이더 부모 테스트
+	shared_ptr<struct sTransform> _matrix;
 };

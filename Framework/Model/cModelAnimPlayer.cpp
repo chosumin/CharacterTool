@@ -1,12 +1,16 @@
 #include "stdafx.h"
 #include "cModelAnimPlayer.h"
 #include "cModel.h"
+
 #include "./ModelPart/cModelAnimClip.h"
 #include "./ModelPart/ModelKeyFrames.h"
 #include "./ModelPart/cModelBone.h"
 #include "./ModelPart/cModelMesh.h"
+
 #include "./Graphic/cMaterial.h"
 #include "./Graphic/ConstBuffer/cModelBoneBuffer.h"
+
+#include "./Transform/sTransform.h"
 
 cModelAnimPlayer::cModelAnimPlayer(weak_ptr<cModel> model)
 	:model(model)
@@ -17,53 +21,77 @@ cModelAnimPlayer::cModelAnimPlayer(weak_ptr<cModel> model)
 	, nextKeyFrame(0)
 	, bUseSlerp(true)
 {
-	auto modelPtr = model.lock();
 	shader = cShader::Create(Shader + L"999_Animation.hlsl");
 
+	auto modelPtr = model.lock();
 	auto materials = modelPtr->GetMaterials();
 	for (auto&& material : materials)
 		material->SetShader(shader);
 
-	currentClip = modelPtr->GetClip(0);
+	currentClipNumber = 0;
+	currentClip = modelPtr->GetClip(currentClipNumber);
 
-	auto root = modelPtr->GetBone(1);
-	GatherBones(bones, root);
-
-	skinTransform.assign(bones.size(), D3DXMATRIX());
-	boneAnimation.assign(bones.size(), D3DXMATRIX());
+	skinTransform.assign(modelPtr->GetBoneCount(), D3DXMATRIX());
+	boneAnimation.assign(modelPtr->GetBoneCount(), D3DXMATRIX());
 }
 
 cModelAnimPlayer::~cModelAnimPlayer()
 {
 }
 
-void cModelAnimPlayer::Update()
+UINT cModelAnimPlayer::GetClip() const
+{
+	return currentClipNumber;
+}
+
+void cModelAnimPlayer::SetClip(UINT clipNumber)
+{
+	currentClip = model.lock()->GetClip(clipNumber);
+	currentClipNumber = clipNumber;
+	currentKeyFrame = 0;
+	nextKeyFrame = 1;
+}
+
+void cModelAnimPlayer::Update(weak_ptr<sTransform> actorWorld)
 {
 	if (currentClip.lock() == nullptr || mode != Mode::Play)
 		return;
 
 	UpdateTime();
-	UpdateBone();
+	UpdateBone(actorWorld);
 
 	model.lock()->GetBuffer().lock()->SetBones(&skinTransform[0], skinTransform.size());
 }
 
 void cModelAnimPlayer::Render()
 {
-	model.lock()->GetBuffer().lock()->SetVSBuffer(2);
+	if (model.expired())
+		return;
 
-	for (auto&& mesh : model.lock()->GetMeshes())
+	auto modelPtr = model.lock();
+	modelPtr->GetBuffer().lock()->SetVSBuffer(2);
+
+	for (auto&& mesh : modelPtr->GetMeshes())
 		mesh->Render();
+}
+
+void cModelAnimPlayer::PostRender()
+{
+	if (model.expired())
+		return;
+
+	ImGui::Text("Animation");
+	ImGui::SliderInt("Frame", &currentKeyFrame, 0, 30);
 }
 
 void cModelAnimPlayer::UpdateTime()
 {
 	auto clipPtr = currentClip.lock();
 
-	//스피드 조절 가능
-	frameTime += cFrame::Delta();
-
 	float invFrameRate = 1.0f / clipPtr->GetFrameRate();
+	//스피드 조절 가능
+
+	frameTime += cFrame::Delta();
 	while (frameTime > invFrameRate)
 	{
 		int keyFrameCount = clipPtr->GetTotalFrame();
@@ -76,24 +104,16 @@ void cModelAnimPlayer::UpdateTime()
 
 		frameTime -= invFrameRate;
 	}
-
 	//지금 프레임부터 다음 프레임까지의 비율
 	keyFrameFactor = frameTime / invFrameRate;
 }
 
-void cModelAnimPlayer::UpdateBone()
+void cModelAnimPlayer::UpdateBone(weak_ptr<sTransform> actorWorld)
 {
-	int index = 0;
-
-	if (skinTransform.size() < 1)
-		skinTransform.assign(bones.size(), D3DXMATRIX());
-
-	if (boneAnimation.size() < 1)
-		boneAnimation.assign(bones.size(), D3DXMATRIX());
-
-	for (auto&& bone : bones)
+	auto modelPtr = model.lock();
+	for (UINT i = 0; i < modelPtr->GetBoneCount(); i++)
 	{
-		auto bonePtr = bone.lock();
+		auto bonePtr = modelPtr->GetBone(i).lock();
 		//애니메이션 될 행렬
 		D3DXMATRIX matAnimation;
 
@@ -105,6 +125,9 @@ void cModelAnimPlayer::UpdateBone()
 		D3DXMatrixInverse(&matInvBindPose, nullptr, &matInvBindPose);
 
 		auto frame = currentClip.lock()->GetKeyframe(bonePtr->GetName());
+		if (frame == nullptr)
+			return;
+
 		if (bUseSlerp == true)
 		{
 			//구형 보간
@@ -120,14 +143,12 @@ void cModelAnimPlayer::UpdateBone()
 			D3DXVec3Lerp(&s, &s1, &s2, keyFrameFactor);
 			D3DXMatrixScaling(&S, s.x, s.y, s.z);
 
-
 			D3DXQUATERNION q1 = current.Rotation;
 			D3DXQUATERNION q2 = next.Rotation;
 
 			D3DXQUATERNION q;
 			D3DXQuaternionSlerp(&q, &q1, &q2, keyFrameFactor);
 			D3DXMatrixRotationQuaternion(&R, &q);
-
 
 			D3DXVECTOR3 t1 = current.Translation;
 			D3DXVECTOR3 t2 = next.Translation;
@@ -143,25 +164,18 @@ void cModelAnimPlayer::UpdateBone()
 			matAnimation = frame->FrameData[currentKeyFrame].Transform;
 		}
 
-		//처음에 하나 추가했던 노드는 제외하므로 -1
-		int parentIndex = bonePtr->GetParentIndex() - 1;
+		int parentIndex = bonePtr->GetParentIndex();
+
+		//조작할 때 이 부분을 바꿔라
 		if (parentIndex < 0)
-			D3DXMatrixIdentity(&matParentAnimation);
+			matParentAnimation = actorWorld.lock()->Matrix;
 		else
 			matParentAnimation = boneAnimation[parentIndex];
 
-		boneAnimation[index] = matAnimation * matParentAnimation;
-		skinTransform[index] = matInvBindPose * boneAnimation[index];
-
-		index++;
+		boneAnimation[i] = matAnimation * matParentAnimation;
+		
+		//test : 콜라이더 부모 테스트
+		bonePtr->SetTransform(boneAnimation[i]);
+		skinTransform[i] = matInvBindPose * boneAnimation[i];
 	}
-}
-
-void cModelAnimPlayer::GatherBones(vector<weak_ptr<cModelBone>>& bones, weak_ptr<cModelBone> bone)
-{
-	bones.push_back(bone);
-
-	auto bonePtr = bone.lock();
-	for (UINT i = 0; i < bonePtr->ChildCount(); i++)
-		GatherBones(bones, bonePtr->Child(i));
 }

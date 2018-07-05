@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "cModel.h"
 
+#include "./Model/cModelAnimPlayer.h"
 #include "./ModelPart/cModelBone.h"
 #include "./ModelPart/cModelMesh.h"
 #include "./ModelPart/cModelMeshPart.h"
@@ -56,26 +57,20 @@ void cModel::Render()
 
 void cModel::ShowHierarchy()
 {
-	if (ImGui::TreeNode(cString::String(_root->GetName()).c_str()))
-	{
-		auto bOpen = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-		if (ImGui::TreeNodeEx(cString::String(_root->GetName()).c_str(), bOpen))
-		{
-			_root->ShowHierarchy();
-			ImGui::TreePop();
-		}
+	auto bOpen = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-		if(ImGui::IsItemClicked())
-		{
-			/*cDebug::Log(&typeid(this), []()
-			{
-				cout << "클릭!" << endl;
-			});*/
-			//todo : 인스펙터 띄우기
-		}
+	//todo : 소프트코딩
+	if (ImGui::TreeNodeEx("Dude", bOpen))
+	{
+		_root->ShowHierarchy();
 		ImGui::TreePop();
 	}
-	
+
+	if (ImGui::IsItemClicked())
+	{
+		//애니메이션 띄우기
+		//cModelAnimPlayer::Get()->SetModel(shared_from_this());
+	}
 }
 
 vector<shared_ptr<cMaterial>>& cModel::GetMaterials()

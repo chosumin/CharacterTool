@@ -2,7 +2,9 @@
 #include <memory>
 
 template<typename T>
-__interface iCloneable
+class iCloneable
 {
-	std::unique_ptr<T> Clone() const;
+public:
+	virtual ~iCloneable() {}
+	virtual std::unique_ptr<T> Clone() const = 0;
 };
