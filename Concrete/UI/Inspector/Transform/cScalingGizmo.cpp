@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "cScalingGizmo.h"
 #include "GizmoMeshes.h"
-#include "./Mesh/cBox.h"
 #include "./Collider/cBoxCollider.h"
+#include "./Collider/cQuadCollider.h"
 #include "./Transform/sTransform.h"
 #include "./Helper/cMath.h"
 
@@ -16,11 +16,11 @@ cScalingGizmo::cScalingGizmo(weak_ptr<sGlobalVariable> global)
 
 	_meshes.emplace_back(make_unique<cBoxLine>(_length, D3DXCOLOR{ 0,0,1,1 }, D3DXVECTOR3{ 0,0,1 }, D3DXVECTOR3{ -len,-len,-_length }, D3DXVECTOR3{ len,len,0 }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ 0,-len,-len }, D3DXVECTOR3{ _length,len,len }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ 0,-len,-len }, D3DXVECTOR3{ _length,len,len }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ -len,0,-len }, D3DXVECTOR3{ len,_length,len }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -len,0,-len }, D3DXVECTOR3{ len,_length,len }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ -len,-len,-_length }, D3DXVECTOR3{ len,len,0 }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -len,-len,-_length }, D3DXVECTOR3{ len,len,0 }));
 }
 
 cScalingGizmo::~cScalingGizmo()
@@ -41,6 +41,12 @@ void cScalingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & m
 
 	if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
+
+	for (auto&& axis : _axises)
+		axis->SetWorld(gizmoMatrix);
+
+	for (auto&& quad : _quads)
+		quad->SetWorld(gizmoMatrix);
 }
 
 void cScalingGizmo::Scale(const D3DXMATRIX& matrix)
@@ -74,6 +80,6 @@ void cScalingGizmo::Scale(const D3DXMATRIX& matrix)
 
 	auto transform = _transform.lock();
 	//todo : 소프트코딩으로 바꾸기
-	transform->Scaling += total * 0.5f;
+	transform->Scaling += total * 10.0f;
 	transform->Update();
 }

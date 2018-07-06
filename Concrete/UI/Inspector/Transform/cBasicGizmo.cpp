@@ -2,6 +2,7 @@
 #include "cBasicGizmo.h"
 #include "./Collider/cBoxCollider.h"
 #include "./Collider/cQuadCollider.h"
+#include "./Collider/cRayCollider.h"
 #include "./Transform/sTransform.h"
 #include "./Interface/iRenderable.h"
 
@@ -15,11 +16,11 @@ cBasicGizmo::cBasicGizmo(weak_ptr<sGlobalVariable> global)
 	, _prevMousePos(0, 0, 0)
 	, _curMousePos(0, 0, 0)
 {
-	_quads.emplace_back(make_unique<cQuadCollider>(D3DXVECTOR3{ 0,0,0 }, D3DXVECTOR3{ 1,0,-1 }, D3DXCOLOR{ 0,1,0,0.7f }));
+	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,0,0 }, D3DXVECTOR3{ 1,0,-1 }, D3DXCOLOR{ 0,1,0,0.7f }));
 
-	_quads.emplace_back(make_unique<cQuadCollider>(D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 0,0,-1 }, D3DXCOLOR{ 1,0,0,0.7f }));
+	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 0,0,-1 }, D3DXCOLOR{ 1,0,0,0.7f }));
 
-	_quads.emplace_back(make_unique<cQuadCollider>(D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 1,0,0 }, D3DXCOLOR{ 0,0,1,0.7f }));
+	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 1,0,0 }, D3DXCOLOR{ 0,0,1,0.7f }));
 }
 
 cBasicGizmo::~cBasicGizmo()
@@ -53,9 +54,11 @@ bool cBasicGizmo::IsIntersect(const D3DXVECTOR3 & pos, const D3DXVECTOR3 & dir)
 	for (auto&& quad : _quads)
 		quad->ResetState();
 
+	auto ray = make_shared<cRayCollider>(weak_ptr<sTransform>(), pos, dir);
+
 	for (UINT i = 0; i < _quads.size(); i++)
 	{
-		if (_quads[i]->IntersectsWithRay(pos, dir))
+		if (_quads[i]->IntersectsWithRay(ray))
 		{
 			_direction = GetDirection(i + _axises.size());
 			return true;
@@ -64,7 +67,7 @@ bool cBasicGizmo::IsIntersect(const D3DXVECTOR3 & pos, const D3DXVECTOR3 & dir)
 
 	for (UINT i = 0; i < _axises.size(); i++)
 	{
-		if (_axises[i]->IntersectsWithRay(pos, dir))
+		if (_axises[i]->IntersectsWithRay(ray))
 		{
 			_direction = GetDirection(i);
 			return true;

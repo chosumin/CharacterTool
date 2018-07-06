@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "cMovingGizmo.h"
 #include "./Collider/cBoxCollider.h"
-#include "./Mesh/cArrow.h"
+#include "./Collider/cQuadCollider.h"
 #include "./Transform/sTransform.h"
+#include "./Mesh/cArrow.h"
 #include "./Helper/cMath.h"
 
 cMovingGizmo::cMovingGizmo(weak_ptr<sGlobalVariable> global)
@@ -14,11 +15,11 @@ cMovingGizmo::cMovingGizmo(weak_ptr<sGlobalVariable> global)
 
 	_meshes.emplace_back(make_unique<cArrow>(D3DXCOLOR{ 0,0,1,1 }, D3DXVECTOR3{ 0,0,1 }, _length));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ 0,-rate,-rate }, D3DXVECTOR3{ _length,rate,rate }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ 0,-rate,-rate }, D3DXVECTOR3{ _length,rate,rate }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ -rate,0,-rate }, D3DXVECTOR3{ rate,_length,rate }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,0,-rate }, D3DXVECTOR3{ rate,_length,rate }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ -rate,-rate,-_length }, D3DXVECTOR3{ rate,rate,0 }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,-rate,-_length }, D3DXVECTOR3{ rate,rate,0 }));
 }
 
 cMovingGizmo::~cMovingGizmo()
@@ -39,6 +40,12 @@ void cMovingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & mo
 		Move(gizmoMatrix);
 	else if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
+	
+	for (auto&& axis : _axises)
+		axis->SetWorld(gizmoMatrix);
+
+	for (auto&& quad : _quads)
+		quad->SetWorld(gizmoMatrix);
 }
 
 void cMovingGizmo::Move(const D3DXMATRIX& matrix)
@@ -73,6 +80,6 @@ void cMovingGizmo::Move(const D3DXMATRIX& matrix)
 
 	auto transform = _transform.lock();
 	//todo : 소프트 코딩으로 변경
-	transform->Position += total * 4.0f;
+	transform->Position += total * 10.0f;
 	transform->Update();
 }

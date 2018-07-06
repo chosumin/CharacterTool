@@ -1,22 +1,47 @@
 #pragma once
-#include "./Interface/iCollidable.h"
 #include "./Interface/iRenderable.h"
 
+enum class ContainmentType
+{
+	Disjoint, Contains, Intersects
+};
+
+enum class eColliderShape
+{
+	Box, Cylinder, Sphere, Ray, Quad
+};
+
 struct sTransform;
-class cCollider : public iCollidable, public iRenderable
+class cCollider : public iRenderable,
+	public enable_shared_from_this<cCollider>
 {
 public:
-	cCollider(weak_ptr<sTransform> boneTransform,
-			  D3DXVECTOR3 center);
+	cCollider(weak_ptr<sTransform> boneTransform, eColliderShape shape);
 	virtual ~cCollider();
 
 	void Update();
 
-	// iRenderable을(를) 통해 상속됨
+	bool IntersectsWith(weak_ptr<cCollider> other);
 	virtual void Render() override;
-private:
-	void SetLocalTransform();
+
+	weak_ptr<sTransform> GetLocalTransform() const;
+	void SetWorld(const D3DXMATRIX& world);
 protected:
+	virtual ContainmentType ContainsRay(weak_ptr<cCollider> other) = 0;
+	virtual ContainmentType ContainsPlane(weak_ptr<cCollider> other) = 0;
+	virtual ContainmentType ContainsDot(weak_ptr<cCollider> other) = 0;
+	virtual ContainmentType ContainsSphere(weak_ptr<cCollider> other) = 0;
+	virtual ContainmentType ContainsBox(weak_ptr<cCollider> other) = 0;
+
+	virtual bool IntersectsWithRay(weak_ptr<cCollider> other) = 0;
+	virtual bool IntersectsWithQuad(weak_ptr<cCollider> other) = 0;
+	virtual bool IntersectsWithDot(weak_ptr<cCollider> other) = 0;
+	virtual bool IntersectsWithSphere(weak_ptr<cCollider> other) = 0;
+	virtual bool IntersectsWithBox(weak_ptr<cCollider> other) = 0;
+	virtual bool IntersectsWithCylinder(weak_ptr<cCollider> other) = 0;
+protected:
+	eColliderShape _shape;
+
 	unique_ptr<cWorldBuffer> _worldBuffer;
 
 	D3DXMATRIX _world;
@@ -24,12 +49,7 @@ protected:
 
 	weak_ptr<sTransform> _boneTransform;
 	shared_ptr<sTransform> _localTransform;
-	
-	//todo : localTransform의 포지션으로 변경
-	D3DXVECTOR3 _center;
 
 	shared_ptr<cShader> _shader;
 	unique_ptr<class cColliderBuffer> _cbuffer;
-
-	//todo : 피격, 공격 구분하기
 };

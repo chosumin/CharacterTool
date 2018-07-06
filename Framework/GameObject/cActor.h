@@ -21,11 +21,15 @@ public:
 	void Rotate(float deltaY);
 	void Move(D3DXVECTOR3 direction, float velocity);
 	void Attack();
+	void Damage();
 
-	//hack : 유닛 테스트용
+	//test : 과제용
 	bool isAttack = false;
+	bool isDamage = false;
 	DWORD time;
-	weak_ptr<cCollider> GetCollider() const;
+	weak_ptr<cCollider> GetCollider(UINT num) const;
+	void PostRender(int i);
+	void ControlTransform(string name, weak_ptr<struct sTransform> transform);
 public:
 	/*******************
 		Getter Setter
@@ -44,6 +48,8 @@ private:
 	shared_ptr<class cModel> _model;
 	unique_ptr<class cModelAnimPlayer> _anim;
 	unordered_map<eAction, function<void()>> _actions;
-	vector<shared_ptr<cCollider>> _colliders;
 	unique_ptr<class cBehaviorTree> _behaviorTree;
+
+	//todo : 피격, 공격 구분하기
+	vector<shared_ptr<cCollider>> _colliders;
 };

@@ -10,7 +10,7 @@ public:
 	shared_ptr<cActor> CreateActor();
 
 	cActorBuilder& CreateTransform();
-	cActorBuilder& CreateBehaviorTree();
+	cActorBuilder& CreateBehaviorTree(int i);
 	cActorBuilder& CreateModel();
 	cActorBuilder& CreateAction();
 	cActorBuilder& CreateCollider();

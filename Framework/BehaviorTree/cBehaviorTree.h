@@ -5,7 +5,7 @@ class cActor;
 class cBehaviorTree
 {
 public:
-	cBehaviorTree(weak_ptr<cActor> actor);
+	cBehaviorTree(weak_ptr<cActor> actor, int i);
 	~cBehaviorTree();
 
 	void Update();

@@ -4,10 +4,9 @@
 #include "./Transform/sTransform.h"
 #include "./Helper/cMath.h"
 
-cCollider::cCollider(weak_ptr<sTransform> boneTransform,
-					 D3DXVECTOR3 center)
+cCollider::cCollider(weak_ptr<sTransform> boneTransform, eColliderShape shape)
 	: _boneTransform(boneTransform)
-	, _center(center)
+	, _shape(shape)
 {
 	_worldBuffer = make_unique<cWorldBuffer>();
 	
@@ -15,7 +14,7 @@ cCollider::cCollider(weak_ptr<sTransform> boneTransform,
 	_cbuffer = make_unique<cColliderBuffer>();
 
 	_localTransform = make_shared<sTransform>();
-	SetLocalTransform();
+	Update();
 }
 
 cCollider::~cCollider()
@@ -25,6 +24,8 @@ cCollider::~cCollider()
 void cCollider::Update()
 {
 	//todo : 기즈모 변경 가능하도록 변경
+	_localTransform->Update();
+
 	if (_boneTransform.expired())
 	{
 		_world = _localTransform->Matrix;
@@ -38,6 +39,25 @@ void cCollider::Update()
 	_worldBuffer->SetMatrix(_world);
 }
 
+bool cCollider::IntersectsWith(weak_ptr<cCollider> other)
+{
+	if (other.expired())
+		return false;
+
+	auto colPtr = other.lock();
+	switch (colPtr->_shape)
+	{
+		case eColliderShape::Box:
+			return IntersectsWithBox(other);
+		case eColliderShape::Cylinder:
+			return IntersectsWithCylinder(other);
+		case eColliderShape::Sphere:
+			return IntersectsWithSphere(other);
+	}
+
+	return false;
+}
+
 void cCollider::Render()
 {
 	_worldBuffer->SetVSBuffer(1);
@@ -45,9 +65,12 @@ void cCollider::Render()
 	_cbuffer->SetPSBuffer(2);
 }
 
-void cCollider::SetLocalTransform()
+weak_ptr<sTransform> cCollider::GetLocalTransform() const
 {
-	_localTransform->Position = _center;
-	_localTransform->Scaling = { 100,100,100 };
-	_localTransform->Update();
+	return _localTransform;
+}
+
+void cCollider::SetWorld(const D3DXMATRIX & world)
+{
+	_worldBuffer->SetMatrix(world);
 }

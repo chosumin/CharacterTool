@@ -117,3 +117,25 @@ bool cAnimIsEnd::Run()
 	//찾는 애니메이션이 실행 중이지 않으면 true
 	return (_actor.lock()->GetCurrentAnim() != _animIndex);
 }
+
+/*********************************************************/
+
+cDamageAction::cDamageAction(weak_ptr<cActor> actor)
+	:cTask(typeid(this).name()),
+	_actor(actor)
+{
+}
+
+cDamageAction::~cDamageAction()
+{
+}
+
+bool cDamageAction::Run()
+{
+	if (_actor.lock()->isDamage)
+	{
+		_actor.lock()->Damage();
+		return true;
+	}
+	return false;
+}

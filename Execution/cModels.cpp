@@ -9,6 +9,7 @@
 #include "./Transform/sTransform.h"
 
 #include "./Model/FbxExporter/Exporter.h"
+#include "./UI/Inspector/Transform/cGizmo.h"
 
 cModels::cModels(weak_ptr<sGlobalVariable> global)
 	:_global(global)
@@ -18,35 +19,39 @@ cModels::cModels(weak_ptr<sGlobalVariable> global)
 
 cModels::~cModels()
 {
-	SAFE_DELETE(col);
 }
 
 void cModels::Init()
 {
-	/*auto exporter = Fbx::Exporter(Asset + L"paladin/paladin.fbx");
-	exporter.ExportMaterial(Model + L"paladin/", L"paladin");
-	exporter.ExportMesh(Model + L"paladin/", L"paladin");*/
-	
 	cActorBuilder builder;
-	builder.CreateTransform().CreateModel().CreateBehaviorTree().CreateCollider();
+	builder.CreateTransform().CreateModel().CreateBehaviorTree(0).CreateCollider();
 	_actor = builder.CreateActor();
 
-	col = new cCylinderCollider(weak_ptr<sTransform>(), { 0,0,0 }, 1, 0.5f);
+	cActorBuilder builder2;
+	builder2.CreateTransform().CreateModel().CreateBehaviorTree(1).CreateCollider();
+	_actor2 = builder2.CreateActor();
 }
 
 void cModels::Update()
 {
 	_actor->Update();
-	col->Update();
-	
+	_actor2->Update();
+
+	if(_actor->GetCollider(1).lock()->IntersectsWith(_actor2->GetCollider(0)))
+	{
+		_actor2->isDamage = true;
+		_actor2->time = timeGetTime();
+	}
 }
 
 void cModels::Render()
 {
 	_actor->Render();
-	col->Render();
+	_actor2->Render();
 }
 
 void cModels::PostRender()
 {
+	_actor->PostRender(0);
+	_actor2->PostRender(1);
 }

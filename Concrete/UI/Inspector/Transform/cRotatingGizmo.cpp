@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "cRotatingGizmo.h"
 #include "./Collider/cBoxCollider.h"
-#include "./GizmoMeshes.h"
+#include "./Collider/cQuadCollider.h"
 #include "./Transform/sTransform.h"
+#include "./GizmoMeshes.h"
 #include "./Helper/cMath.h"
 
 cRotatingGizmo::cRotatingGizmo(weak_ptr<sGlobalVariable> global)
@@ -14,11 +15,11 @@ cRotatingGizmo::cRotatingGizmo(weak_ptr<sGlobalVariable> global)
 
 	_meshes.emplace_back(make_unique<cRotateLine>(_length, D3DXCOLOR{ 0,0,1,1 }, D3DXVECTOR3{ 0,0,1 }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ 0,-rate,-rate }, D3DXVECTOR3{ _length,rate,rate }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ 0,-rate,-rate }, D3DXVECTOR3{ _length,rate,rate }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ -rate,0,-rate }, D3DXVECTOR3{ rate,_length,rate }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,0,-rate }, D3DXVECTOR3{ rate,_length,rate }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(D3DXVECTOR3{ -rate,-rate,-_length }, D3DXVECTOR3{ rate,rate,0 }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,-rate,-_length }, D3DXVECTOR3{ rate,rate,0 }));
 }
 
 cRotatingGizmo::~cRotatingGizmo()
@@ -45,6 +46,12 @@ void cRotatingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & 
 	}
 	else if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
+
+	for (auto&& axis : _axises)
+		axis->SetWorld(gizmoMatrix);
+
+	for (auto&& quad : _quads)
+		quad->SetWorld(gizmoMatrix);
 }
 
 D3DXVECTOR3 cRotatingGizmo::GetDelta(const D3DXMATRIX& matrix)
@@ -71,7 +78,7 @@ D3DXVECTOR3 cRotatingGizmo::GetDelta(const D3DXMATRIX& matrix)
 		//_direction과 내적 값 곱하기
 		auto delta = axis[i];
 		delta *= deltaF;
-		total += delta * 30.0f;
+		total += delta * 100.0f;
 	}
 
 	auto transform = _transform.lock();

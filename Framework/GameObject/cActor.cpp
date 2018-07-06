@@ -96,9 +96,53 @@ void cActor::Attack()
 	//todo : 캡슐 교차 판정
 }
 
-weak_ptr<cCollider> cActor::GetCollider() const
+void cActor::Damage()
 {
-	return _colliders[0];
+	if (_anim->GetClip() != 8)
+		_anim->SetClip(8);
+
+	//hack : 애니메이션 끝나면 idle로 바꾸기
+	if (timeGetTime() - time > 800)
+	{
+		_anim->SetClip(0);
+		isDamage = false;
+	}
+}
+
+weak_ptr<cCollider> cActor::GetCollider(UINT num) const
+{
+	return _colliders[num];
+}
+
+void cActor::PostRender(int i)
+{
+	//hack : ㅠㅠ
+	ImGui::Begin("Inspector");
+	{
+		ImGui::Separator();
+
+		auto damagedCol = _colliders[0]->GetLocalTransform();
+		ControlTransform(i + "damage", damagedCol);
+
+		ImGui::Separator();
+
+		auto attackCol = _colliders[1]->GetLocalTransform();
+		ControlTransform(i + "attack", attackCol);
+
+		ImGui::Separator();
+	}
+	ImGui::End();
+}
+
+void cActor::ControlTransform(string name, weak_ptr<struct sTransform> transform)
+{
+	auto trPtr = transform.lock();
+	auto rotate = trPtr->Rotation;
+	ImGui::SliderFloat3((name + "Pos").c_str(), trPtr->Position, -100, 100);
+	ImGui::SliderFloat3((name + "Sca").c_str(), trPtr->Scaling, -100, 100);
+	ImGui::SliderFloat3((name + "Rot").c_str(), trPtr->Rotation, -100, 100);
+
+	trPtr->Rotate(trPtr->Rotation - rotate);
 }
 
 cActor::cActor()

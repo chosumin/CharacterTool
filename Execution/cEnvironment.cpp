@@ -28,7 +28,7 @@ void cEnvironment::PreRender()
 void cEnvironment::Render()
 {
 	_grid->Render();
-	_map->Render();
+	//_map->Render();
 }
 
 void cEnvironment::PostRender()

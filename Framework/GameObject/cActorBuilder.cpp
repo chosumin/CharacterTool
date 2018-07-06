@@ -40,15 +40,15 @@ cActorBuilder & cActorBuilder::CreateTransform()
 	return *this;
 }
 
-cActorBuilder & cActorBuilder::CreateBehaviorTree()
+cActorBuilder & cActorBuilder::CreateBehaviorTree(int i)
 {
-	_actor->_behaviorTree = make_unique<cBehaviorTree>(_actor);
+	_actor->_behaviorTree = make_unique<cBehaviorTree>(_actor, i);
 	return *this;
 }
 
 cActorBuilder & cActorBuilder::CreateModel()
 {
-	vector<wstring> anims{ L"paladin_idle", L"paladin_walk", L"paladin_run", L"paladin_attack" };
+	vector<wstring> anims{ L"paladin_idle", L"paladin_walk", L"paladin_run", L"paladin_attack", L"paladin_impact" };
 
 	auto model = cModelFactory::Get()->Create(Model + L"paladin/", L"paladin", anims);
 	_actor->_model = move(model);
@@ -67,9 +67,12 @@ cActorBuilder & cActorBuilder::CreateCollider()
 {
 	auto transform = _actor->_model->GetMeshes()[0]->GetParentTransform();
 	//test : colliderfactory에서 생성하기
-	auto col = make_shared<cCylinderCollider>(transform, _actor->_model->GetMeshes()[0]->GetMeshPoint(), 1, 0.5f);
-
+	auto col = make_shared<cCylinderCollider>(transform, 1.0f, 0.5f);
 	_actor->_colliders.emplace_back(move(col));
 
+	auto transform2 = _actor->_model->GetMeshes()[2]->GetParentTransform();
+	auto col2 = make_shared<cCylinderCollider>(transform2, 1.0f, 0.5f);
+	_actor->_colliders.emplace_back(move(col2));
+	
 	return *this;
 }

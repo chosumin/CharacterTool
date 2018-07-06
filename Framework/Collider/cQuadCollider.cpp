@@ -1,47 +1,62 @@
 #include "stdafx.h"
 #include "cQuadCollider.h"
+#include "cRayCollider.h"
 #include "./Mesh/cRectangle.h"
 #include "./Graphic/ConstBuffer/cColliderBuffer.h"
 
-cQuadCollider::cQuadCollider(D3DXVECTOR3 min, D3DXVECTOR3 max, D3DXCOLOR color)
+cQuadCollider::cQuadCollider(weak_ptr<sTransform> parent,
+							 D3DXVECTOR3 min, D3DXVECTOR3 max,
+							 D3DXCOLOR color)
+	:cCollider(parent, eColliderShape::Quad)
 {
 	_rect = make_unique<cRectangle>(min, max, color);
-	
-	_shader = cShader::Create(Shader + L"002_Collider.hlsl");
-	_cbuffer = make_unique<cColliderBuffer>();
 }
 
 cQuadCollider::~cQuadCollider()
 {
 }
 
-ContainmentType cQuadCollider::ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
+void cQuadCollider::Render()
+{
+	cCollider::Render();
+	_rect->Render();
+}
+
+void cQuadCollider::ResetState()
+{
+	_cbuffer->Data.Intersect = 0;
+}
+
+ContainmentType cQuadCollider::ContainsRay(weak_ptr<cCollider> other)
 {
 	return ContainmentType();
 }
 
-ContainmentType cQuadCollider::ContainsPlane(D3DXVECTOR3 normal, float d)
+ContainmentType cQuadCollider::ContainsPlane(weak_ptr<cCollider> other)
 {
 	return ContainmentType();
 }
 
-ContainmentType cQuadCollider::ContainsDot(D3DXVECTOR3 point)
+ContainmentType cQuadCollider::ContainsDot(weak_ptr<cCollider> other)
 {
 	return ContainmentType();
 }
 
-ContainmentType cQuadCollider::ContainsSphere(D3DXVECTOR3 center, float radius)
+ContainmentType cQuadCollider::ContainsSphere(weak_ptr<cCollider> other)
 {
 	return ContainmentType();
 }
 
-ContainmentType cQuadCollider::ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min)
+ContainmentType cQuadCollider::ContainsBox(weak_ptr<cCollider> other)
 {
 	return ContainmentType();
 }
 
-bool cQuadCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
+bool cQuadCollider::IntersectsWithRay(weak_ptr<cCollider> other)
 {
+	auto ray = reinterpret_cast<cRayCollider*>(other.lock().get());
+	auto position = ray->GetTransformedOrigin();
+	auto direction = ray->GetTransformedDirection();
 	bool intersect = _rect->IntersectWithRay(position, direction);
 
 	if (intersect)
@@ -52,39 +67,27 @@ bool cQuadCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 directio
 	return intersect;
 }
 
-PlaneIntersectionType cQuadCollider::IntersectsWithPlane(D3DXVECTOR3 normal, float d)
-{
-	return PlaneIntersectionType();
-}
-
-bool cQuadCollider::IntersectsWithDot(D3DXVECTOR3 point)
+bool cQuadCollider::IntersectsWithQuad(weak_ptr<cCollider> other)
 {
 	return false;
 }
 
-bool cQuadCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
+bool cQuadCollider::IntersectsWithDot(weak_ptr<cCollider> other)
 {
 	return false;
 }
 
-bool cQuadCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)
+bool cQuadCollider::IntersectsWithSphere(weak_ptr<cCollider> other)
 {
 	return false;
 }
 
-bool cQuadCollider::IntersectsWithCylinder(sLine line, float radius)
+bool cQuadCollider::IntersectsWithBox(weak_ptr<cCollider> other)
 {
 	return false;
 }
 
-void cQuadCollider::Render()
+bool cQuadCollider::IntersectsWithCylinder(weak_ptr<cCollider> other)
 {
-	_shader->Render();
-	_cbuffer->SetPSBuffer(2);
-	_rect->Render();
-}
-
-void cQuadCollider::ResetState()
-{
-	_cbuffer->Data.Intersect = 0;
+	return false;
 }

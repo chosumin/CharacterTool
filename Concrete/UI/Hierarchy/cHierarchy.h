@@ -1,6 +1,7 @@
 #pragma once
 
 class cModel;
+class cActor;
 class cHierarchy
 {
 public:
@@ -13,5 +14,5 @@ public:
 
 	void PicksModel(weak_ptr<cModel> model);
 private:
-	weak_ptr<cModel> _model;
+	vector<weak_ptr<cActor>> _actor;
 };
