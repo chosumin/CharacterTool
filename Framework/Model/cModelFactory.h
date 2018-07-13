@@ -11,7 +11,7 @@ class cModelFactory : public cSingletone<cModelFactory>
 private:
 	friend class cSingletone<cModelFactory>;
 public:
-	unique_ptr<cModel> Create(wstring filePath, wstring meshName, const vector<wstring>& animNames);
+	unique_ptr<cModel> Create(wstring filePath, wstring fileName);
 	unique_ptr<cModel> Clone(weak_ptr<cModel> model);
 private:
 	cModelFactory();

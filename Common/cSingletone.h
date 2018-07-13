@@ -18,7 +18,8 @@ public:
 
 	static void Delete()
 	{
-		cWindow::m_uSingletoneCount--;
+		if(cWindow::m_uSingletoneCount > 0)
+			cWindow::m_uSingletoneCount--;
 		SAFE_DELETE(mInstance);
 	}
 protected:

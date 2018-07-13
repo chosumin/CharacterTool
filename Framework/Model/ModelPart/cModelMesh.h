@@ -16,8 +16,8 @@ public:
 
 	//todo : 콜라이더 부모 테스트
 	weak_ptr<struct sTransform> GetParentTransform() const;
-
 	D3DXVECTOR3 GetMeshPoint() const;
+	wstring	GetName() const { return _name; }
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMesh> Clone() const override;
@@ -25,12 +25,9 @@ private:
 	/*******************
 		Getter Setter
 	********************/
-	wstring	GetName() const { return _name; }
 	int	GetParentBoneIndex() const { return _parentBoneIndex; }
 
 	void SetWorld(const D3DXMATRIX& world) { _worldBuffer->SetMatrix(world); }
-
-	
 private:
 	void Binding();
 private:

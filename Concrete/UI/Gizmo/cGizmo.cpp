@@ -86,7 +86,7 @@ void cGizmo::SetMyTransform()
 	_myTransform->Update();
 }
 
-void cGizmo::GetScaleRate(const D3DXVECTOR3 & camPos)
+void cGizmo::SetScaleRate(const D3DXVECTOR3 & camPos)
 {
 	auto temp = _myTransform->Position - camPos;
 	auto length = D3DXVec3Length(&temp);
@@ -130,7 +130,7 @@ void cGizmo::Update()
 	D3DXVECTOR3 pos;
 	globalPtr->MainCamera->GetPosition(&pos);
 
-	GetScaleRate(pos);
+	SetScaleRate(pos);
 
 	//역변환 행렬로 위치, 방향 구함
 	D3DXVECTOR3 transPos, transDir;
@@ -171,8 +171,6 @@ void cGizmo::PostRender()
 	bool isClick = false;
 
 	D3DXVECTOR3 tempRotation = modelPtr->Rotation;
-
-	ImGui::Text("Transform");
 	isClick = ImGui::InputFloat3("Position", modelPtr->Position, 3);
 	isClick |= ImGui::InputFloat3("Rotation", modelPtr->Rotation, 3);
 	isClick |= ImGui::InputFloat3("Scale", modelPtr->Scaling, 3);

@@ -1,0 +1,23 @@
+diff a/Framework/Collider/cCylinderCollider.cpp b/Framework/Collider/cCylinderCollider.cpp	(rejected hunks)
+@@ -159,12 +159,18 @@
+ 	return line;
+ }
+ 
++float cCylinderCollider::GetTransformedRadius() const
++{
++	//hack : ������ �ֱ�
++	return _radius * 2.0f;// *_scale.x * _world._11;
++}
++
+ float cCylinderCollider::ClosestPtSegmentSegment(sLine line2)
+ {
+ 	auto line1 = GetTransformedLine();
+-	D3DXVECTOR3 d1 = line2.start - line1.start;
+-	D3DXVECTOR3 d2 = line2.end - line1.end;
+-	D3DXVECTOR3 r = line1.start - line1.end;
++	D3DXVECTOR3 d1 = line1.start - line1.end;
++	D3DXVECTOR3 d2 = line2.start - line2.end;
++	D3DXVECTOR3 r = line1.end - line2.end;
+ 	float a = D3DXVec3Dot(&d1, &d1);
+ 	float e = D3DXVec3Dot(&d2, &d2);
+ 	float f = D3DXVec3Dot(&d2, &r);

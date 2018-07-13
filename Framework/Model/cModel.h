@@ -45,7 +45,6 @@ public:
 	{
 		return _buffer;
 	}
-
 	
 public:
 	void CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms);
@@ -56,7 +55,7 @@ protected:
 	cModel();
 
 	/********************************
-		iClonable을(를) 통해 상속됨
+		iCloneable을(를) 통해 상속됨
 	*********************************/
 	virtual std::unique_ptr<cModel> Clone() const override;
 private:
@@ -68,5 +67,5 @@ private:
 	vector<shared_ptr<cModelAnimClip>> _clips;
 
 	shared_ptr<class cModelBoneBuffer> _buffer;
+	//todo : 모델 본 내부에 본, 메쉬 가지게하고 업데이트는 루트본만 이뤄지게 하기
 };
-

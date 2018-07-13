@@ -1,5 +1,11 @@
 #pragma once
 
+namespace UI
+{
+	class cToolWindow;
+	class cActorMenu;
+}
+
 class cUI : public iExecutable
 {
 public:
@@ -15,4 +21,7 @@ public:
 	virtual void ResizeScreen() override {}
 private:
 	weak_ptr<sGlobalVariable> _global;
+
+	shared_ptr<UI::cToolWindow> _toolWindow;
+	shared_ptr<UI::cActorMenu> _actorMenu;
 };

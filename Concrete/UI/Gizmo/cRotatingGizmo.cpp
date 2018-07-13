@@ -19,7 +19,7 @@ cRotatingGizmo::cRotatingGizmo(weak_ptr<sGlobalVariable> global)
 
 	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,0,-rate }, D3DXVECTOR3{ rate,_length,rate }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,-rate,-_length }, D3DXVECTOR3{ rate,rate,0 }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -rate,-rate,_length }, D3DXVECTOR3{ rate,rate,0 }));
 }
 
 cRotatingGizmo::~cRotatingGizmo()
@@ -47,11 +47,7 @@ void cRotatingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & 
 	else if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
 
-	for (auto&& axis : _axises)
-		axis->SetWorld(gizmoMatrix);
-
-	for (auto&& quad : _quads)
-		quad->SetWorld(gizmoMatrix);
+	UpdateCollider(gizmoMatrix);
 }
 
 D3DXVECTOR3 cRotatingGizmo::GetDelta(const D3DXMATRIX& matrix)

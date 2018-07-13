@@ -16,9 +16,12 @@ void cEntityManager::GetGroupId(IN const UINT id, UINT* pGroup, UINT* pId) const
 weak_ptr<cBaseGameEntity> cEntityManager::GetEntityFromId(UINT id) const
 {
 	auto iter = _entityMap.find(id);
-	
-	//hack : 만약 삭제된 id를 가져오면 assert말고 nullptr 처리만 해야할듯
-	assert(iter != _entityMap.end() && "ID가 존재하지 않습니다!");
+
+	//assert(iter != _entityMap.end() && "ID가 존재하지 않습니다!");
+
+	//만약 삭제된 id를 가져오면 nullptr 처리
+	if (iter == _entityMap.end())
+		return weak_ptr<cBaseGameEntity>();
 
 	return iter->second;
 }
@@ -82,12 +85,11 @@ void cEntityManager::RegisterEntity(const eIdGroup group, weak_ptr<cBaseGameEnti
 	_entityMap[newId] = object;
 }
 
-void cEntityManager::RemoveEntity(weak_ptr<cBaseGameEntity> object)
+void cEntityManager::RemoveEntity(UINT id)
 {
-	auto id = object.lock()->GetID();
 	auto iter = _entityMap.find(id);
 	assert(iter != _entityMap.end() && "삭제하려는 id가 존재하지 않습니다!");
-	
+
 	_entityMap.erase(iter);
 }
 

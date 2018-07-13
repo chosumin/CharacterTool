@@ -26,7 +26,7 @@ void cLine::Render()
 
 void cLine::CreateVertex(D3DXVECTOR3 axis, float length)
 {
-	const D3DXVECTOR3 apex = { 0,0,-length };
+	const D3DXVECTOR3 apex = { 0,0,length };
 
 	VertexC vertex;
 	vertex.color = mColor;
@@ -43,7 +43,7 @@ void cLine::RotateAxis(D3DXVECTOR3 axis)
 	//축에 따른 정점 위치 변환
 	D3DXMATRIX matrix;
 	D3DXMatrixIdentity(&matrix);
-	float radian = 90.0f * PI / 180.0f;
+	float radian = -90.0f * PI / 180.0f;
 	if (axis.y > 0.0f)
 		D3DXMatrixRotationX(&matrix, radian);
 	else if (axis.x > 0.0f)

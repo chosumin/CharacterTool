@@ -5,9 +5,13 @@
 #include "./Execution/cEnvironment.h"
 #include "./Execution/cMenuBar.h"
 #include "./Execution/cUI.h"
+#include "./Execution/cActorManager.h"
 
 #include "./Viewer/cFreePointCamera.h"
 #include "./Helper/cMath.h"
+
+#include "./Message/cEntityManager.h"
+#include "./Message/cMessageDispatcher.h"
 
 cGameMain::cGameMain()
 {
@@ -31,12 +35,12 @@ cGameMain::cGameMain()
 
 void cGameMain::Init()
 {
-	_vecObject.push_back(new cModels(_globalVariable));
-	_vecObject.push_back(new cEnvironment());
-	_vecObject.push_back(new cMenuBar(_globalVariable));
+	_vecObject.emplace_back(make_shared<cEnvironment>());
+	_vecObject.emplace_back(make_shared<cActorManager>(_globalVariable));
 
 	//제일 마지막에 추가
-	_vecObject.push_back(new cUI(_globalVariable));
+	_vecObject.emplace_back(make_shared<cUI>(_globalVariable));
+	_vecObject.emplace_back(make_shared<cMenuBar>(_globalVariable));
 
 	for (auto& i : _vecObject)
 		i->Init();
@@ -45,7 +49,10 @@ void cGameMain::Init()
 cGameMain::~cGameMain()
 {
 	for (auto& i : _vecObject)
-		SAFE_DELETE(i);
+		i.reset();
+
+	cEntityManager::Delete();
+	cMessageDispatcher::Delete();
 }
 
 void cGameMain::Update()
@@ -58,8 +65,6 @@ void cGameMain::Update()
 
 	for (auto i : _vecObject)
 		i->Update();
-
-	cDebug::PrintLogs();
 }
 
 void cGameMain::PreRender()
@@ -86,6 +91,8 @@ void cGameMain::Render()
 
 void cGameMain::PostRender()
 {
+	cDebug::PrintLogs();
+
 	for (auto& i : _vecObject)
 		i->PostRender();
 }

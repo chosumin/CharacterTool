@@ -12,6 +12,7 @@ public:
 	virtual void Update(const D3DXMATRIX& gizmoMatrix, const D3DXVECTOR3& mousePos, const D3DXVECTOR3& mouseDir) = 0;
 	void Render();
 protected:
+	void UpdateCollider(const D3DXMATRIX& gizmoMatrix);
 	bool IsIntersect(const D3DXVECTOR3& pos, const D3DXVECTOR3& dir);
 	D3DXVECTOR3 GetMouseDelta();
 private:

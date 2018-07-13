@@ -5,7 +5,9 @@ enum class eAction
 	Idle, Move
 };
 
+struct sTransform;
 class cCollider;
+class cModel;
 class cActor
 	: public enable_shared_from_this<cActor>
 {
@@ -34,18 +36,20 @@ public:
 	/*******************
 		Getter Setter
 	********************/
-
+	weak_ptr<class cModel> GetModel() const;
 	weak_ptr<struct sTransform> GetTransform() const;
 
 	void GetAction(eAction actionType);
 	void SetAction(eAction actionType, function<void()> func);
 
 	UINT GetCurrentAnim() const;
+
+	void SetModel(weak_ptr<cModel> model);
 private:
 	cActor();
 private:
-	shared_ptr<struct sTransform> _transform;
-	shared_ptr<class cModel> _model;
+	shared_ptr<sTransform> _transform;
+	shared_ptr<cModel> _model;
 	unique_ptr<class cModelAnimPlayer> _anim;
 	unordered_map<eAction, function<void()>> _actions;
 	unique_ptr<class cBehaviorTree> _behaviorTree;

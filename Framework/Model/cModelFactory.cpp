@@ -16,18 +16,15 @@
 #include "./Helper/cPath.h"
 #include "./Helper/cBinary.h"
 
-unique_ptr<cModel> cModelFactory::Create(wstring filePath, wstring meshName, const vector<wstring>& animNames)
+unique_ptr<cModel> cModelFactory::Create(wstring filePath, wstring fileName)
 {
 	//트릭 구조체
 	struct make_unique_enabler : public cModel {};
 
 	_model = make_unique<make_unique_enabler>();
 
-	ReadMaterials(filePath + meshName + L".material");
-	ReadMesh(filePath + meshName + L".mesh");
-
-	for (auto&& anim : animNames)
-		ReadAnimation(filePath + anim + L".anim");
+	ReadMaterials(filePath + fileName + L".material");
+	ReadMesh(filePath + fileName + L".mesh");
 
 	return move(_model);
 }

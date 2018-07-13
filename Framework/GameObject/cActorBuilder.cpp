@@ -22,7 +22,6 @@ cActorBuilder::cActorBuilder()
 
 cActorBuilder::~cActorBuilder()
 {
-	cModelFactory::Delete();
 }
 
 shared_ptr<cActor> cActorBuilder::CreateActor()
@@ -50,11 +49,12 @@ cActorBuilder & cActorBuilder::CreateModel()
 {
 	vector<wstring> anims{ L"paladin_idle", L"paladin_walk", L"paladin_run", L"paladin_attack", L"paladin_impact" };
 
-	auto model = cModelFactory::Get()->Create(Model + L"paladin/", L"paladin", anims);
+	auto model = cModelFactory::Get()->Create(Model + L"paladin/", L"paladin");
 	_actor->_model = move(model);
 
 	_actor->_anim = make_unique<cModelAnimPlayer>(_actor->_model);
 
+	cModelFactory::Delete();
 	return *this;
 }
 

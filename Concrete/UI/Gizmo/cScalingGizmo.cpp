@@ -14,13 +14,13 @@ cScalingGizmo::cScalingGizmo(weak_ptr<sGlobalVariable> global)
 
 	_meshes.emplace_back(make_unique<cBoxLine>(_length, D3DXCOLOR{ 0,1,0,1 }, D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ -len,0,-len }, D3DXVECTOR3{ len,_length,len }));
 
-	_meshes.emplace_back(make_unique<cBoxLine>(_length, D3DXCOLOR{ 0,0,1,1 }, D3DXVECTOR3{ 0,0,1 }, D3DXVECTOR3{ -len,-len,-_length }, D3DXVECTOR3{ len,len,0 }));
+	_meshes.emplace_back(make_unique<cBoxLine>(_length, D3DXCOLOR{ 0,0,1,1 }, D3DXVECTOR3{ 0,0,1 }, D3DXVECTOR3{ -len,-len,-0 }, D3DXVECTOR3{ len,len,_length }));
 
 	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ 0,-len,-len }, D3DXVECTOR3{ _length,len,len }));
 
 	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -len,0,-len }, D3DXVECTOR3{ len,_length,len }));
 
-	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -len,-len,-_length }, D3DXVECTOR3{ len,len,0 }));
+	_axises.emplace_back(make_unique<cBoxCollider>(_transform, D3DXVECTOR3{ -len,-len,0 }, D3DXVECTOR3{ len,len,_length }));
 }
 
 cScalingGizmo::~cScalingGizmo()
@@ -42,11 +42,7 @@ void cScalingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & m
 	if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
 
-	for (auto&& axis : _axises)
-		axis->SetWorld(gizmoMatrix);
-
-	for (auto&& quad : _quads)
-		quad->SetWorld(gizmoMatrix);
+	UpdateCollider(gizmoMatrix);
 }
 
 void cScalingGizmo::Scale(const D3DXMATRIX& matrix)

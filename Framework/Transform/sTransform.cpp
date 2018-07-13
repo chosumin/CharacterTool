@@ -114,6 +114,11 @@ void sTransform::Translation()
 	D3DXMatrixTranslation(&_positionMatrix, Position.x, Position.y, Position.z);
 }
 
+void sTransform::SetMatrix(const D3DXMATRIX & world)
+{
+	_worldBuffer->SetMatrix(world);
+}
+
 void sTransform::SetVSBuffer(UINT slot)
 {
 	_worldBuffer->SetVSBuffer(slot);

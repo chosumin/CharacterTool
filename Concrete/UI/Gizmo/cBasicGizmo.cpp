@@ -16,9 +16,9 @@ cBasicGizmo::cBasicGizmo(weak_ptr<sGlobalVariable> global)
 	, _prevMousePos(0, 0, 0)
 	, _curMousePos(0, 0, 0)
 {
-	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,0,0 }, D3DXVECTOR3{ 1,0,-1 }, D3DXCOLOR{ 0,1,0,0.7f }));
+	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,0,0 }, D3DXVECTOR3{ 1,0,1 }, D3DXCOLOR{ 0,1,0,0.7f }));
 
-	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 0,0,-1 }, D3DXCOLOR{ 1,0,0,0.7f }));
+	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 0,0,1 }, D3DXCOLOR{ 1,0,0,0.7f }));
 
 	_quads.emplace_back(make_unique<cQuadCollider>(_transform, D3DXVECTOR3{ 0,1,0 }, D3DXVECTOR3{ 1,0,0 }, D3DXCOLOR{ 0,0,1,0.7f }));
 }
@@ -44,6 +44,20 @@ void cBasicGizmo::Render()
 		quad->Render();
 }
 
+void cBasicGizmo::UpdateCollider(const D3DXMATRIX& gizmoMatrix)
+{
+	for (auto&& axis : _axises)
+	{
+		axis->Update();
+		axis->SetWorld(gizmoMatrix);
+	}
+	for (auto&& quad : _quads)
+	{
+		quad->Update();
+		quad->SetWorld(gizmoMatrix);
+	}
+}
+
 /*******************************
 	기즈모 축, 쿼드의 교차 체크
 ********************************/
@@ -58,7 +72,7 @@ bool cBasicGizmo::IsIntersect(const D3DXVECTOR3 & pos, const D3DXVECTOR3 & dir)
 
 	for (UINT i = 0; i < _quads.size(); i++)
 	{
-		if (_quads[i]->IntersectsWithRay(ray))
+		if (_quads[i]->IntersectsWith(ray))
 		{
 			_direction = GetDirection(i + _axises.size());
 			return true;
@@ -67,7 +81,7 @@ bool cBasicGizmo::IsIntersect(const D3DXVECTOR3 & pos, const D3DXVECTOR3 & dir)
 
 	for (UINT i = 0; i < _axises.size(); i++)
 	{
-		if (_axises[i]->IntersectsWithRay(ray))
+		if (_axises[i]->IntersectsWith(ray))
 		{
 			_direction = GetDirection(i);
 			return true;

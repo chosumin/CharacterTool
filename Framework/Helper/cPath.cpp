@@ -3,8 +3,11 @@
 #include "cString.h"
 
 const WCHAR* cPath::ImageFilter = L"Image\0*.png;*.bmp;*.jpg";
-const WCHAR* cPath::ModelFilter = L"Model\0*.model";
 const WCHAR* cPath::ShaderFilter = L"HLSL file\0*.hlsl";
+const WCHAR* cPath::ModelFilter = L"Model\0*.material;*.fbx";
+const WCHAR* cPath::MaterialFilter = L"Model\0*.material";
+const WCHAR* cPath::MeshFilter = L"Model\0*.mesh";
+const WCHAR* cPath::FbxFilter = L"Model\0*.fbx";
 
 void cPath::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func)
 {

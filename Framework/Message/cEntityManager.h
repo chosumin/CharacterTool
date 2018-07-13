@@ -5,6 +5,7 @@ enum class eIdGroup
 {
 	Character = 0x001,
 	Map = 0x002,
+	CharacterTool = 0x003,
 };
 
 class cEntityManager : public cSingletone<cEntityManager>
@@ -42,7 +43,7 @@ public:
 
 	//엔티티를 관리 컨테이너에서 해제
 	//@param : 해제할 객체
-	void RemoveEntity(weak_ptr<cBaseGameEntity> object);
+	void RemoveEntity(UINT id);
 
 	void Clear();
 private:

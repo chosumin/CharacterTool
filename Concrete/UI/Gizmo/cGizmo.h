@@ -21,7 +21,7 @@ private:
 	void SetMyTransform();
 
 	//카메라와의 거리에 따른 크기 비율 조절
-	void GetScaleRate(const D3DXVECTOR3& camPos);
+	void SetScaleRate(const D3DXVECTOR3& camPos);
 
 	//기즈모 트랜스폼 역변환하여 카메라의 변환 좌표 구함
 	void GetInverseVector(OUT D3DXVECTOR3 *transPos, OUT D3DXVECTOR3* transDir, const D3DXVECTOR3& originPos, const D3DXVECTOR3& originDir);

@@ -65,11 +65,13 @@ void cRotateLine::RotateAxis(D3DXVECTOR3 axis, float length)
 {
 	D3DXMATRIX matrix;
 	D3DXMatrixIdentity(&matrix);
-	float radian = 90.0f * PI / 180.0f;
+	float radian = -90.0f * PI / 180.0f;
 	if (axis.y > 0.0f)
 		D3DXMatrixRotationX(&matrix, radian);
 	else if (axis.x > 0.0f)
 		D3DXMatrixRotationY(&matrix, -radian);
+	else
+		D3DXMatrixTranslation(&matrix, 0, 0, 8.0f);
 
 	for (auto&& vertex : _vertices)
 		D3DXVec3TransformCoord(&vertex.position, &vertex.position, &matrix);
@@ -91,6 +93,8 @@ void cRotateLine::RotateAxis(D3DXVECTOR3 axis, float length)
 	}
 }
 
+/***********************************************************/
+
 cBoxLine::cBoxLine(float length, D3DXCOLOR color, D3DXVECTOR3 direction, D3DXVECTOR3 min, D3DXVECTOR3 max)
 {
 	_line = make_unique<cLine>(color, direction, length);
@@ -110,9 +114,9 @@ cBoxLine::cBoxLine(float length, D3DXCOLOR color, D3DXVECTOR3 direction, D3DXVEC
 	}
 	else if (direction.z > D3DX_16F_EPSILON)
 	{
-		temp.z = min.z + (max.z - min.z) * 0.25f;
-		temp.x = max.x, temp.y = max.y;
-		_box = make_unique<cBox>(min, temp, false, color);
+		temp.z = max.z - (max.z - min.z) * 0.25f;
+		temp.x = min.x, temp.y = min.y;
+		_box = make_unique<cBox>(temp, max, false, color);
 	}
 }
 

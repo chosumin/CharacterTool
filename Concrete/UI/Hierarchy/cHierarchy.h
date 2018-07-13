@@ -1,8 +1,11 @@
 #pragma once
+#include "./Message/cBaseGameEntity.h"
 
 class cModel;
 class cActor;
-class cHierarchy
+class iUI;
+class cHierarchy :
+	public cBaseGameEntity
 {
 public:
 	cHierarchy();
@@ -10,9 +13,17 @@ public:
 public:
 	void Init();
 	void Update();
+	void Render();
 	void PostRender();
 
-	void PicksModel(weak_ptr<cModel> model);
+	// cBaseGameEntity을(를) 통해 상속됨
+	virtual void HandleMessage(const sTelegram & msg) override;
 private:
-	vector<weak_ptr<cActor>> _actor;
+	virtual void FunctionInitialize() override;
+private:
+	ImGuiTreeNodeFlags _bOpen;
+	
+
+	unique_ptr<class cModelHierarchy> _modelHierarchy;
+	
 };

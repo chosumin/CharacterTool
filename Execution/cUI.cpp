@@ -1,46 +1,41 @@
 #include "stdafx.h"
 #include "cUI.h"
-#include "./UI/Inspector/Transform/cGizmo.h"
-#include "./Model/cModelAnimPlayer.h"
+#include "./UI/Gizmo/cGizmo.h"
+#include "./UI/MenuBar/cActorMenu.h"
+#include "./UI/ToolWindow/cToolWindow.h"
 
 cUI::cUI(weak_ptr<sGlobalVariable> global)
 	:_global(global)
 {
+	_toolWindow = make_shared<UI::cToolWindow>();
+	_actorMenu = make_shared<UI::cActorMenu>();
 }
 
 cUI::~cUI()
 {
 	cGizmo::Delete();
-	//cModelAnimPlayer::Delete();
 }
 
 void cUI::Init()
 {
-	//todo : 애님플레이어 메시지로 처리
 	cGizmo::Get()->SetGlobalVariable(_global);
+	_toolWindow->Init();
+	_actorMenu->Init();
 }
 
 void cUI::Update()
 {
-	cGizmo::Get()->Update();
-	//cModelAnimPlayer::Get()->Update();
+	_toolWindow->Update();
+	_actorMenu->Update();
 }
 
 void cUI::Render()
 {
-	//cModelAnimPlayer::Get()->Render();
-	cGizmo::Get()->Render();
+	_toolWindow->Render();
 }
 
 void cUI::PostRender()
 {
-	ImGui::Begin("Inspector");
-	{
-		ImGui::Separator();
-		cGizmo::Get()->PostRender();
-		ImGui::Separator();
-		//cModelAnimPlayer::Get()->PostRender();
-		//ImGui::Separator();
-	}
-	ImGui::End();
+	_toolWindow->PostRender();
+	_actorMenu->PostRender();
 }

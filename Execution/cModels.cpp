@@ -9,7 +9,7 @@
 #include "./Transform/sTransform.h"
 
 #include "./Model/FbxExporter/Exporter.h"
-#include "./UI/Inspector/Transform/cGizmo.h"
+#include "./UI/Hierarchy/cHierarchy.h"
 
 cModels::cModels(weak_ptr<sGlobalVariable> global)
 	:_global(global)
@@ -52,6 +52,4 @@ void cModels::Render()
 
 void cModels::PostRender()
 {
-	_actor->PostRender(0);
-	_actor2->PostRender(1);
 }

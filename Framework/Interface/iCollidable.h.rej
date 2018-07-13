@@ -1,0 +1,41 @@
+diff a/Framework/Interface/iCollidable.h b/Framework/Interface/iCollidable.h	(rejected hunks)
+@@ -11,17 +11,27 @@
+ 	Front, Back, Intersecting
+ };
+ 
+-__interface iCollidable
++struct sLine
+ {
+-	ContainmentType ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction);
+-	ContainmentType ContainsPlane(D3DXVECTOR3 normal, float d);
+-	ContainmentType ContainsDot(D3DXVECTOR3 point);
+-	ContainmentType ContainsSphere(D3DXVECTOR3 center, float radius);
+-	ContainmentType ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min);
++	D3DXVECTOR3 start;
++	D3DXVECTOR3 end;
++};
++
++class iCollidable
++{
++public:
++	virtual ~iCollidable() {}
++
++	virtual ContainmentType ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) = 0;
++	virtual ContainmentType ContainsPlane(D3DXVECTOR3 normal, float d) = 0;
++	virtual ContainmentType ContainsDot(D3DXVECTOR3 point) = 0;
++	virtual ContainmentType ContainsSphere(D3DXVECTOR3 center, float radius) = 0;
++	virtual ContainmentType ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min) = 0;
+ 
+-	bool IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction);
+-	PlaneIntersectionType IntersectsWithPlane(D3DXVECTOR3 normal, float d);
+-	bool IntersectsWithDot(D3DXVECTOR3 point);
+-	bool IntersectsWithSphere(D3DXVECTOR3 center, float radius);
+-	bool IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max);
++	virtual bool IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) = 0;
++	virtual PlaneIntersectionType IntersectsWithPlane(D3DXVECTOR3 normal, float d) = 0;
++	virtual bool IntersectsWithDot(D3DXVECTOR3 point) = 0;
++	virtual bool IntersectsWithSphere(D3DXVECTOR3 center, float radius) = 0;
++	virtual bool IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max) = 0;
++	virtual bool IntersectsWithCylinder(sLine line, float radius) = 0;
+ };
+\ No newline at end of file

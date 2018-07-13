@@ -12,23 +12,48 @@ cActor::~cActor()
 
 void cActor::Update()
 {
-	_transform->Update();
-	_behaviorTree->Update();
-	_anim->Update(_transform);
+	if(_transform)
+		_transform->Update();
+
+	if(_behaviorTree)
+		_behaviorTree->Update();
+
+	if(_anim)
+		_anim->Update(_transform);
+
+	if (_model)
+		_model->Update();
+
 	for (auto&& col : _colliders)
 		col->Update();
 }
 
 void cActor::Render()
 {
-	_anim->Render();
+	if (_anim)
+		_anim->Render();
+
+	if (_model)
+		_model->Render();
+
 	for (auto&& col : _colliders)
 		col->Render();
 }
 
-weak_ptr<struct sTransform> cActor::GetTransform() const
+weak_ptr<cModel> cActor::GetModel() const
 {
-	return _transform;
+	if(_model)
+		return _model;
+
+	return weak_ptr<cModel>();
+}
+
+weak_ptr<sTransform> cActor::GetTransform() const
+{
+	if(_transform)
+		return _transform;
+
+	return weak_ptr<sTransform>();
 }
 
 void cActor::GetAction(eAction actionType)
@@ -44,6 +69,14 @@ void cActor::SetAction(eAction actionType, function<void()> func)
 UINT cActor::GetCurrentAnim() const
 {
 	return _anim->GetClip();
+}
+
+void cActor::SetModel(weak_ptr<cModel> model)
+{
+	if (model.expired())
+		return;
+
+	_model = model.lock();
 }
 
 void cActor::Idle()
@@ -116,22 +149,6 @@ weak_ptr<cCollider> cActor::GetCollider(UINT num) const
 
 void cActor::PostRender(int i)
 {
-	//hack : ¤Ð¤Ð
-	ImGui::Begin("Inspector");
-	{
-		ImGui::Separator();
-
-		auto damagedCol = _colliders[0]->GetLocalTransform();
-		ControlTransform(i + "damage", damagedCol);
-
-		ImGui::Separator();
-
-		auto attackCol = _colliders[1]->GetLocalTransform();
-		ControlTransform(i + "attack", attackCol);
-
-		ImGui::Separator();
-	}
-	ImGui::End();
 }
 
 void cActor::ControlTransform(string name, weak_ptr<struct sTransform> transform)

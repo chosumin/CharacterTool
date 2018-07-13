@@ -19,6 +19,8 @@ public:
 		}
 	}
 
+	static void Log(const char* fmt, ...) IM_FMTARGS(2);
+
 	static bool GetDebugMode()
 	{
 		return _isDebug;
@@ -29,16 +31,11 @@ public:
 		_isDebug = debug;
 	}
 
-	static void PrintLogs()
-	{
-		for (auto& log : _logList)
-		{
-			log();
-			cout << endl;
-		}
-		_logList.clear();
-	}
+	static void PrintLogs();
+private:
+	static char* Strdup(const char *str);
 private:
 	static bool _isDebug;
 	static forward_list <function<void()>> _logList;
+	static ImVector<char*> Items;
 };

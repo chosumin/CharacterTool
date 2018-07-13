@@ -13,7 +13,7 @@
 #include "./Transform/sTransform.h"
 
 cModelAnimPlayer::cModelAnimPlayer(weak_ptr<cModel> model)
-	:model(model)
+	: model(model)
 	, mode(Mode::Play)
 	, currentKeyFrame(0)
 	, frameTime(0.0f)

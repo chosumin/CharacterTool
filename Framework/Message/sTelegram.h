@@ -3,7 +3,13 @@
 
 enum class eMessageType
 {
-	None
+	None,
+
+	/*************
+		UI ฐüทร
+	**************/
+	RecieveActor,
+	RecieveTool
 };
 
 struct sTelegram

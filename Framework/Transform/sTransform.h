@@ -12,6 +12,7 @@ public:
 	void Rotate(D3DXVECTOR3 deltaAngle);
 	void RotateToFixedMatrix(const D3DXMATRIX& fixedMat, const D3DXVECTOR3& deltaAngle);
 
+	void SetMatrix(const D3DXMATRIX& world);
 	void SetVSBuffer(UINT slot);
 
 	D3DXMATRIX GetRotationMatrix() const

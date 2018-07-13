@@ -15,6 +15,6 @@ public:
 	virtual void ResizeScreen() override;
 private:
 	shared_ptr<struct sGlobalVariable> _globalVariable;
-	vector<iExecutable*> _vecObject;
+	vector<shared_ptr<iExecutable>> _vecObject;
 };
 

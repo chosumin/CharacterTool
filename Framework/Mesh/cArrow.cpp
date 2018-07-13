@@ -34,7 +34,7 @@ void cArrow::Render()
 
 void cArrow::CreateVertex(D3DXVECTOR3 axis, float length)
 {
-	const D3DXVECTOR3 apex = { 0,0,-length };
+	const D3DXVECTOR3 apex = { 0,0,length };
 
 	VertexC vertex;
 	vertex.color = mColor;
@@ -52,13 +52,13 @@ void cArrow::CreateVertex(D3DXVECTOR3 axis, float length)
 
 		for (float i = 0.0f; i < 2 * D3DX_PI; i += step)
 		{
-			vertex.position = D3DXVECTOR3{ cosf(i) * 0.25f, sinf(i) * 0.25f, -length * 0.75f };
+			vertex.position = D3DXVECTOR3{ cosf(i) * 0.25f, sinf(i) * 0.25f, length * 0.75f };
 			mVertexData.push_back(vertex);
 
 			vertex.position = apex; 
 			mVertexData.push_back(vertex);
 
-			vertex.position = D3DXVECTOR3{ cosf(i + step) * 0.25f, sinf(i + step) * 0.25f, -length * 0.75f };
+			vertex.position = D3DXVECTOR3{ cosf(i + step) * 0.25f, sinf(i + step) * 0.25f, length * 0.75f };
 			mVertexData.push_back(vertex);
 		}
 	}
@@ -69,7 +69,7 @@ void cArrow::RotateAxis(D3DXVECTOR3 axis)
 	//축에 따른 정점 위치 변환
 	D3DXMATRIX matrix;
 	D3DXMatrixIdentity(&matrix);
-	float radian = 90.0f * PI / 180.0f;
+	float radian = -90.0f * PI / 180.0f;
 	if (axis.y > 0.0f)
 		D3DXMatrixRotationX(&matrix, radian);
 	else if (axis.x > 0.0f)

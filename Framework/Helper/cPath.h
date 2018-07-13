@@ -27,4 +27,7 @@ public:
 	static const WCHAR* ImageFilter;
 	static const WCHAR* ShaderFilter;
 	static const WCHAR* ModelFilter;
+	static const WCHAR* MaterialFilter;
+	static const WCHAR* MeshFilter;
+	static const WCHAR* FbxFilter;
 };

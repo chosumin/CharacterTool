@@ -24,7 +24,7 @@ cRectangle::~cRectangle()
 	SAFE_RELEASE(m_pIB);
 }
 
-bool cRectangle::IntersectWithRay(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction)
+bool cRectangle::IntersectWithRay(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction) const
 {
 	auto v0 = m_vertexData[0].position;
 	auto v1 = m_vertexData[1].position;
