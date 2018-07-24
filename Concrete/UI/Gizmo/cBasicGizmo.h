@@ -9,7 +9,10 @@ public:
 	cBasicGizmo(weak_ptr<sGlobalVariable> global);
 	~cBasicGizmo();
 
-	virtual void Update(const D3DXMATRIX& gizmoMatrix, const D3DXVECTOR3& mousePos, const D3DXVECTOR3& mouseDir) = 0;
+	virtual void Update(const D3DXMATRIX& gizmoWorld, const D3DXMATRIX& gizmoLocal, const D3DXVECTOR3& mousePos, const D3DXVECTOR3& mouseDir) = 0;
+
+	virtual void Update(const D3DXMATRIX& gizmoLocal, const D3DXVECTOR3& mousePos, const D3DXVECTOR3& mouseDir) = 0;
+
 	void Render();
 protected:
 	void UpdateCollider(const D3DXMATRIX& gizmoMatrix);

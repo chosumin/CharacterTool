@@ -17,9 +17,5 @@ public:
 	virtual void PostRender() override;
 	virtual void ResizeScreen() override {}
 private:
-	shared_ptr<class cActor> _actor;
-	shared_ptr<class cActor> _actor2;
 	weak_ptr<sGlobalVariable> _global;
-
-	//shared_ptr<class cCylinderCollider> _col;
 };

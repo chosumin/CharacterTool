@@ -136,11 +136,8 @@ void cModelFactory::ReadModelBoneData(weak_ptr<cBinaryReader> r, weak_ptr<cModel
 	bonePtr->_transform->Matrix = readerPtr->Matrix();
 	bonePtr->_absoluteTransform->Matrix = readerPtr->Matrix();
 
-	//todo : 확인, 익스포터에서 이거 지우기
-	bonePtr->_absoluteTransform->Scaling = readerPtr->Vector3();
-	bonePtr->_absoluteTransform->Rotation = readerPtr->Vector3();
-	bonePtr->_absoluteTransform->Position = readerPtr->Vector3();
-	bonePtr->_absoluteTransform->Quaternion = readerPtr->Quaternion();
+	bonePtr->_transform->Decompose();
+	bonePtr->_absoluteTransform->Decompose();
 }
 
 void cModelFactory::ReadMeshData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMesh> mesh)

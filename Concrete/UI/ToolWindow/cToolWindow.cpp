@@ -7,11 +7,14 @@
 
 #include "./Transform/cTransformTool.h"
 #include "./Model/cModelTool.h"
+#include "./Collider/cColliderTool.h"
 
 UI::cToolWindow::cToolWindow()
 {
+	auto modelTool = make_shared<cModelTool>();
 	_tools.emplace_back(make_shared<cTransformTool>());
-	_tools.emplace_back(make_shared<cModelTool>());
+	_tools.emplace_back(modelTool);
+	_tools.emplace_back(make_shared<cColliderTool>(modelTool));
 }
 
 UI::cToolWindow::~cToolWindow()
@@ -29,6 +32,7 @@ void UI::cToolWindow::Init()
 
 void UI::cToolWindow::Update()
 {
+	//fixme : 툴을 모두 업데이트 렌더할지, 아니면 선택된 툴만 업데이트 렌더할지
 	for (auto&& tool : _tools)
 		tool->Update();
 }
@@ -41,10 +45,11 @@ void UI::cToolWindow::Render()
 
 void UI::cToolWindow::PostRender()
 {
-	ImGui::Begin("Hierarchy");
-	{	
-		for (auto&& tool : _tools)
-			tool->ShowHierarchy();
+	bool flag = true;
+	ImGui::Begin("Hierarchy", &flag, ImGuiWindowFlags_HorizontalScrollbar);
+	{
+		for (UINT i = 0; i < _tools.size(); i++)
+			_tools[i]->ShowHierarchy(i + 1);
 	}
 	ImGui::End();
 

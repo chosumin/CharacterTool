@@ -110,72 +110,72 @@ void cModelAnimPlayer::UpdateTime()
 
 void cModelAnimPlayer::UpdateBone(weak_ptr<sTransform> actorWorld)
 {
-	auto modelPtr = model.lock();
-	for (UINT i = 0; i < modelPtr->GetBoneCount(); i++)
-	{
-		auto bonePtr = modelPtr->GetBone(i).lock();
-		//애니메이션 될 행렬
-		D3DXMATRIX matAnimation;
+	//auto modelPtr = model.lock();
+	//for (UINT i = 0; i < modelPtr->GetBoneCount(); i++)
+	//{
+	//	auto bonePtr = modelPtr->GetBone(i).lock();
+	//	//애니메이션 될 행렬
+	//	D3DXMATRIX matAnimation;
 
-		//부모와 계산될 행렬
-		D3DXMATRIX matParentAnimation;
+	//	//부모와 계산될 행렬
+	//	D3DXMATRIX matParentAnimation;
 
-		//자신의 글로벌 행렬
-		D3DXMATRIX matInvBindPose = bonePtr->AbsoluteTransform();
-		D3DXMatrixInverse(&matInvBindPose, nullptr, &matInvBindPose);
+	//	//자신의 글로벌 행렬
+	//	D3DXMATRIX matInvBindPose = bonePtr->AbsoluteTransform();
+	//	D3DXMatrixInverse(&matInvBindPose, nullptr, &matInvBindPose);
 
-		auto frame = currentClip.lock()->GetKeyframe(bonePtr->GetName());
-		if (frame == nullptr)
-			return;
+	//	auto frame = currentClip.lock()->GetKeyframe(bonePtr->GetName());
+	//	if (frame == nullptr)
+	//		return;
 
-		if (bUseSlerp == true)
-		{
-			//구형 보간
-			D3DXMATRIX S, R, T;
+	//	if (bUseSlerp == true)
+	//	{
+	//		//구형 보간
+	//		D3DXMATRIX S, R, T;
 
-			sModelKeyFrameData current = frame->FrameData[currentKeyFrame];
-			sModelKeyFrameData next = frame->FrameData[nextKeyFrame];
+	//		sModelKeyFrameData current = frame->FrameData[currentKeyFrame];
+	//		sModelKeyFrameData next = frame->FrameData[nextKeyFrame];
 
-			D3DXVECTOR3 s1 = current.Scale;
-			D3DXVECTOR3 s2 = next.Scale;
+	//		D3DXVECTOR3 s1 = current.Scale;
+	//		D3DXVECTOR3 s2 = next.Scale;
 
-			D3DXVECTOR3 s;
-			D3DXVec3Lerp(&s, &s1, &s2, keyFrameFactor);
-			D3DXMatrixScaling(&S, s.x, s.y, s.z);
+	//		D3DXVECTOR3 s;
+	//		D3DXVec3Lerp(&s, &s1, &s2, keyFrameFactor);
+	//		D3DXMatrixScaling(&S, s.x, s.y, s.z);
 
-			D3DXQUATERNION q1 = current.Rotation;
-			D3DXQUATERNION q2 = next.Rotation;
+	//		D3DXQUATERNION q1 = current.Rotation;
+	//		D3DXQUATERNION q2 = next.Rotation;
 
-			D3DXQUATERNION q;
-			D3DXQuaternionSlerp(&q, &q1, &q2, keyFrameFactor);
-			D3DXMatrixRotationQuaternion(&R, &q);
+	//		D3DXQUATERNION q;
+	//		D3DXQuaternionSlerp(&q, &q1, &q2, keyFrameFactor);
+	//		D3DXMatrixRotationQuaternion(&R, &q);
 
-			D3DXVECTOR3 t1 = current.Translation;
-			D3DXVECTOR3 t2 = next.Translation;
+	//		D3DXVECTOR3 t1 = current.Translation;
+	//		D3DXVECTOR3 t2 = next.Translation;
 
-			D3DXVECTOR3 t;
-			D3DXVec3Lerp(&t, &t1, &t2, keyFrameFactor);
-			D3DXMatrixTranslation(&T, t.x, t.y, t.z);
+	//		D3DXVECTOR3 t;
+	//		D3DXVec3Lerp(&t, &t1, &t2, keyFrameFactor);
+	//		D3DXMatrixTranslation(&T, t.x, t.y, t.z);
 
-			matAnimation = S * R * T;
-		}
-		else
-		{
-			matAnimation = frame->FrameData[currentKeyFrame].Transform;
-		}
+	//		matAnimation = S * R * T;
+	//	}
+	//	else
+	//	{
+	//		matAnimation = frame->FrameData[currentKeyFrame].Transform;
+	//	}
 
-		int parentIndex = bonePtr->GetParentIndex();
+	//	int parentIndex = bonePtr->GetParentIndex();
 
-		//조작할 때 이 부분을 바꿔라
-		if (parentIndex < 0)
-			matParentAnimation = actorWorld.lock()->Matrix;
-		else
-			matParentAnimation = boneAnimation[parentIndex];
+	//	//조작할 때 이 부분을 바꿔라
+	//	if (parentIndex < 0)
+	//		matParentAnimation = actorWorld.lock()->Matrix;
+	//	else
+	//		matParentAnimation = boneAnimation[parentIndex];
 
-		boneAnimation[i] = matAnimation * matParentAnimation;
-		
-		//test : 콜라이더 부모 테스트
-		bonePtr->SetTransform(boneAnimation[i]);
-		skinTransform[i] = matInvBindPose * boneAnimation[i];
-	}
+	//	boneAnimation[i] = matAnimation * matParentAnimation;
+	//	
+	//	//test : 콜라이더 부모 테스트
+	//	bonePtr->SetTransform(boneAnimation[i]);
+	//	//skinTransform[i] = matInvBindPose * boneAnimation[i];
+	//}
 }

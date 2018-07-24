@@ -12,9 +12,10 @@ public:
 
 	void ResetState();
 public:
-	// cCollider을(를) 통해 상속됨
+	/********************************
+		cCollider을(를) 통해 상속됨
+	*********************************/
 	virtual bool IntersectsWith(weak_ptr<iCollidable> other) override;
-
 	virtual ContainmentType ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) override;
 	virtual ContainmentType ContainsPlane(D3DXVECTOR3 normal, float d) override;
 	virtual ContainmentType ContainsDot(D3DXVECTOR3 point) override;

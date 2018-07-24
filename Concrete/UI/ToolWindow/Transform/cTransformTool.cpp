@@ -26,15 +26,14 @@ void UI::cTransformTool::Render()
 	cGizmo::Get()->Render();
 }
 
-void UI::cTransformTool::ShowHierarchy()
+void UI::cTransformTool::ShowHierarchy(int i)
 {
-	if (ImGui::TreeNode(""))
+	if (ImGui::TreeNode(to_string(i).c_str()))
 		ImGui::TreePop();
 	ImGui::SameLine();
 
 	if (ImGui::Selectable("Transform"))
 	{
-		cDebug::Log("Transform Selected!");
 		ShowTransform();
 
 		//윈도우 툴에 자신을 전달
@@ -57,5 +56,6 @@ void UI::cTransformTool::ShowTransform()
 	if (actorPtr->GetTransform().expired())
 		return;
 
+	cDebug::Log("Transform Selected!");
 	cGizmo::Get()->AddTransform(actorPtr->GetTransform());
 }

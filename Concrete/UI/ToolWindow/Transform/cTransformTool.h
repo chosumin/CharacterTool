@@ -13,7 +13,7 @@ namespace UI
 		virtual void Init() override;
 		virtual void Update() override;
 		virtual void Render() override;
-		virtual void ShowHierarchy() override;
+		virtual void ShowHierarchy(int i) override;
 		virtual void ShowInspector() override;
 	private:
 		void ShowTransform();

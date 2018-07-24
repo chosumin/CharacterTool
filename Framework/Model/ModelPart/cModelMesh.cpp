@@ -7,7 +7,6 @@
 
 cModelMesh::cModelMesh()
 {
-	_worldBuffer = make_unique<cWorldBuffer>();
 }
 
 cModelMesh::~cModelMesh()
@@ -19,7 +18,6 @@ unique_ptr<cModelMesh> cModelMesh::Clone() const
 	auto mesh = make_unique<cModelMesh>();
 	mesh->_name = _name;
 	mesh->_parentBoneIndex = _parentBoneIndex;
-	mesh->_worldBuffer = make_unique<cWorldBuffer>(*_worldBuffer);
 	for (auto&& part : _meshParts)
 	{
 		auto temp = part->Clone();
@@ -31,18 +29,17 @@ unique_ptr<cModelMesh> cModelMesh::Clone() const
 
 weak_ptr<sTransform> cModelMesh::GetParentTransform() const
 {
-	return _parentBone.lock()->GetTransform();
+	return _parentBone.lock()->GetAbsoluteTransform();
 }
 
-D3DXVECTOR3 cModelMesh::GetMeshPoint() const
+weak_ptr<cCollider> cModelMesh::GetCollider() const
 {
-	if (_meshParts.empty())
-		return{ 0,0,0 };
+	return _collider;
+}
 
-	if (_meshParts[0]->_vertices.empty())
-		return{ 0,0,0 };
-
-	return _meshParts[0]->_vertices[0].position;
+void cModelMesh::SetCollider(weak_ptr<cCollider> collider)
+{
+	_collider = collider.lock();
 }
 
 void cModelMesh::Binding()
@@ -53,7 +50,6 @@ void cModelMesh::Binding()
 
 void cModelMesh::Render()
 {
-	_worldBuffer->SetVSBuffer(1);
 	for (auto&& part : _meshParts)
 		part->Render();
 }

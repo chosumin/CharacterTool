@@ -27,7 +27,7 @@ cScalingGizmo::~cScalingGizmo()
 {
 }
 
-void cScalingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & mousePos, const D3DXVECTOR3 & mouseDir)
+void cScalingGizmo::Update(const D3DXMATRIX & gizmoWorld, const D3DXMATRIX & gizmoLocal, const D3DXVECTOR3 & mousePos, const D3DXVECTOR3 & mouseDir)
 {
 	bool intersect = false;
 	if (_isClick == false)
@@ -37,15 +37,33 @@ void cScalingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & m
 		_isClick = true;
 
 	if (_isClick && cMouse::Get()->Press(0))
-		Scale(gizmoMatrix);
+		Scale(gizmoWorld, &gizmoLocal);
 
 	if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
 
-	UpdateCollider(gizmoMatrix);
+	UpdateCollider(gizmoWorld);
 }
 
-void cScalingGizmo::Scale(const D3DXMATRIX& matrix)
+void cScalingGizmo::Update(const D3DXMATRIX & gizmoLocal, const D3DXVECTOR3 & mousePos, const D3DXVECTOR3 & mouseDir)
+{
+	bool intersect = false;
+	if (_isClick == false)
+		intersect = IsIntersect(mousePos, mouseDir);
+
+	if (intersect && cMouse::Get()->Down(0))
+		_isClick = true;
+
+	if (_isClick && cMouse::Get()->Press(0))
+		Scale(gizmoLocal);
+
+	if (_isClick && cMouse::Get()->Up(0))
+		_isClick = false;
+
+	UpdateCollider(gizmoLocal);
+}
+
+void cScalingGizmo::Scale(const D3DXMATRIX& colMatrix, const D3DXMATRIX* updateMatrix)
 {
 	auto globalPtr = _global.lock();
 	D3DXMATRIX view, proj;
@@ -59,13 +77,14 @@ void cScalingGizmo::Scale(const D3DXMATRIX& matrix)
 	{
 		//현재 축을 뷰 프로젝션 역변환
 		dir = cMath::Mul(_direction, axis[i]);
-		D3DXVec3TransformNormal(&dir, &dir, &matrix);
+		D3DXVec3TransformNormal(&dir, &dir, &colMatrix);
 		D3DXVec3TransformNormal(&dir, &dir, &view);
 		D3DXVec3TransformNormal(&dir, &dir, &proj);
 
 		//누른 축을 트랜스폼 행렬로 변환
 		auto delta = axis[i];
-		D3DXVec3TransformNormal(&delta, &delta, &matrix);
+		D3DXVec3TransformNormal(&delta, &delta, &colMatrix);
+		D3DXVec3Normalize(&delta, &delta);
 
 		//방향과 마우스 델타 값 내적
 		auto deltaF = D3DXVec3Dot(&dir, &mouse);
@@ -74,8 +93,23 @@ void cScalingGizmo::Scale(const D3DXMATRIX& matrix)
 		total += delta;
 	}
 
+	if (updateMatrix)
+	{
+		//todo : 나중에 시간되면 디버깅
+		sTransform temp;
+		temp.Matrix = colMatrix;
+		temp.Decompose();
+
+		D3DXVec3TransformNormal(&total, &total, &temp.GetRotationMatrix());
+	}
+
 	auto transform = _transform.lock();
 	//todo : 소프트코딩으로 바꾸기
 	transform->Scaling += total * 10.0f;
+	
+	transform->Scaling.x = max(transform->Scaling.x, D3DX_16F_EPSILON);
+	transform->Scaling.y = max(transform->Scaling.y, D3DX_16F_EPSILON);
+	transform->Scaling.z = max(transform->Scaling.z, D3DX_16F_EPSILON);
+
 	transform->Update();
 }

@@ -139,7 +139,7 @@ void Fbx::Exporter::WriteMaterialData(Json::Value & root, wstring saveFolder, un
 	Json::Value val;
 	Json::SetValue(val, "Name", material->Name);
 
-	//todo : 쉐이더 파일 바뀌어야 될지도?
+	//hack : 쉐이더 파일 바뀌어야 될지도?
 	string shaderName = "999_Mesh.hlsl";
 	Json::SetValue(val, "ShaderName", shaderName);
 
@@ -289,6 +289,7 @@ unique_ptr<Fbx::FbxMeshData> Fbx::Exporter::CreateMeshData(FbxNode * node, int p
 	auto meshData = make_unique<FbxMeshData>();
 	meshData->Name = node->GetName();
 	meshData->ParentBone = parent;
+
 	meshData->Vertices = vertices;
 	meshData->Mesh = node->GetMesh();
 
@@ -323,7 +324,8 @@ void Fbx::Exporter::ReadSkinData()
 		for (int i = 0; i < _scene->GetMaterialCount(); i++)
 		{
 			auto meshPart = CreateMeshPart(i, meshData->Vertices);
-			meshData->MeshParts.emplace_back(move(meshPart));
+			if(meshPart)
+				meshData->MeshParts.emplace_back(move(meshPart));
 		}
 	}//for(meshData : _meshes)
 }
@@ -440,6 +442,7 @@ unique_ptr<Fbx::FbxMeshPartData> Fbx::Exporter::CreateMeshPart(int i, const vect
 		meshPart->Indices.emplace_back(meshPart->Indices.size());
 	}
 
+	//nullptr이면 반환 안하기
 	return move(meshPart);
 }
 
@@ -467,12 +470,6 @@ void Fbx::Exporter::WriteBoneDataOnBinaryFile(cBinaryWriter * w)
 		w->Int(bone->Parent);
 		w->Matrix(bone->Transform);
 		w->Matrix(bone->AbsoluteTransform);
-
-		w->Vector3(bone->Scale);
-		w->Vector3(bone->Rotation);
-		w->Vector3(bone->Translation);
-		//todo : 쿼터니언 확인
-		w->Vector4(bone->Quaternion);
 	}
 }
 

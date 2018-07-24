@@ -15,10 +15,8 @@ private:
 public:
 	~cModel();
 
-	void Update();
+	void Update(const D3DXMATRIX& root);
 	void Render();
-
-	void ShowHierarchy();
 public:
 	/*******************
 		Getter Setter
@@ -59,7 +57,7 @@ protected:
 	*********************************/
 	virtual std::unique_ptr<cModel> Clone() const override;
 private:
-	shared_ptr<cModelBone> _root;
+	weak_ptr<cModelBone> _root;
 
 	vector<shared_ptr<cMaterial>> _materials;
 	vector<shared_ptr<cModelBone>> _bones;
@@ -67,5 +65,4 @@ private:
 	vector<shared_ptr<cModelAnimClip>> _clips;
 
 	shared_ptr<class cModelBoneBuffer> _buffer;
-	//todo : 모델 본 내부에 본, 메쉬 가지게하고 업데이트는 루트본만 이뤄지게 하기
 };

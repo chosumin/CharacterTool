@@ -55,17 +55,10 @@ namespace Fbx
 		int Parent;
 		D3DXMATRIX Transform;
 		D3DXMATRIX AbsoluteTransform;
-
-		//todo : 확인
-		D3DXVECTOR3 Scale = { 1,1,1 };
-		D3DXVECTOR3 Rotation = { 0,0,0 };
-		D3DXVECTOR3 Translation = { 0,0,0 };
-		D3DXQUATERNION Quaternion;
 	};
 
 	struct FbxKeyFrameData
 	{
-		//todo : transform이 필요한 것일까
 		D3DXMATRIX Transform;
 		D3DXQUATERNION Rotation;
 		D3DXVECTOR3 Translation;

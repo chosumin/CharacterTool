@@ -4,16 +4,16 @@
 #include "./Transform/sTransform.h"
 #include "./Helper/cMath.h"
 
-cCollider::cCollider(weak_ptr<sTransform> boneTransform)
-	:_boneTransform(boneTransform)
+cCollider::cCollider(weak_ptr<sTransform> parentTransform)
+	:_parentTransform(parentTransform)
 {
-	_worldBuffer = make_unique<cWorldBuffer>();
-
 	_shader = cShader::Create(Shader + L"002_Collider.hlsl");
 	_cbuffer = make_unique<cColliderBuffer>();
 
 	_localTransform = make_shared<sTransform>();
 
+	_worldTransform = make_shared<sTransform>();
+	
 	Update();
 }
 
@@ -25,22 +25,17 @@ void cCollider::Update()
 {
 	_localTransform->Update();
 
-	if (_boneTransform.expired())
-	{
-		_world = _localTransform->Matrix;
-		_scale = _localTransform->Scaling;
-	}
+	if (_parentTransform.expired())
+		*_worldTransform = *_localTransform;
 	else
 	{
-		_world = _localTransform->Matrix * _boneTransform.lock()->Matrix;
-		_scale = cMath::Mul(_localTransform->Scaling, _boneTransform.lock()->Scaling);
+		*_worldTransform = *_localTransform * *_parentTransform.lock();
 	}
-	_worldBuffer->SetMatrix(_world);
 }
 
 void cCollider::Render()
 {
-	_worldBuffer->SetVSBuffer(1);
+	_worldTransform->SetVSBuffer(1);
 	_shader->Render();
 	_cbuffer->SetPSBuffer(2);
 }
@@ -50,12 +45,29 @@ weak_ptr<sTransform> cCollider::GetLocalTransform() const
 	return _localTransform;
 }
 
-D3DXMATRIX cCollider::GetWorld() const
+void cCollider::SetLocalTransform(const D3DXMATRIX & matrix)
 {
-	return _world;
+	_localTransform->Matrix = matrix;
+	_localTransform->Decompose();
+}
+
+D3DXMATRIX& cCollider::GetWorld() const
+{
+	return _worldTransform->Matrix;
 }
 
 void cCollider::SetWorld(const D3DXMATRIX & world)
 {
-	_worldBuffer->SetMatrix(world);
+	//*_world = world;
+	_worldTransform->SetMatrix(world);
+}
+
+weak_ptr<sTransform> cCollider::GetWorldTransform() const
+{
+	return _worldTransform;
+}
+
+weak_ptr<sTransform> cCollider::GetParentTransform() const
+{
+	return _parentTransform;
 }

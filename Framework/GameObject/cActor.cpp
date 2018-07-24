@@ -4,28 +4,33 @@
 #include "./Transform/sTransform.h"
 #include "./Model/cModelAnimPlayer.h"
 #include "./BehaviorTree/cBehaviorTree.h"
-#include "./Collider/cCollider.h"
+#include "./Collider/cActorColliders.h"
 
 cActor::~cActor()
 {
 }
 
+void cActor::Init()
+{
+	_colliders = make_shared<cActorColliders>(shared_from_this());
+}
+
 void cActor::Update()
 {
-	if(_transform)
+	if (_transform)
 		_transform->Update();
 
-	if(_behaviorTree)
+	if (_behaviorTree)
 		_behaviorTree->Update();
 
-	if(_anim)
+	if (_anim)
 		_anim->Update(_transform);
 
 	if (_model)
-		_model->Update();
+		_model->Update(_transform->Matrix);
 
-	for (auto&& col : _colliders)
-		col->Update();
+	if (_colliders)
+		_colliders->Update();
 }
 
 void cActor::Render()
@@ -36,8 +41,8 @@ void cActor::Render()
 	if (_model)
 		_model->Render();
 
-	for (auto&& col : _colliders)
-		col->Render();
+	if (_colliders)
+		_colliders->Render();
 }
 
 weak_ptr<cModel> cActor::GetModel() const
@@ -54,6 +59,11 @@ weak_ptr<sTransform> cActor::GetTransform() const
 		return _transform;
 
 	return weak_ptr<sTransform>();
+}
+
+weak_ptr<cActorColliders> cActor::GetColliders() const
+{
+	return _colliders;
 }
 
 void cActor::GetAction(eAction actionType)
@@ -144,7 +154,7 @@ void cActor::Damage()
 
 weak_ptr<cCollider> cActor::GetCollider(UINT num) const
 {
-	return _colliders[num];
+	return weak_ptr<cCollider>();
 }
 
 void cActor::PostRender(int i)

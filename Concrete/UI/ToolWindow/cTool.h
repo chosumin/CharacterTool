@@ -18,7 +18,7 @@ namespace UI
 		virtual void Update() = 0;
 		virtual void Render() = 0;
 
-		virtual void ShowHierarchy() = 0;
+		virtual void ShowHierarchy(int i) = 0;
 		virtual void ShowInspector() = 0;
 	protected:
 		bool AlertActor();

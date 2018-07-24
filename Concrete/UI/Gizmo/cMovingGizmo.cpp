@@ -26,7 +26,7 @@ cMovingGizmo::~cMovingGizmo()
 {
 }
 
-void cMovingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & mousePos, const D3DXVECTOR3 & mouseDir)
+void cMovingGizmo::Update(const D3DXMATRIX & gizmoWorld, const D3DXMATRIX & gizmoLocal, const D3DXVECTOR3 & mousePos, const D3DXVECTOR3 & mouseDir)
 {
 	//마우스와 기즈모 교차 체크
 	bool intersect = false;
@@ -37,14 +37,32 @@ void cMovingGizmo::Update(const D3DXMATRIX & gizmoMatrix, const D3DXVECTOR3 & mo
 		_isClick = true;
 
 	if (_isClick && cMouse::Get()->Press(0))
-		Move(gizmoMatrix);
+		Move(gizmoWorld, &gizmoLocal);
 	else if (_isClick && cMouse::Get()->Up(0))
 		_isClick = false;
 
-	UpdateCollider(gizmoMatrix);
+	UpdateCollider(gizmoWorld);
 }
 
-void cMovingGizmo::Move(const D3DXMATRIX& matrix)
+void cMovingGizmo::Update(const D3DXMATRIX & gizmoLocal, const D3DXVECTOR3 & mousePos, const D3DXVECTOR3 & mouseDir)
+{
+	//마우스와 기즈모 교차 체크
+	bool intersect = false;
+	if (_isClick == false)
+		intersect = IsIntersect(mousePos, mouseDir);
+
+	if (intersect && cMouse::Get()->Down(0))
+		_isClick = true;
+
+	if (_isClick && cMouse::Get()->Press(0))
+		Move(gizmoLocal);
+	else if (_isClick && cMouse::Get()->Up(0))
+		_isClick = false;
+
+	UpdateCollider(gizmoLocal);
+}
+
+void cMovingGizmo::Move(const D3DXMATRIX& colMatrix, const D3DXMATRIX* updateMatrix)
 {
 	auto globalPtr = _global.lock();
 	D3DXMATRIX view, proj;
@@ -58,13 +76,13 @@ void cMovingGizmo::Move(const D3DXMATRIX& matrix)
 	{
 		//현재 축을 뷰 프로젝션 역변환
 		dir = cMath::Mul(_direction, axis[i]);
-		D3DXVec3TransformNormal(&dir, &dir, &matrix);
+		D3DXVec3TransformNormal(&dir, &dir, &colMatrix);
 		D3DXVec3TransformNormal(&dir, &dir, &view);
 		D3DXVec3TransformNormal(&dir, &dir, &proj);
 
 		//누른 축을 트랜스폼 행렬로 변환
 		auto delta = axis[i];
-		D3DXVec3TransformNormal(&delta, &delta, &matrix);
+		D3DXVec3TransformNormal(&delta, &delta, &colMatrix);
 		D3DXVec3Normalize(&delta, &delta);
 
 		//방향과 마우스 델타 값 내적
@@ -72,6 +90,16 @@ void cMovingGizmo::Move(const D3DXMATRIX& matrix)
 
 		delta *= deltaF;
 		total += delta;
+	}
+
+	//월드로 체크하고 로컬을 변경할 경우
+	if (updateMatrix)
+	{
+		D3DXMATRIX invMat;
+		D3DXMatrixInverse(&invMat, nullptr, &colMatrix);
+		
+		auto finalMat = invMat * *updateMatrix;
+		D3DXVec3TransformNormal(&total, &total, &finalMat);
 	}
 
 	auto transform = _transform.lock();

@@ -17,8 +17,10 @@ void cDebug::PrintLogs()
 	ImGui::Begin("Console");
 	{
 		//todo : 클리어 버튼, 로그 식별자 만들기
-		for(auto&& item : Items)
-			ImGui::TextUnformatted(item);
+
+		int size = Items.size();
+		for (int i = size - 1; i >= 0; i--)
+			ImGui::TextUnformatted(Items[i]);
 	}
 	ImGui::End();
 }

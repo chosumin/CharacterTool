@@ -37,6 +37,14 @@ sTransform::~sTransform()
 	SAFE_DELETE(_worldBuffer);
 }
 
+void sTransform::Decompose()
+{
+	D3DXMatrixDecompose(&Scaling, &Quaternion, &Position, &Matrix);
+	Rotation = cMath::ToEulerAngles(Quaternion);
+
+	Update();
+}
+
 void sTransform::Update()
 {
 	Scale();
@@ -46,6 +54,26 @@ void sTransform::Update()
 	Matrix = _scaleMatrix * _rotationMatrix * _positionMatrix;
 
 	_worldBuffer->SetMatrix(Matrix);
+}
+
+sTransform & sTransform::operator=(const sTransform & other)
+{
+	Position = other.Position;
+	Scaling = other.Scaling;
+	Rotation = other.Rotation;
+	Quaternion = other.Quaternion;
+	Update();
+
+	return *this;
+}
+
+sTransform sTransform::operator*(const sTransform & other)
+{
+	sTransform t;
+	t.Matrix = Matrix * other.Matrix;
+	t.Decompose();
+
+	return t;
 }
 
 void sTransform::Scale()
@@ -122,6 +150,11 @@ void sTransform::SetMatrix(const D3DXMATRIX & world)
 void sTransform::SetVSBuffer(UINT slot)
 {
 	_worldBuffer->SetVSBuffer(slot);
+}
+
+D3DXMATRIX sTransform::GetRotationMatrix() const
+{
+	return _rotationMatrix;
 }
 
 void sTransform::GetAxis(D3DXVECTOR3 * axis, const D3DXVECTOR3 & angle)

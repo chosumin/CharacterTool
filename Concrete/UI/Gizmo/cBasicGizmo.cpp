@@ -12,7 +12,7 @@ float cBasicGizmo::rate = 0.1f;
 float cBasicGizmo::_length = 4.0f;
 
 cBasicGizmo::cBasicGizmo(weak_ptr<sGlobalVariable> global)
-	:_global(global)
+	: _global(global)
 	, _prevMousePos(0, 0, 0)
 	, _curMousePos(0, 0, 0)
 {

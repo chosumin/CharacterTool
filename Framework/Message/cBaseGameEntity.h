@@ -4,7 +4,7 @@
 
 //최상위 클래스
 class cBaseGameEntity
-	: public enable_shared_from_this<cBaseGameEntity>
+	: public inheritable_enable_shared_from_this<cBaseGameEntity>
 {
 private:
 	friend class cEntityManager;

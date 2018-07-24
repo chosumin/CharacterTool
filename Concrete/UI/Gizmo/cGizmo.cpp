@@ -9,7 +9,8 @@
 
 cGizmo::cGizmo()
 {
-	_myTransform = make_unique<sTransform>();
+	_myLocal = make_unique<sTransform>();
+	_myWorld = make_unique<sTransform>();
 
 	{
 		D3D11_RASTERIZER_DESC desc;
@@ -64,13 +65,15 @@ void cGizmo::SetGlobalVariable(weak_ptr<sGlobalVariable> global)
 	_gizmos.emplace_back(make_unique<cRotatingGizmo>(global));
 }
 
-void cGizmo::AddTransform(weak_ptr<sTransform> transform)
+void cGizmo::AddTransform(weak_ptr<sTransform> localTransform,
+						  weak_ptr<sTransform> worldTransform)
 {
 	//최근에 선택된 트랜스폼이 대표 트랜스폼
-	_delegateTransform = transform.lock();
+	_delegateLocal = localTransform;
+	_delegateWorld = worldTransform;
 
 	//기즈모 트랜스폼 갱신
-	cBasicGizmo::SetTransform(_delegateTransform);
+	cBasicGizmo::SetTransform(_delegateLocal);
 
 	//모델 추가
 	//_pickedTransforms.emplace_back(_delegateTransform);
@@ -78,31 +81,55 @@ void cGizmo::AddTransform(weak_ptr<sTransform> transform)
 
 void cGizmo::SetMyTransform()
 {
-	auto modelPtr = _delegateTransform.lock();
+	auto delegateLocalPtr = _delegateLocal.lock();
 
-	_myTransform->Position = modelPtr->Position;
-	_myTransform->Rotation = modelPtr->Rotation;
-	_myTransform->Quaternion = modelPtr->Quaternion;
-	_myTransform->Update();
+	_myLocal->Position = delegateLocalPtr->Position;
+	_myLocal->Rotation = delegateLocalPtr->Rotation;
+	_myLocal->Quaternion = delegateLocalPtr->Quaternion;
+	_myLocal->Update();
+
+	auto delegateWorldPtr = _delegateWorld.lock();
+	if (delegateWorldPtr)
+	{
+		D3DXVECTOR3 scale;
+		
+		_myWorld->Position = delegateWorldPtr->Position;
+		_myWorld->Rotation = delegateWorldPtr->Rotation;
+		_myWorld->Quaternion = delegateWorldPtr->Quaternion;
+		_myWorld->Update();
+	}
 }
 
 void cGizmo::SetScaleRate(const D3DXVECTOR3 & camPos)
 {
-	auto temp = _myTransform->Position - camPos;
+	auto temp = _myLocal->Position - camPos;
+
+	auto worldPtr = _delegateWorld.lock();
+	if (worldPtr)
+		temp = worldPtr->Position - camPos;
+
 	auto length = D3DXVec3Length(&temp);
 
 	if (length <= 10.0f)
-		_myTransform->Scaling = { 0.5f,0.5f,0.5f };
+	{
+		_myLocal->Scaling = { 0.5f,0.5f,0.5f };
+		_myWorld->Scaling = { 0.5f,0.5f,0.5f };
+	}
 	else
 	{
-		_myTransform->Scaling = D3DXVECTOR3{ length , length, length } *0.025f;
+		_myLocal->Scaling = D3DXVECTOR3{ length , length, length } *0.025f;
+		_myWorld->Scaling = D3DXVECTOR3{ length , length, length } *0.025f;
 	}
 }
 
 void cGizmo::GetInverseVector(OUT D3DXVECTOR3 *transPos, OUT D3DXVECTOR3* transDir, const D3DXVECTOR3& originPos, const D3DXVECTOR3& originDir)
 {
 	D3DXMATRIX invWorld;
-	D3DXMatrixInverse(&invWorld, nullptr, &_myTransform->Matrix);
+	if(_delegateWorld.expired())
+		D3DXMatrixInverse(&invWorld, nullptr, &_myLocal->Matrix);
+	else
+		D3DXMatrixInverse(&invWorld, nullptr, &_myWorld->Matrix);
+
 	D3DXVec3TransformCoord(transPos, &originPos, &invWorld);
 	D3DXVec3TransformNormal(transDir, &originDir, &invWorld);
 }
@@ -119,7 +146,7 @@ void cGizmo::SelectMode()
 
 void cGizmo::Update()
 {
-	if (_delegateTransform.expired())
+	if (_delegateLocal.expired())
 		return;
 
 	SelectMode();
@@ -136,22 +163,35 @@ void cGizmo::Update()
 	D3DXVECTOR3 transPos, transDir;
 	GetInverseVector(&transPos, &transDir, pos, dir);
 
-	_gizmos[_selectedNum]->Update(_myTransform->Matrix, transPos, transDir);
+	//월드 업데이트
+	auto renderingWorldPtr = _delegateWorld.lock();
+	if (renderingWorldPtr)
+	{
+		_gizmos[_selectedNum]->Update(_myWorld->Matrix, _myLocal->Matrix, transPos, transDir);
+	}
+	//로컬 업데이트
+	else
+		_gizmos[_selectedNum]->Update(_myLocal->Matrix, transPos, transDir);
 
 	SetMyTransform();
 }
 
 void cGizmo::Render()
 {
-	if (_delegateTransform.expired())
+	if (_delegateLocal.expired())
 		return;
 
 	//todo : 이걸 지우면 잘 나옴
 	D3D::GetDC()->OMSetDepthStencilState(_depthStenciler[1], 1);
 	D3D::GetDC()->RSSetState(_rasterizer[1]);
 	D3D::GetDC()->OMSetBlendState(_blender[1], NULL, 0xFF);
-
-	_myTransform->SetVSBuffer(1);
+	
+	//로컬 트랜스폼 렌더링은 myTransform, 월드 트랜스폼은 renderingWorld
+	auto renderingWorldPtr = _delegateWorld.lock();
+	if (renderingWorldPtr)
+		_myWorld->SetVSBuffer(1);
+	else
+		_myLocal->SetVSBuffer(1);
 	_gizmos[_selectedNum]->Render();
 
 	D3D::GetDC()->OMSetBlendState(_blender[0], NULL, 0xFF);
@@ -161,23 +201,21 @@ void cGizmo::Render()
 
 void cGizmo::PostRender()
 {
-	if (_delegateTransform.expired())
+	if (_delegateLocal.expired())
 		return;
 
-	auto modelPtr = _delegateTransform.lock();
+	auto localPtr = _delegateLocal.lock();
 
-	float minFloat = cMath::FloatMinValue;
-	float maxFloat = cMath::FloatMaxValue;
 	bool isClick = false;
 
-	D3DXVECTOR3 tempRotation = modelPtr->Rotation;
-	isClick = ImGui::InputFloat3("Position", modelPtr->Position, 3);
-	isClick |= ImGui::InputFloat3("Rotation", modelPtr->Rotation, 3);
-	isClick |= ImGui::InputFloat3("Scale", modelPtr->Scaling, 3);
+	D3DXVECTOR3 tempRotation = localPtr->Rotation;
+	isClick = ImGui::InputFloat3("Position", localPtr->Position, 3);
+	isClick |= ImGui::InputFloat3("Rotation", localPtr->Rotation, 3);
+	isClick |= ImGui::InputFloat3("Scale", localPtr->Scaling, 3);
 
 	if (isClick)
 	{
-		modelPtr->Rotate(modelPtr->Rotation - tempRotation);
-		modelPtr->Update();
+		localPtr->Rotate(localPtr->Rotation - tempRotation);
+		localPtr->Update();
 	}
 }

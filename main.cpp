@@ -9,8 +9,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR param, int 
 	desc.FullScreen = false;
 	desc.Vsync = true; //수직 동기화
 	desc.Hwnd = NULL;
-	desc.Width = 1280;
-	desc.Height = 720;
+	desc.Width = 1200;
+	desc.Height = 680;
 	D3D::SetDesc(desc);
 
 	auto pWindow = new cWindow();

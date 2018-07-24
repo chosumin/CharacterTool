@@ -5,14 +5,12 @@
 #include "./Transform/sTransform.h"
 #include "./Helper/cMath.h"
 
-cCylinderCollider::cCylinderCollider(weak_ptr<sTransform> boneTransform,
+cCylinderCollider::cCylinderCollider(weak_ptr<sTransform> parentTransform,
 									 float height, float radius)
-	: cCollider(boneTransform)
+	: cCollider(parentTransform)
 	, _height(height)
 	, _radius(radius)
 {
-	//_localTransform->Scaling = { 10,10,10 };
-
 	_capsule = make_unique<cCapsule>(height, radius, D3DXCOLOR{ 1,1,0,1 });
 }
 

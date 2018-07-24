@@ -5,6 +5,7 @@
 #include "./Helper/cMath.h"
 #include "./Mesh/cBox.h"
 #include "./Graphic/ConstBuffer/cColliderBuffer.h"
+#include "./Transform/sTransform.h"
 
 cBoxCollider::cBoxCollider(weak_ptr<sTransform> parent,
 						   D3DXVECTOR3 min, D3DXVECTOR3 max)
@@ -22,7 +23,7 @@ cBoxCollider::~cBoxCollider()
 void cBoxCollider::Render()
 {
 	cCollider::Render();
-	//_box->Render();
+	_box->Render();
 }
 
 void cBoxCollider::ResetState()
@@ -144,12 +145,19 @@ bool cBoxCollider::IntersectsWithDot(D3DXVECTOR3 point)
 
 bool cBoxCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
 {
-	/*Vector3 result1 = Vector3::Clamp(sphere.Center, Min, Max);
-	float result2 = Vector3::DistanceSquared(sphere.Center, result1);
+	D3DXVECTOR3 transformedMax, transformedMin;
+	D3DXVec3TransformCoord(&transformedMax, &_max, &GetWorld());
+	D3DXVec3TransformCoord(&transformedMin, &_min, &GetWorld());
 
-	if ((double)result2 <= (double)sphere.Radius * (double)sphere.Radius)
-	return true;
-	else*/
+	auto vector3 = cMath::Clamp(center, transformedMin, transformedMax);
+
+	float single = cMath::DistanceSquared(center, vector3);
+
+	if (single <= radius * radius)
+	{
+		return true;
+	}
+
 	return false;
 }
 

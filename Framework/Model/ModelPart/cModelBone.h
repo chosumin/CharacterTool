@@ -1,6 +1,7 @@
 #pragma once
 #include "./Interface/iCloneable.h"
 
+struct sTransform;
 class cModelBone : public iCloneable<cModelBone>
 {
 private:
@@ -9,30 +10,24 @@ private:
 public:
 	cModelBone();
 	~cModelBone();
+public:
+	/*******************
+		Getter Setter
+	********************/
 
 	int GetIndex() { return _index; }
+
 	int GetParentIndex() { return _parentIndex; }
 
 	wstring GetName() { return _name; }
 
 	weak_ptr<cModelBone> GetParent() { return _parent; }
 
-	void GetTransform(D3DXMATRIX& transform);
+	UINT GetChildCount() { return _children.size(); }
+	weak_ptr<cModelBone> GetChild(UINT index) { return _children[index]; }
+	vector<weak_ptr<cModelBone>>& GetChildren();
 
-	void AbsoluteTransform(D3DXMATRIX& transform);
-
-	D3DXMATRIX& Transform();
-
-	D3DXMATRIX& AbsoluteTransform();
-
-	UINT ChildCount() { return _children.size(); }
-	shared_ptr<cModelBone> Child(UINT index) { return _children[index]; }
-
-	void ShowHierarchy();
-
-	//test : 콜라이더 테스트
-	weak_ptr<struct sTransform> GetTransform() const;
-	void SetTransform(D3DXMATRIX& matrix);
+	weak_ptr<sTransform> GetAbsoluteTransform();
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelBone> Clone() const override;
@@ -42,13 +37,8 @@ private:
 	int						_parentIndex;
 	weak_ptr<cModelBone>	_parent;
 
-	vector<shared_ptr<cModelBone>> _children;
+	shared_ptr<sTransform> _transform;
+	shared_ptr<sTransform> _absoluteTransform;
 
-	shared_ptr<struct sTransform> _transform;
-	shared_ptr<struct sTransform> _absoluteTransform;
-	//D3DXMATRIX				_transform;
-	//D3DXMATRIX				_absoluteTransform;
-
-	//test : 콜라이더 부모 테스트
-	shared_ptr<struct sTransform> _matrix;
+	vector<weak_ptr<cModelBone>> _children;
 };

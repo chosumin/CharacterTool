@@ -18,6 +18,7 @@ cActorBuilder::cActorBuilder()
 	//트릭 구조체
 	struct make_shared_enabler : public cActor {};
 	_actor = make_shared<make_shared_enabler>();
+	_actor->Init();
 }
 
 cActorBuilder::~cActorBuilder()
@@ -65,14 +66,14 @@ cActorBuilder & cActorBuilder::CreateAction()
 
 cActorBuilder & cActorBuilder::CreateCollider()
 {
-	auto transform = _actor->_model->GetMeshes()[0]->GetParentTransform();
-	//test : colliderfactory에서 생성하기
-	auto col = make_shared<cCylinderCollider>(transform, 1.0f, 0.5f);
-	_actor->_colliders.emplace_back(move(col));
+	//auto transform = _actor->_model->GetMeshes()[0]->GetParentTransform();
+	////test : colliderfactory에서 생성하기
+	//auto col = make_shared<cCylinderCollider>(transform, 1.0f, 0.5f);
+	//_actor->_colliders.emplace_back(move(col));
 
-	auto transform2 = _actor->_model->GetMeshes()[2]->GetParentTransform();
-	auto col2 = make_shared<cCylinderCollider>(transform2, 1.0f, 0.5f);
-	_actor->_colliders.emplace_back(move(col2));
-	
+	//auto transform2 = _actor->_model->GetMeshes()[2]->GetParentTransform();
+	//auto col2 = make_shared<cCylinderCollider>(transform2, 1.0f, 0.5f);
+	//_actor->_colliders.emplace_back(move(col2));
+	//
 	return *this;
 }

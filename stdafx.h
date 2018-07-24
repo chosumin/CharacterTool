@@ -74,6 +74,7 @@ const wstring Model = Content + L"Model/";
 #include "./Common/iExecutable.h"
 #include "./Common/cSingletone.h"
 #include "./Common/GlobalData.h"
+#include "./Common/inheritable_enable_shared_from_this.h"
 
 #include "./Command/cKeyboard.h"
 #include "./Command/cMouse.h"
@@ -92,6 +93,8 @@ const wstring Model = Content + L"Model/";
 #include "./Graphic/cShader.h"
 
 #include "./Mesh/MeshUtility.h"
+
+#include "./Collider/cColliderFactory.h"
 //#include "./Component/Transform/sTransform.h"
 
 using ModelVertexType = VertexTNB;

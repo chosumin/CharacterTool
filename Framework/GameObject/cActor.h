@@ -8,6 +8,7 @@ enum class eAction
 struct sTransform;
 class cCollider;
 class cModel;
+class cActorColliders;
 class cActor
 	: public enable_shared_from_this<cActor>
 {
@@ -16,16 +17,17 @@ private:
 public:
 	~cActor();
 
+	void Init();
 	void Update();
 	void Render();
 
+	//test : 과제용
 	void Idle();
 	void Rotate(float deltaY);
 	void Move(D3DXVECTOR3 direction, float velocity);
 	void Attack();
 	void Damage();
 
-	//test : 과제용
 	bool isAttack = false;
 	bool isDamage = false;
 	DWORD time;
@@ -38,6 +40,7 @@ public:
 	********************/
 	weak_ptr<class cModel> GetModel() const;
 	weak_ptr<struct sTransform> GetTransform() const;
+	weak_ptr<cActorColliders> GetColliders() const;
 
 	void GetAction(eAction actionType);
 	void SetAction(eAction actionType, function<void()> func);
@@ -54,6 +57,5 @@ private:
 	unordered_map<eAction, function<void()>> _actions;
 	unique_ptr<class cBehaviorTree> _behaviorTree;
 
-	//todo : 피격, 공격 구분하기
-	vector<shared_ptr<cCollider>> _colliders;
+	shared_ptr<cActorColliders> _colliders;
 };

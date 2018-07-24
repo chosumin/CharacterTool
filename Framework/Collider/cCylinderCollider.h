@@ -5,12 +5,12 @@ struct sTransform;
 class cCylinderCollider : public cCollider
 {
 public:
-	cCylinderCollider(weak_ptr<sTransform> boneTransform,
+	cCylinderCollider(weak_ptr<sTransform> parentTransform,
 					  float height, float radius);
 	~cCylinderCollider();
 
 	void Update();
-	void Render();
+	void Render() override;
 public:
 	/********************************
 		cCollider을(를) 통해 상속됨

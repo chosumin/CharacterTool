@@ -14,7 +14,7 @@ UI::cTool::~cTool()
 
 void UI::cTool::Init()
 {
-	cEntityManager::Get()->RegisterEntity(eIdGroup::CharacterTool, shared_from_this());
+	cEntityManager::Get()->RegisterEntity(eIdGroup::CharacterTool, cBaseGameEntity::downcasted_shared_from_this<cTool>());
 }
 
 void UI::cTool::HandleMessage(const sTelegram & msg)

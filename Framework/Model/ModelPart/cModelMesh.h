@@ -14,20 +14,16 @@ public:
 
 	void Render();
 
-	//todo : 콜라이더 부모 테스트
 	weak_ptr<struct sTransform> GetParentTransform() const;
-	D3DXVECTOR3 GetMeshPoint() const;
 	wstring	GetName() const { return _name; }
+
+	int	GetParentBoneIndex() const { return _parentBoneIndex; }
+
+	weak_ptr<cCollider> GetCollider() const;
+	void SetCollider(weak_ptr<cCollider> collider);
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMesh> Clone() const override;
-private:
-	/*******************
-		Getter Setter
-	********************/
-	int	GetParentBoneIndex() const { return _parentBoneIndex; }
-
-	void SetWorld(const D3DXMATRIX& world) { _worldBuffer->SetMatrix(world); }
 private:
 	void Binding();
 private:
@@ -35,8 +31,7 @@ private:
 
 	int _parentBoneIndex;
 	weak_ptr<cModelBone> _parentBone;
-
-	unique_ptr<cWorldBuffer> _worldBuffer;
-
 	vector<shared_ptr<cModelMeshPart>> _meshParts;
+
+	shared_ptr<cCollider> _collider;
 };

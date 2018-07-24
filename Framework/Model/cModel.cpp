@@ -1,17 +1,13 @@
 #include "stdafx.h"
 #include "cModel.h"
-
 #include "./Model/cModelAnimPlayer.h"
 #include "./ModelPart/cModelBone.h"
 #include "./ModelPart/cModelMesh.h"
 #include "./ModelPart/cModelMeshPart.h"
 #include "./ModelPart/cModelAnimClip.h"
-
 #include "./Graphic/cMaterial.h"
 #include "./Graphic/ConstBuffer/cModelBoneBuffer.h"
-
 #include "./Transform/sTransform.h"
-
 #include "./Helper/cString.h"
 
 cModel::cModel()
@@ -34,42 +30,31 @@ std::unique_ptr<cModel> cModel::Clone() const
 	for (auto&& mesh : _meshes)
 		model->_meshes.push_back(mesh->Clone());
 
-	model->_root = _root->Clone();
+	model->_root = model->GetRoot();
 
 	return move(model);
 }
 
 cModel::~cModel()
 {
+	_materials.clear();
+	_bones.clear();
+	_meshes.clear();
+	_clips.clear();
+
+	_buffer = nullptr;
 }
 
-void cModel::Update()
+void cModel::Update(const D3DXMATRIX& root)
 {
 }
 
 void cModel::Render()
 {
+	_buffer->SetVSBuffer(2);
 	for (auto&& mesh : _meshes)
 	{
 		mesh->Render();
-	}
-}
-
-void cModel::ShowHierarchy()
-{
-	auto bOpen = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-	//todo : 소프트코딩
-	if (ImGui::TreeNodeEx("Dude", bOpen))
-	{
-		_root->ShowHierarchy();
-		ImGui::TreePop();
-	}
-
-	if (ImGui::IsItemClicked())
-	{
-		//애니메이션 띄우기
-		//cModelAnimPlayer::Get()->SetModel(shared_from_this());
 	}
 }
 
