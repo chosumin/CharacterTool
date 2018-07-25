@@ -3,8 +3,9 @@
 class cColliderUtility
 {
 public:
-	static bool BoxAndRay(D3DXVECTOR3 boxMax, D3DXVECTOR3 boxMin, D3DXVECTOR3 position, D3DXVECTOR3 direction);
+	static bool BoxAndRay(const D3DXVECTOR3 & boxMax, const D3DXVECTOR3 & boxMin, const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction);
 
+	static bool RayAndQuad(const vector<D3DXVECTOR3>& fourPoints, const D3DXVECTOR3& position, const D3DXVECTOR3& direction);
 private:
 	struct sBox
 	{

@@ -87,7 +87,9 @@ void UI::cColliderTool::ShowAddWindowInspector()
 
 	//선택된 모양
 	ImGui::Text("Shape : "); ImGui::SameLine();
-	ImGui::Combo("", &_shapeNumber, &cColliderFactory::GetList()[0], cColliderFactory::GetList().size());
+
+	//hack : 충돌체 늘어날수록 숫자 늘려줘야함
+	ImGui::Combo("", &_shapeNumber, &cColliderFactory::GetList()[0], 3);
 
 	//공격, 피격 선택
 	ImGui::Checkbox("Offensive", &_selectAttack);

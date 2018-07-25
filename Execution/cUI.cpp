@@ -36,6 +36,6 @@ void cUI::Render()
 
 void cUI::PostRender()
 {
-	_toolWindow->PostRender();
 	_actorMenu->PostRender();
+	_toolWindow->PostRender();
 }

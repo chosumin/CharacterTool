@@ -22,7 +22,8 @@ public:
 	void SetMatrix(const D3DXMATRIX& world);
 	void SetVSBuffer(UINT slot);
 
-	D3DXMATRIX GetRotationMatrix() const;
+	const D3DXMATRIX& GetRotationMatrix() const;
+	const D3DXMATRIX& GetScaleMatrix() const;
 private:
 	void Scale();
 	void Rotate();

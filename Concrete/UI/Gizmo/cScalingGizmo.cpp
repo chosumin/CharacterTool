@@ -31,7 +31,7 @@ void cScalingGizmo::Update(const D3DXMATRIX & gizmoWorld, const D3DXMATRIX & giz
 {
 	bool intersect = false;
 	if (_isClick == false)
-		intersect = IsIntersect(mousePos, mouseDir);
+		intersect = IsIntersect(gizmoWorld, mousePos, mouseDir);
 
 	if (intersect && cMouse::Get()->Down(0))
 		_isClick = true;
@@ -49,7 +49,7 @@ void cScalingGizmo::Update(const D3DXMATRIX & gizmoLocal, const D3DXVECTOR3 & mo
 {
 	bool intersect = false;
 	if (_isClick == false)
-		intersect = IsIntersect(mousePos, mouseDir);
+		intersect = IsIntersect(gizmoLocal, mousePos, mouseDir);
 
 	if (intersect && cMouse::Get()->Down(0))
 		_isClick = true;

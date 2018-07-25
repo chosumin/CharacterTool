@@ -3,9 +3,10 @@
 #include "./Transform/sTransform.h"
 #include "./Collider/cCylinderCollider.h"
 #include "./Collider/cBoxCollider.h"
+#include "./Collider/cSphereCollider.h"
 
 vector<const char*> cColliderFactory::_shapeList =
-	{ "Box", "Cylinder", "Line", "Quad", "Ray", "Sphere" };
+	{ "Box", "Cylinder", "Sphere", "Line", "Quad", "Ray" };
 D3DXMATRIX cColliderFactory::_matrix;
 weak_ptr<sTransform> cColliderFactory::_parent;
 
@@ -26,6 +27,10 @@ unique_ptr<cCollider> cColliderFactory::Create(eColliderType type,
 		case eColliderShape::BOX:
 			collider = CreateBox();
 			break;
+		case eColliderShape::SPHERE:
+			collider = CreateSphere();
+			break;
+
 	}
 
 	collider->_type = type;
@@ -48,6 +53,16 @@ unique_ptr<cCollider> cColliderFactory::CreateCylinder()
 
 unique_ptr<cCollider> cColliderFactory::CreateBox()
 {
-	auto collider = make_unique<cBoxCollider>();
+	auto collider = make_unique<cBoxCollider>(_parent,
+											  D3DXVECTOR3{ -1,-1,-1 },
+											  D3DXVECTOR3{ 1,1,1 });
+	return move(collider);
+}
+
+unique_ptr<cCollider> cColliderFactory::CreateSphere()
+{
+	auto collider = make_unique<cSphereCollider>(_parent,
+											  D3DXVECTOR3{ 0,0,0 },
+											  1.0f);
 	return move(collider);
 }

@@ -31,7 +31,7 @@ void cRotatingGizmo::Update(const D3DXMATRIX & gizmoWorld, const D3DXMATRIX & gi
 	auto transformPtr = _transform.lock();
 	bool intersect = false;
 	if (_isClick == false)
-		intersect = IsIntersect(mousePos, mouseDir);
+		intersect = IsIntersect(gizmoWorld, mousePos, mouseDir);
 
 	if (intersect && cMouse::Get()->Down(0))
 	{
@@ -58,7 +58,7 @@ void cRotatingGizmo::Update(const D3DXMATRIX & gizmoLocal, const D3DXVECTOR3 & m
 	auto transformPtr = _transform.lock();
 	bool intersect = false;
 	if (_isClick == false)
-		intersect = IsIntersect(mousePos, mouseDir);
+		intersect = IsIntersect(gizmoLocal, mousePos, mouseDir);
 
 	if (intersect && cMouse::Get()->Down(0))
 	{

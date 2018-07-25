@@ -2,7 +2,7 @@
 #include "cColliderUtility.h"
 #include "./Helper/cMath.h"
 
-bool cColliderUtility::BoxAndRay(D3DXVECTOR3 boxMax, D3DXVECTOR3 boxMin, D3DXVECTOR3 position, D3DXVECTOR3 direction)
+bool cColliderUtility::BoxAndRay(const D3DXVECTOR3 & boxMax, const D3DXVECTOR3 & boxMin, const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction)
 {
 	float single = 0.0f;
 	float single1 = cMath::FloatMaxValue;
@@ -21,6 +21,18 @@ bool cColliderUtility::BoxAndRay(D3DXVECTOR3 boxMax, D3DXVECTOR3 boxMin, D3DXVEC
 		return false;
 
 	return true;
+}
+
+bool cColliderUtility::RayAndQuad(const vector<D3DXVECTOR3>& fourPoints, const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction)
+{
+	float u, v, distance;
+	if (D3DXIntersectTri(&fourPoints[0], &fourPoints[1], &fourPoints[2], &position, &direction, &u, &v, &distance) == TRUE)
+		return true;
+
+	if (D3DXIntersectTri(&fourPoints[3], &fourPoints[1], &fourPoints[2], &position, &direction, &u, &v, &distance) == TRUE)
+		return true;
+
+	return false;
 }
 
 bool cColliderUtility::CheckBasis(float& single, float& single1, int i, const sRay& ray, const sBox& box)

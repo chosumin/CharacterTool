@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "cRayCollider.h"
 #include "cQuadCollider.h"
-#include "cColliderUtility.h"
 #include "./Mesh/cRectangle.h"
 
 cRayCollider::cRayCollider(weak_ptr<sTransform> parent, D3DXVECTOR3 origin, D3DXVECTOR3 direction)
@@ -62,13 +61,11 @@ PlaneIntersectionType cRayCollider::IntersectsWithPlane(D3DXVECTOR3 normal, floa
 	return PlaneIntersectionType();
 }
 
-bool cRayCollider::IntersectsWithQuad(const cRectangle & rect)
+bool cRayCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
-	return rect.IntersectWithRay
-	(
-		GetTransformedOrigin(),
-		GetTransformedDirection()
-	);
+	return cColliderUtility::RayAndQuad(fourPoints,
+										GetTransformedOrigin(),
+										GetTransformedDirection());
 }
 
 bool cRayCollider::IntersectsWithDot(D3DXVECTOR3 point)

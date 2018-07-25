@@ -23,11 +23,6 @@ void cSphereCollider::Render()
 	_sphere->Render();
 }
 
-void cSphereCollider::ResetState()
-{
-	_cbuffer->Data.Intersect = 0;
-}
-
 bool cSphereCollider::IntersectsWith(weak_ptr<iCollidable> other)
 {
 	if (other.expired())
@@ -37,7 +32,9 @@ bool cSphereCollider::IntersectsWith(weak_ptr<iCollidable> other)
 
 	D3DXVECTOR3 transformed;
 	D3DXVec3TransformCoord(&transformed, &_center, &GetWorld());
-	float tempRadius = _radius * GetWorld()._41;
+
+	auto world = GetWorldTransform().lock();
+	float tempRadius = _radius * world->GetScaleMatrix()._41;
 
 	bool intersect = other.lock()->IntersectsWithSphere(transformed, tempRadius);
 
@@ -77,7 +74,7 @@ bool cSphereCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direct
 	return false;
 }
 
-bool cSphereCollider::IntersectsWithQuad(const cRectangle & rect)
+bool cSphereCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
 	return false;
 }
@@ -94,7 +91,16 @@ bool cSphereCollider::IntersectsWithDot(D3DXVECTOR3 point)
 
 bool cSphereCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
 {
-	return false;
+	D3DXVECTOR3 transformed;
+	D3DXVec3TransformCoord(&transformed, &_center, &GetWorld());
+
+	auto world = GetWorldTransform().lock();
+	float tempRadius = _radius * world->GetScaleMatrix()._41;
+
+	float dstSquared = cMath::DistanceSquared(center, transformed);
+	float radiusSquared = radius * tempRadius;
+
+	return dstSquared <= radiusSquared;
 }
 
 bool cSphereCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)

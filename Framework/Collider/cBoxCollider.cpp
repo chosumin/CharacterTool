@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "cBoxCollider.h"
 #include "cRayCollider.h"
-#include "cColliderUtility.h"
 #include "./Helper/cMath.h"
 #include "./Mesh/cBox.h"
 #include "./Graphic/ConstBuffer/cColliderBuffer.h"
@@ -13,7 +12,7 @@ cBoxCollider::cBoxCollider(weak_ptr<sTransform> parent,
 	 _max(max), _min(min)
 	,_originMin(min), _originMax(max)
 {
-	_box = make_unique<cBox>(min, max, true);
+	_box = make_unique<cBox>(min, max, true, D3DXCOLOR{ 0,1,0,1 });
 }
 
 cBoxCollider::~cBoxCollider()
@@ -23,12 +22,13 @@ cBoxCollider::~cBoxCollider()
 void cBoxCollider::Render()
 {
 	cCollider::Render();
+
 	_box->Render();
 }
 
-void cBoxCollider::ResetState()
+void cBoxCollider::RenderGizmo()
 {
-	_cbuffer->Data.Intersect = 0;
+	cCollider::Render();
 }
 
 bool cBoxCollider::IntersectsWith(weak_ptr<iCollidable> other)
@@ -38,12 +38,12 @@ bool cBoxCollider::IntersectsWith(weak_ptr<iCollidable> other)
 
 	_cbuffer->Data.Intersect = 0;
 
-	//hack : 변환하면 왜 충돌 안되는지 확인하기
-	/*D3DXVECTOR3 transformedMax, transformedMin;
-	D3DXVec3TransformCoord(&transformedMax, &_max, &_world);
-	D3DXVec3TransformCoord(&transformedMin, &_min, &_world);*/
+	D3DXVECTOR3 transformedMax, transformedMin;
+	D3DXVec3TransformCoord(&transformedMax, &_max, &GetWorld());
+	D3DXVec3TransformCoord(&transformedMin, &_min, &GetWorld());
 
-	bool intersect = other.lock()->IntersectsWithBox(_min, _max);
+	bool intersect = other.lock()->IntersectsWithBox(transformedMin,
+													 transformedMax);
 
 	if(intersect)
 		_cbuffer->Data.Intersect = 1;
@@ -111,7 +111,7 @@ bool cBoxCollider::CheckBasis(float& single, float& single1, int i, D3DXVECTOR3 
 	return true;
 }
 
-bool cBoxCollider::IntersectsWithQuad(const cRectangle & rect)
+bool cBoxCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
 	/*D3DXVECTOR3 vector3_1;
 	vector3_1.x = normal.x >= 0.0 ? _min.x : _max.x;

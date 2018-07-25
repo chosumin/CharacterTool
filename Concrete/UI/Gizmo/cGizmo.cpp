@@ -122,18 +122,6 @@ void cGizmo::SetScaleRate(const D3DXVECTOR3 & camPos)
 	}
 }
 
-void cGizmo::GetInverseVector(OUT D3DXVECTOR3 *transPos, OUT D3DXVECTOR3* transDir, const D3DXVECTOR3& originPos, const D3DXVECTOR3& originDir)
-{
-	D3DXMATRIX invWorld;
-	if(_delegateWorld.expired())
-		D3DXMatrixInverse(&invWorld, nullptr, &_myLocal->Matrix);
-	else
-		D3DXMatrixInverse(&invWorld, nullptr, &_myWorld->Matrix);
-
-	D3DXVec3TransformCoord(transPos, &originPos, &invWorld);
-	D3DXVec3TransformNormal(transDir, &originDir, &invWorld);
-}
-
 void cGizmo::SelectMode()
 {
 	if (cKeyboard::Get()->Down('Z'))
@@ -159,19 +147,15 @@ void cGizmo::Update()
 
 	SetScaleRate(pos);
 
-	//역변환 행렬로 위치, 방향 구함
-	D3DXVECTOR3 transPos, transDir;
-	GetInverseVector(&transPos, &transDir, pos, dir);
-
 	//월드 업데이트
 	auto renderingWorldPtr = _delegateWorld.lock();
 	if (renderingWorldPtr)
 	{
-		_gizmos[_selectedNum]->Update(_myWorld->Matrix, _myLocal->Matrix, transPos, transDir);
+		_gizmos[_selectedNum]->Update(_myWorld->Matrix, _myLocal->Matrix, pos, dir);
 	}
 	//로컬 업데이트
 	else
-		_gizmos[_selectedNum]->Update(_myLocal->Matrix, transPos, transDir);
+		_gizmos[_selectedNum]->Update(_myLocal->Matrix, pos, dir);
 
 	SetMyTransform();
 }

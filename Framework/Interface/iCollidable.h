@@ -33,7 +33,7 @@ public:
 
 	virtual bool IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) = 0;
 	virtual PlaneIntersectionType IntersectsWithPlane(D3DXVECTOR3 normal, float d) = 0;
-	virtual bool IntersectsWithQuad(const cRectangle& rect) = 0;
+	virtual bool IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints) = 0;
 	virtual bool IntersectsWithDot(D3DXVECTOR3 point) = 0;
 	virtual bool IntersectsWithSphere(D3DXVECTOR3 center, float radius) = 0;
 	virtual bool IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max) = 0;

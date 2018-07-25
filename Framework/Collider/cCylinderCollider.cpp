@@ -11,7 +11,7 @@ cCylinderCollider::cCylinderCollider(weak_ptr<sTransform> parentTransform,
 	, _height(height)
 	, _radius(radius)
 {
-	_capsule = make_unique<cCapsule>(height, radius, D3DXCOLOR{ 1,1,0,1 });
+	_capsule = make_unique<cCapsule>(height, radius, D3DXCOLOR{ 0,1,0,1 });
 }
 
 cCylinderCollider::~cCylinderCollider()
@@ -83,7 +83,7 @@ PlaneIntersectionType cCylinderCollider::IntersectsWithPlane(D3DXVECTOR3 normal,
 	return PlaneIntersectionType();
 }
 
-bool cCylinderCollider::IntersectsWithQuad(const cRectangle & rect)
+bool cCylinderCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
 	return false;
 }
@@ -128,8 +128,8 @@ sLine cCylinderCollider::GetTransformedLine() const
 
 float cCylinderCollider::GetTransformedRadius() const
 {
-	//hack : 스케일 넣기
-	return _radius * 2.0f;// *_scale.x * _world._11;
+	auto world = GetWorldTransform();
+	return _radius * world.lock()->GetScaleMatrix()._11;
 }
 
 float cCylinderCollider::ClosestPtSegmentSegment(sLine line2)

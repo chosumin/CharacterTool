@@ -1,6 +1,7 @@
 #pragma once
 #include "./Interface/iRenderable.h"
 #include "./Interface/iCollidable.h"
+#include "cColliderUtility.h"
 
 enum class eColliderType
 {
@@ -9,7 +10,7 @@ enum class eColliderType
 
 enum class eColliderShape : int
 {
-	BOX, CYLINDER, LINE, QUAD, RAY, SPHERE
+	BOX, CYLINDER, SPHERE, LINE, QUAD, RAY
 };
 
 struct sTransform;
@@ -26,14 +27,14 @@ public:
 	virtual void Update();
 	virtual void Render() override;
 
+	void ResetState();
+
 	weak_ptr<sTransform> GetLocalTransform() const;
 	void SetLocalTransform(const D3DXMATRIX& matrix);
 
 	D3DXMATRIX& GetWorld() const;
 	void SetWorld(const D3DXMATRIX& world);
 	weak_ptr<sTransform> GetWorldTransform() const;
-
-	weak_ptr<sTransform> GetParentTransform() const;
 
 	eColliderType GetType() const { return _type; }
 	eColliderShape GetShape() const { return _shape; }

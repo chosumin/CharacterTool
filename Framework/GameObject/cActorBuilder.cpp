@@ -35,7 +35,7 @@ shared_ptr<cActor> cActorBuilder::CreateActor()
 cActorBuilder & cActorBuilder::CreateTransform()
 {
 	_actor->_transform = make_shared<sTransform>();
-	_actor->_transform->Scaling = { 0.1f, 0.1f, 0.1f };
+	//_actor->_transform->Scaling = { 0.1f, 0.1f, 0.1f };
 
 	return *this;
 }

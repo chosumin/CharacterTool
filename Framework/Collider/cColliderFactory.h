@@ -15,6 +15,7 @@ public:
 private:
 	static unique_ptr<cCollider> CreateCylinder();
 	static unique_ptr<cCollider> CreateBox();
+	static unique_ptr<cCollider> CreateSphere();
 private:
 	static vector<const char*> _shapeList;
 	static weak_ptr<sTransform> _parent;

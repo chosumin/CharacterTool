@@ -36,7 +36,7 @@ void cBasicGizmo::Render()
 {
 	for (int i = 0; i < 3; i++)
 	{
-		_axises[i]->Render();
+		_axises[i]->RenderGizmo();
 		_meshes[i]->Render();
 	}
 
@@ -61,14 +61,17 @@ void cBasicGizmo::UpdateCollider(const D3DXMATRIX& gizmoMatrix)
 /*******************************
 	기즈모 축, 쿼드의 교차 체크
 ********************************/
-bool cBasicGizmo::IsIntersect(const D3DXVECTOR3 & pos, const D3DXVECTOR3 & dir)
+bool cBasicGizmo::IsIntersect(const D3DXMATRIX& world, const D3DXVECTOR3 & pos, const D3DXVECTOR3 & dir)
 {
 	for (auto&& axis : _axises)
 		axis->ResetState();
 	for (auto&& quad : _quads)
 		quad->ResetState();
 
-	auto ray = make_shared<cRayCollider>(weak_ptr<sTransform>(), pos, dir);
+	auto temp = weak_ptr<sTransform>();
+
+	//행렬 변환된 광선
+	auto ray = make_shared<cRayCollider>(temp, pos, dir);
 
 	for (UINT i = 0; i < _quads.size(); i++)
 	{

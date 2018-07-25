@@ -40,6 +40,11 @@ void cCollider::Render()
 	_cbuffer->SetPSBuffer(2);
 }
 
+void cCollider::ResetState()
+{
+	_cbuffer->Data.Intersect = 0;
+}
+
 weak_ptr<sTransform> cCollider::GetLocalTransform() const
 {
 	return _localTransform;
@@ -58,16 +63,11 @@ D3DXMATRIX& cCollider::GetWorld() const
 
 void cCollider::SetWorld(const D3DXMATRIX & world)
 {
-	//*_world = world;
+	_worldTransform->Matrix = world;
 	_worldTransform->SetMatrix(world);
 }
 
 weak_ptr<sTransform> cCollider::GetWorldTransform() const
 {
 	return _worldTransform;
-}
-
-weak_ptr<sTransform> cCollider::GetParentTransform() const
-{
-	return _parentTransform;
 }

@@ -21,6 +21,7 @@ namespace UI
 
 		void NewActor();
 	private:
+		string _actorName;
 		weak_ptr<cActor> _actor;
 	};
 }

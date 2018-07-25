@@ -16,7 +16,7 @@ public:
 	void Render();
 protected:
 	void UpdateCollider(const D3DXMATRIX& gizmoMatrix);
-	bool IsIntersect(const D3DXVECTOR3& pos, const D3DXVECTOR3& dir);
+	bool IsIntersect(const D3DXMATRIX& world, const D3DXVECTOR3& pos, const D3DXVECTOR3& dir);
 	D3DXVECTOR3 GetMouseDelta();
 private:
 	D3DXVECTOR3 GetDirection(UINT num);

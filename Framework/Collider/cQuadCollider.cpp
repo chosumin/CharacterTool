@@ -7,7 +7,9 @@
 cQuadCollider::cQuadCollider(weak_ptr<sTransform> parent,
 							 D3DXVECTOR3 min, D3DXVECTOR3 max,
 							 D3DXCOLOR color)
-	:cCollider(parent)
+	: cCollider(parent)
+	, _min(min)
+	, _max(max)
 {
 	_rect = make_unique<cRectangle>(min, max, color);
 }
@@ -22,19 +24,20 @@ void cQuadCollider::Render()
 	_rect->Render();
 }
 
-void cQuadCollider::ResetState()
-{
-	_cbuffer->Data.Intersect = 0;
-}
-
 bool cQuadCollider::IntersectsWith(weak_ptr<iCollidable> other)
 {
-	if (other.expired())
+	auto colPtr = other.lock();
+	if (!colPtr)
 		return false;
 
 	_cbuffer->Data.Intersect = 0;
 
-	bool intersect = other.lock()->IntersectsWithQuad(*_rect.get());
+	vector<D3DXVECTOR3> vertices;
+	_rect->GetVertexVector(vertices);
+
+	Transformed(vertices);
+
+	bool intersect = colPtr->IntersectsWithQuad(vertices);
 	if(intersect)
 		_cbuffer->Data.Intersect = 1;
 	return intersect;
@@ -82,7 +85,7 @@ PlaneIntersectionType cQuadCollider::IntersectsWithPlane(D3DXVECTOR3 normal, flo
 	return PlaneIntersectionType();
 }
 
-bool cQuadCollider::IntersectsWithQuad(const cRectangle & rect)
+bool cQuadCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
 	return false;
 }
@@ -105,4 +108,12 @@ bool cQuadCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)
 bool cQuadCollider::IntersectsWithCylinder(sLine line, float radius)
 {
 	return false;
+}
+
+void cQuadCollider::Transformed(OUT vector<D3DXVECTOR3>& vertices)
+{
+	for (auto&& vertex : vertices)
+	{
+		D3DXVec3TransformCoord(&vertex, &vertex, &GetWorld());
+	}
 }

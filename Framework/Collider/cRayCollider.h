@@ -19,7 +19,7 @@ public:
 	virtual ContainmentType ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min) override;
 	virtual bool IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) override;
 	virtual PlaneIntersectionType IntersectsWithPlane(D3DXVECTOR3 normal, float d) override;
-	virtual bool IntersectsWithQuad(const cRectangle & rect) override;
+	virtual bool IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints) override;
 	virtual bool IntersectsWithDot(D3DXVECTOR3 point) override;
 	virtual bool IntersectsWithSphere(D3DXVECTOR3 center, float radius) override;
 	virtual bool IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max) override;

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "cSphere.h"
-#include "MeshUtility.h"
 
 cSphere::cSphere(D3DXCOLOR color, D3DXVECTOR3 center, float radius)
 	:_color(color)
@@ -23,51 +22,52 @@ void cSphere::Render()
 	D3D::GetDC()->IASetIndexBuffer(_ib, DXGI_FORMAT_R32_UINT, 0);
 
 	//원 그리기
-	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	D3D::GetDC()->DrawIndexed(_vertexData.size(), 0, 0);
 }
 
 void cSphere::CreateVertex(D3DXVECTOR3 center, float radius)
 {
-	VertexC vertex;
-	vertex.color = _color;
-
-	//원 정점
 	const int sphereResolution = 30;
+	const int lineCount = (sphereResolution + 1) * 3;
+	const int vertexCount = lineCount * 2;
+	const int indexCount = vertexCount;
+
+	_vertexData.resize(vertexCount);
+
 	float step = 2.0f * (float)D3DX_PI / sphereResolution;
 
+	int index = 0;
+	//xy
 	for (float i = 0.0f; i < 2 * D3DX_PI; i += step)
 	{
-		vertex.position = D3DXVECTOR3{ cosf(i) * radius, sinf(i) * radius, 0 };
-		_vertexData.push_back(vertex);
-
-		vertex.position = { 0,0,radius };
-		_vertexData.push_back(vertex);
-
-		vertex.position = D3DXVECTOR3{ cosf(i + step) * radius, sinf(i + step) * radius, 0 };
-		_vertexData.push_back(vertex);
+		_vertexData[index++].position = D3DXVECTOR3{ cosf(i), sinf(i), 0.0f };
+		_vertexData[index++].position = D3DXVECTOR3{ cosf(i + step), sinf(i + step), 0.0f };
 	}
 
+	//xz
 	for (float i = 0.0f; i < 2 * D3DX_PI; i += step)
 	{
-		vertex.position = D3DXVECTOR3{ cosf(i) * radius, sinf(i) * radius, 0 };
-		_vertexData.push_back(vertex);
-
-		vertex.position = { 0,0,-radius };
-		_vertexData.push_back(vertex);
-
-		vertex.position = D3DXVECTOR3{ cosf(i + step) * radius, sinf(i + step) * radius, 0 };
-		_vertexData.push_back(vertex);
+		_vertexData[index++].position = D3DXVECTOR3{ cosf(i), 0.0f, sinf(i) };
+		_vertexData[index++].position = D3DXVECTOR3{ cosf(i + step), 0.0f, sinf(i + step) };
 	}
 
-	for (auto&& vertex : _vertexData)
-		vertex.position += center;
+	//yz
+	for (float i = 0; i < 2 * D3DX_PI; i += step)
+	{
+		_vertexData[index++].position = D3DXVECTOR3{ 0.0f, cosf(i), sinf(i) };
+		_vertexData[index++].position = D3DXVECTOR3{ 0.0f, cosf(i + step), sinf(i + step) };
+	}
 
-	UINT size = _vertexData.size();
-	vector<UINT> indexData(size);
-	for (UINT i = 0; i < size; i++)
+	for (auto& vertex : _vertexData)
+		vertex.color = _color;
+
+	vector<UINT> indexData(indexCount);
+	for (UINT i = 0; i < indexCount; i++)
+	{
 		indexData[i] = i;
+	}
 
-	cMeshUtility<VertexC>::CreateVertexBuffer(&_vb, _vertexData);
 	cMeshUtility<VertexC>::CreateIndexBuffer(&_ib, indexData);
+	cMeshUtility<VertexC>::CreateVertexBuffer(&_vb, _vertexData);
 }

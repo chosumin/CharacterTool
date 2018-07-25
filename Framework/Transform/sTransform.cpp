@@ -152,9 +152,14 @@ void sTransform::SetVSBuffer(UINT slot)
 	_worldBuffer->SetVSBuffer(slot);
 }
 
-D3DXMATRIX sTransform::GetRotationMatrix() const
+const D3DXMATRIX & sTransform::GetRotationMatrix() const
 {
 	return _rotationMatrix;
+}
+
+const D3DXMATRIX & sTransform::GetScaleMatrix() const
+{
+	return _scaleMatrix;
 }
 
 void sTransform::GetAxis(D3DXVECTOR3 * axis, const D3DXVECTOR3 & angle)

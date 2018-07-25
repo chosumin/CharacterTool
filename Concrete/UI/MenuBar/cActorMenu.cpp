@@ -6,6 +6,7 @@
 #include "./GameObject/cActorBuilder.h"
 
 UI::cActorMenu::cActorMenu()
+	:_actorName("None Actor")
 {
 }
 
@@ -47,6 +48,12 @@ void UI::cActorMenu::PostRender()
 
 		ImGui::EndMainMenuBar();
 	}
+
+	ImGui::Begin("Hierarchy");
+	{
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), _actorName.c_str());
+	}
+	ImGui::End();
 }
 
 void UI::cActorMenu::HandleMessage(const sTelegram & msg)
@@ -75,6 +82,8 @@ void UI::cActorMenu::NewActor()
 
 	//새 액터를 관여된 객체들에게 전달
 	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RecieveActor, (void*)&actor);
+
+	_actorName = "New Actor";
 
 	cDebug::Log("Created New Actor!");
 }
