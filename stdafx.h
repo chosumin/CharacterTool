@@ -83,6 +83,8 @@ const wstring Model = Content + L"Model/";
 #include "./System/D3D.h"
 #include "./System/cFrame.h"
 
+#include "./Helper/cBinary.h"
+
 #include "./Viewer/cPerspective.h"
 #include "./Viewer/cViewport.h"
 

@@ -23,6 +23,12 @@ public:
 
 	static string GetFileNameWithoutExtension(string path);
 	static wstring GetFileNameWithoutExtension(wstring path);
+
+	static void CreateFolder(string path);
+	static void CreateFolder(wstring path);
+
+	static void CreateFolders(string path);
+	static void CreateFolders(wstring path);
 public:
 	static const WCHAR* ImageFilter;
 	static const WCHAR* ShaderFilter;
@@ -30,4 +36,5 @@ public:
 	static const WCHAR* MaterialFilter;
 	static const WCHAR* MeshFilter;
 	static const WCHAR* FbxFilter;
+	static const WCHAR* AnimFbxFilter;
 };

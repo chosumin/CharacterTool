@@ -1,24 +1,22 @@
 #include "stdafx.h"
 #include "cModelFactory.h"
 #include "cModel.h"
-
 #include "./Transform/sTransform.h"
-
 #include "./ModelPart/cModelBone.h"
 #include "./ModelPart/cModelMesh.h"
 #include "./ModelPart/cModelMeshPart.h"
-#include "./ModelPart/cModelAnimClip.h"
-#include "./ModelPart/ModelKeyFrames.h"
-
 #include "./Graphic/cMaterial.h"
 #include "./Helper/Json.h"
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
 #include "./Helper/cBinary.h"
+#include "./Helper/cMath.h"
+
+unique_ptr<cModel> cModelFactory::_model = nullptr;
 
 unique_ptr<cModel> cModelFactory::Create(wstring filePath, wstring fileName)
 {
-	//트릭 구조체
+	//머터리얼, 메쉬는 모델간 공유가 되서는 안되므로 캐쉬를 생성하지 않음
 	struct make_unique_enabler : public cModel {};
 
 	_model = make_unique<make_unique_enabler>();
@@ -31,11 +29,11 @@ unique_ptr<cModel> cModelFactory::Create(wstring filePath, wstring fileName)
 
 unique_ptr<cModel> cModelFactory::Clone(weak_ptr<cModel> model)
 {
-	_model = model.lock()->Clone();
+	auto copiedModel = model.lock()->Clone();
 
 	BindMeshData();
 
-	return move(_model);
+	return move(copiedModel);
 }
 
 cModelFactory::cModelFactory()
@@ -65,35 +63,35 @@ void cModelFactory::ReadMaterials(wstring file)
 
 		D3DXCOLOR color;
 		Json::GetValue(value, "Ambient", color);
-		material->SetTextureColor(ColorType::Ambient, color, 0);
+		material->SetTextureColor(ColorType::AMBIENT, color, 0);
 
 		Json::GetValue(value, "Diffuse", color);
-		material->SetTextureColor(ColorType::Diffuse, color, 0);
+		material->SetTextureColor(ColorType::DIFFUSE, color, 0);
 
 		Json::GetValue(value, "Emissive", color);
-		material->SetTextureColor(ColorType::Emissive, color, 0);
+		material->SetTextureColor(ColorType::EMISSIVE, color, 0);
 
 		Json::GetValue(value, "Specular", color);
-		material->SetTextureColor(ColorType::Specular, color, 0);
+		material->SetTextureColor(ColorType::SPECULAR, color, 0);
 
 		float shininess;
 		Json::GetValue(value, "Shininess", shininess);
-		material->SetTextureColor(ColorType::Shineniss, {}, shininess);
+		material->SetTextureColor(ColorType::SHININESS, {}, shininess);
 
 		string textureFile;
 		string directory = cPath::GetDirectoryName(cString::String(file));
 
 		Json::GetValue(value, "DiffuseFile", textureFile);
-		ReadTextureMap(material.get(), TextureType::Diffuse, directory, textureFile);
+		ReadTextureMap(material.get(), TextureType::DIFFUSE, directory, textureFile);
 
 		Json::GetValue(value, "SpecularFile", textureFile);
-		ReadTextureMap(material.get(), TextureType::Specular, directory, textureFile);
+		ReadTextureMap(material.get(), TextureType::SPECULAR, directory, textureFile);
 
 		Json::GetValue(value, "EmissiveFile", textureFile);
-		ReadTextureMap(material.get(), TextureType::Emissive, directory, textureFile);
+		ReadTextureMap(material.get(), TextureType::EMISSIVE, directory, textureFile);
 
 		Json::GetValue(value, "NormalFile", textureFile);
-		ReadTextureMap(material.get(), TextureType::Normal, directory, textureFile);
+		ReadTextureMap(material.get(), TextureType::NORMAL, directory, textureFile);
 
 		_model->_materials.emplace_back(move(material));
 	}
@@ -110,8 +108,12 @@ void cModelFactory::ReadMesh(wstring file)
 		{
 			auto bone = make_shared<cModelBone>();
 			ReadModelBoneData(r, bone);
-			_model->_bones.emplace_back(move(bone));
+			_model->_originalBones.emplace_back(move(bone));
 		}
+
+		_model->_animatedTM.assign(count, cMath::MATRIX_IDENTITY);
+		_model->UpdateWorld();
+		_model->_skinnedTM.assign(count, cMath::MATRIX_IDENTITY);
 
 		count = r->UInt();
 		for (UINT i = 0; i < count; i++)
@@ -161,7 +163,7 @@ void cModelFactory::ReadMeshData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMesh>
 void cModelFactory::LinkMeshToBone(weak_ptr<cModelMesh> mesh, int parentBoneIndex)
 {
 	auto meshPtr = mesh.lock();
-	for (auto&& bone : _model->_bones)
+	for (auto&& bone : _model->_originalBones)
 	{
 		if (parentBoneIndex == bone->_index)
 		{
@@ -195,41 +197,6 @@ void cModelFactory::ReadMeshPartData(weak_ptr<cBinaryReader> r, weak_ptr<cModelM
 	}
 }
 
-void cModelFactory::ReadAnimation(wstring file)
-{
-	shared_ptr<cBinaryReader> r = cBinaryReader::Open(file);
-	{
-		UINT count = r->UInt();
-		for (UINT i = 0; i < count; i++)
-		{
-			auto clip = make_unique<cModelAnimClip>();
-			clip->_name = cString::Wstring(r->String());
-
-			clip->_totalFrame = r->Int();
-			clip->_frameRate = r->Float();
-			clip->_defaultFrameRate = clip->_frameRate;
-
-			UINT frameCount = r->UInt();
-			for (UINT frame = 0; frame < frameCount; frame++)
-			{
-				auto keyframe = make_unique<sModelKeyFrame>();
-				keyframe->BoneName = cString::Wstring(r->String());
-
-				UINT count = r->UInt();
-				keyframe->FrameData.assign(count, sModelKeyFrameData());
-
-				void* ptr = (void *)&(keyframe->FrameData[0]);
-				r->Byte(&ptr, sizeof(sModelKeyFrameData) * count);
-
-				clip->_keyFrames[keyframe->BoneName] = move(keyframe);
-			}//for(frame)
-
-			_model->_clips.emplace_back(move(clip));
-		}
-	}
-	r->Close();
-}
-
 void cModelFactory::BindMeshData()
 {
 	for (auto&& mesh : _model->_meshes)
@@ -238,19 +205,19 @@ void cModelFactory::BindMeshData()
 			part->_material = _model->GetMaterial(part->_materialName);
 	}
 
-	_model->_root = _model->_bones[0];
-	for (auto&& bone : _model->_bones)
+	_model->_rootBone = _model->_originalBones[0];
+	for (auto&& bone : _model->_originalBones)
 	{
 		if (bone->_parentIndex > -1)
 		{
-			bone->_parent = _model->_bones[bone->_parentIndex];
+			bone->_parent = _model->_originalBones[bone->_parentIndex];
 			bone->_parent.lock()->_children.push_back(bone);
 		}
 	}
 
 	for (auto&& mesh : _model->_meshes)
 	{
-		mesh->_parentBone = _model->_bones[mesh->_parentBoneIndex];
+		mesh->_parentBone = _model->_originalBones[mesh->_parentBoneIndex];
 		mesh->Binding();
 	}
 }

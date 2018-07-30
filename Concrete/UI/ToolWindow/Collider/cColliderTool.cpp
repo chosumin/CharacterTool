@@ -11,8 +11,8 @@
 #include "./Helper/cMath.h"
 
 UI::cColliderTool::cColliderTool(weak_ptr<cModelTool> modelTool)
-	:_modelTool(modelTool),
-	_selectAttack(true)
+	: _modelTool(modelTool)
+	, _selectAttack(true)
 {
 }
 
@@ -35,6 +35,10 @@ void UI::cColliderTool::Update()
 
 void UI::cColliderTool::Render()
 {
+	//액터에서는 콜라이더 렌더링 X, 여기서 액터 콜라이더 렌더링 처리
+	auto colPtr = _colliders.lock();
+	if (colPtr)
+		colPtr->Render();
 }
 
 void UI::cColliderTool::ShowHierarchy(int i)
@@ -118,31 +122,39 @@ void UI::cColliderTool::ShowColliderInspector(eColliderType type, int& index)
 {
 	auto meshes = _model.lock()->GetMeshes();
 	for (auto&& mesh : meshes)
+		ShowColliders(type, mesh, index);
+}
+
+void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelMesh> mesh, int& index)
+{
+	auto meshPtr = mesh.lock();
+	auto colliderVec = meshPtr->GetColliders();
+
+	for (auto&& col : colliderVec)
 	{
-		auto colPtr = mesh->GetCollider().lock();
-		if (!colPtr)
+		if (!col)
 			continue;
 
-		if (colPtr->GetType() == type)
+		if (col->GetType() == type)
 		{
 			if (ImGui::Selectable(("No." + to_string(index++) + " Collider").c_str(), true, 0, ImVec2(150, 20)))
 			{
-				auto transform = colPtr->GetLocalTransform();
-				auto world = colPtr->GetWorldTransform();
+				auto transform = col->GetLocalTransform();
+				auto world = col->GetWorldTransform();
 				cGizmo::Get()->AddTransform(transform, world);
 			}
 
 			ImGui::SameLine();
-			if(ImGui::Button(("Delete " + to_string(index - 1)).c_str()))
+			if (ImGui::Button(("Delete " + to_string(index - 1)).c_str()))
 			{
 				//삭제
-				mesh->SetCollider(weak_ptr<cCollider>());
+				meshPtr->DeleteCollider(col);
 				continue;
 			}
 
-			ImGui::Text("Mesh : %s", cString::String(mesh->GetName()).c_str());
+			ImGui::Text("Mesh : %s", cString::String(meshPtr->GetName()).c_str());
 
-			auto shape = cColliderFactory::GetList()[static_cast<int>(colPtr->GetShape())];
+			auto shape = cColliderFactory::GetList()[static_cast<int>(col->GetShape())];
 			ImGui::Text("Shape : %s", shape);
 
 			ImGui::Separator();

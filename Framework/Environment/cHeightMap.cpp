@@ -6,7 +6,7 @@ cHeightMap::cHeightMap(wstring file)
 	:cBasicMap(file)
 {
 	m_pMaterial = new cMaterial(Shader + L"Terrain.hlsl");
-	m_pMaterial->SetTextureMap(TextureType::Diffuse, Content + L"Landscape/Dirt.png");
+	m_pMaterial->SetTextureMap(TextureType::DIFFUSE, Content + L"Landscape/Dirt.png");
 	m_pWorld = new cWorldBuffer();
 }
 

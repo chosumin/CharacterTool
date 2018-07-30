@@ -9,6 +9,7 @@ struct sTransform;
 class cCollider;
 class cModel;
 class cActorColliders;
+class cAnimator;
 class cActor
 	: public enable_shared_from_this<cActor>
 {
@@ -41,6 +42,7 @@ public:
 	weak_ptr<class cModel> GetModel() const;
 	weak_ptr<struct sTransform> GetTransform() const;
 	weak_ptr<cActorColliders> GetColliders() const;
+	weak_ptr<cAnimator> GetAnimator() const;
 
 	void GetAction(eAction actionType);
 	void SetAction(eAction actionType, function<void()> func);
@@ -53,7 +55,7 @@ private:
 private:
 	shared_ptr<sTransform> _transform;
 	shared_ptr<cModel> _model;
-	unique_ptr<class cModelAnimPlayer> _anim;
+	shared_ptr<cAnimator> _animator;
 	unordered_map<eAction, function<void()>> _actions;
 	unique_ptr<class cBehaviorTree> _behaviorTree;
 

@@ -119,11 +119,11 @@ void cMaterial::Render()
 
 void cMaterial::Initialize()
 {
-	_textureMap[TextureType::Diffuse] = nullptr;
-	_textureMap[TextureType::Specular] = nullptr;
-	_textureMap[TextureType::Emissive] = nullptr;
-	_textureMap[TextureType::Normal] = nullptr;
-	_textureMap[TextureType::Detail] = nullptr;
+	_textureMap[TextureType::DIFFUSE] = nullptr;
+	_textureMap[TextureType::SPECULAR] = nullptr;
+	_textureMap[TextureType::EMISSIVE] = nullptr;
+	_textureMap[TextureType::NORMAL] = nullptr;
+	_textureMap[TextureType::DETAIL] = nullptr;
 
 	_cbuffer = make_shared<cMaterialBuffer>();
 }
@@ -133,13 +133,13 @@ D3DXCOLOR & cMaterial::GetColor(ColorType eType)
 	static D3DXCOLOR color{ 0,0,0,0 };
 	switch (eType)
 	{
-		case ColorType::Ambient:
+		case ColorType::AMBIENT:
 			return _cbuffer->Data.Ambient;
-		case ColorType::Diffuse:
+		case ColorType::DIFFUSE:
 			return _cbuffer->Data.Diffuse;
-		case ColorType::Specular:
+		case ColorType::SPECULAR:
 			return _cbuffer->Data.Specular;
-		case ColorType::Emissive:
+		case ColorType::EMISSIVE:
 			return _cbuffer->Data.Emissive;
 	}
 
@@ -151,9 +151,9 @@ float & cMaterial::GetColor(ColorType eType, int i)
 	static float temp = 0.0f;
 	switch (eType)
 	{
-		case ColorType::Shineniss:
+		case ColorType::SHININESS:
 			return _cbuffer->Data.Shininess;
-		case ColorType::DetailFactor:
+		case ColorType::DETAILFACTOR:
 			return _cbuffer->Data.DetailFactor;
 	}
 	return temp;

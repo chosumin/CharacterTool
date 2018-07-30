@@ -8,6 +8,7 @@
 #include "./Transform/cTransformTool.h"
 #include "./Model/cModelTool.h"
 #include "./Collider/cColliderTool.h"
+#include "./Animation/cAnimTool.h"
 
 UI::cToolWindow::cToolWindow()
 {
@@ -15,6 +16,7 @@ UI::cToolWindow::cToolWindow()
 	_tools.emplace_back(make_shared<cTransformTool>());
 	_tools.emplace_back(modelTool);
 	_tools.emplace_back(make_shared<cColliderTool>(modelTool));
+	_tools.emplace_back(make_shared<cAnimTool>(modelTool));
 }
 
 UI::cToolWindow::~cToolWindow()
@@ -53,6 +55,7 @@ void UI::cToolWindow::PostRender()
 	}
 	ImGui::End();
 
+	bool flag2 = true;
 	ImGui::Begin("Inspector");
 	{
 		if (_selectedTool.expired() == false)

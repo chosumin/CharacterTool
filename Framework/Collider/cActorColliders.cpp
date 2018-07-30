@@ -46,7 +46,7 @@ void cActorColliders::AddCollider(bool attack, eColliderShape shape,
 	auto type = attack ? eColliderType::ATTACK : eColliderType::DAMAGE;
 	shared_ptr<cCollider> col = cColliderFactory::Create(type, shape, meshPtr->GetParentTransform(), matrix);
 
-	meshPtr->SetCollider(col);
+	meshPtr->AddCollider(col);
 
 	AddCollider(col);
 }

@@ -4,14 +4,9 @@
 #include "./Transform/sTransform.h"
 #include "./Model/cModel.h"
 #include "./Model/cModelFactory.h"
-#include "./Model/cModelAnimPlayer.h"
 #include "./Model/ModelPart/cModelMesh.h"
 
 #include "./BehaviorTree/cBehaviorTree.h"
-
-//test : colliderfactory로 바꾸기
-#include "./Collider/cCylinderCollider.h"
-#include "./Model/ModelPart/cModelMesh.h"
 
 cActorBuilder::cActorBuilder()
 {
@@ -35,7 +30,6 @@ shared_ptr<cActor> cActorBuilder::CreateActor()
 cActorBuilder & cActorBuilder::CreateTransform()
 {
 	_actor->_transform = make_shared<sTransform>();
-	//_actor->_transform->Scaling = { 0.1f, 0.1f, 0.1f };
 
 	return *this;
 }
@@ -50,12 +44,9 @@ cActorBuilder & cActorBuilder::CreateModel()
 {
 	vector<wstring> anims{ L"paladin_idle", L"paladin_walk", L"paladin_run", L"paladin_attack", L"paladin_impact" };
 
-	auto model = cModelFactory::Get()->Create(Model + L"paladin/", L"paladin");
+	auto model = cModelFactory::Create(Model + L"paladin/", L"paladin");
 	_actor->_model = move(model);
 
-	_actor->_anim = make_unique<cModelAnimPlayer>(_actor->_model);
-
-	cModelFactory::Delete();
 	return *this;
 }
 

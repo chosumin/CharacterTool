@@ -198,7 +198,7 @@ void UI::cModelTool::ExportFbx(wstring path, OUT wstring *newPath)
 {
 	Fbx::Exporter exporter{ path };
 
-	cPath::SaveFileDialog(L"Save Model", cPath::MaterialFilter, Model, [&exporter, &newPath](wstring savePath)
+	cPath::SaveFileDialog(cPath::GetFileNameWithoutExtension(path), cPath::MaterialFilter, Model, [&exporter, &newPath](wstring savePath)
 	{
 		exporter.ExportMaterial(cPath::GetDirectoryName(savePath),
 								cPath::GetFileName(savePath));
@@ -216,13 +216,10 @@ void UI::cModelTool::ExportFbx(wstring path, OUT wstring *newPath)
 void UI::cModelTool::OpenModel(wstring path, wstring name)
 {
 	//todo : ¸ðµ¨ ÆÑÅä¸® ¼öÁ¤
-	shared_ptr<cModel> model = cModelFactory::Get()->Create(path,
-															name);
+	shared_ptr<cModel> model = cModelFactory::Create(path, name);
 
 	_model = model;
 	_actor.lock()->SetModel(model);
-
-	cModelFactory::Delete();
 
 	_modelName = cString::String(name);
 	cDebug::Log((_modelName + " Open!").c_str());

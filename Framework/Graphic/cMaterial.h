@@ -3,11 +3,11 @@
 
 enum class ColorType
 {
-	Ambient, Diffuse, Specular, Emissive, Shineniss, DetailFactor
+	AMBIENT, DIFFUSE, SPECULAR, EMISSIVE, SHININESS, DETAILFACTOR
 };
 enum class TextureType
 {
-	Diffuse = 0, Specular = 1, Emissive = 2, Normal = 3, Detail = 4
+	DIFFUSE = 0, SPECULAR = 1, EMISSIVE = 2, NORMAL = 3, DETAIL = 4
 };
 
 class cMaterialBuffer;

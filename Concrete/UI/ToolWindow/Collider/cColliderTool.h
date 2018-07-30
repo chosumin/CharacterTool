@@ -45,8 +45,11 @@ namespace UI
 		//콜라이더 생성 버튼
 		void AddCollider();
 
-		//콜라이더 리스트
+		//콜라이더 리스트 인스펙터
 		void ShowColliderInspector(eColliderType type, int& index);
+
+		//콜라이더 리스트
+		void ShowColliders(eColliderType type, weak_ptr<cModelMesh> mesh, int& index);
 	private:
 		/**********
 			공통

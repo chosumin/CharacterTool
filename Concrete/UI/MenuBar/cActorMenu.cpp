@@ -49,7 +49,8 @@ void UI::cActorMenu::PostRender()
 		ImGui::EndMainMenuBar();
 	}
 
-	ImGui::Begin("Hierarchy");
+	bool flag = true;
+	ImGui::Begin("Hierarchy", &flag, ImGuiWindowFlags_HorizontalScrollbar);
 	{
 		ImGui::TextColored(ImVec4(1, 1, 0, 1), _actorName.c_str());
 	}

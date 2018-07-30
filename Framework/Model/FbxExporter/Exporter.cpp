@@ -6,7 +6,6 @@
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
 #include "./Helper/Json.h"
-#include "./Helper/cBinary.h"
 
 Fbx::Exporter::Exporter(wstring fbxFile)
 {
@@ -101,7 +100,7 @@ void Fbx::Exporter::PushMaterials(int number)
 	//램버트 정보 삽입
 	if (fbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
 	{
-		auto lambert = (FbxSurfaceLambert*)fbxMaterial;
+		auto lambert = static_cast<FbxSurfaceLambert*>(fbxMaterial);
 
 		material->Ambient = Fbx::Utility::ToColor(lambert->Ambient, lambert->AmbientFactor);
 		material->Diffuse = Fbx::Utility::ToColor(lambert->Diffuse, lambert->DiffuseFactor);
@@ -111,7 +110,7 @@ void Fbx::Exporter::PushMaterials(int number)
 	//퐁 정보 삽입
 	if (fbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
 	{
-		auto phong = (FbxSurfacePhong*)fbxMaterial;
+		auto phong = static_cast<FbxSurfacePhong*>(fbxMaterial);
 
 		material->Specular = Fbx::Utility::ToColor(phong->Specular, phong->SpecularFactor);
 		material->Shininess = static_cast<float>(phong->Shininess);
@@ -139,7 +138,7 @@ void Fbx::Exporter::WriteMaterialData(Json::Value & root, wstring saveFolder, un
 	Json::Value val;
 	Json::SetValue(val, "Name", material->Name);
 
-	//hack : 쉐이더 파일 바뀌어야 될지도?
+	//hack : 쉐이더 파일 소프트 코딩
 	string shaderName = "999_Mesh.hlsl";
 	Json::SetValue(val, "ShaderName", shaderName);
 
@@ -192,11 +191,11 @@ void Fbx::Exporter::ReadBoneData(FbxNode * node, int index, int parent)
 
 		if (IsBoneType(nodeType))
 		{
-			auto bone = CreateBoneData(index, 
-							   parent, 
-							   node->GetName(), 
-							   Utility::ToMatrix(node->EvaluateLocalTransform()), 
-							   Utility::ToMatrix(node->EvaluateGlobalTransform()));
+			auto bone = CreateBoneData(index,
+									   parent,
+									   node->GetName(),
+									   Utility::ToMatrix(node->EvaluateLocalTransform()),
+									   Utility::ToMatrix(node->EvaluateGlobalTransform()));
 			_bones.emplace_back(move(bone));
 
 			//메쉬 노드라면 메쉬 데이터도 같이 읽어옴

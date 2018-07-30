@@ -19,8 +19,9 @@ public:
 
 	int	GetParentBoneIndex() const { return _parentBoneIndex; }
 
-	weak_ptr<cCollider> GetCollider() const;
-	void SetCollider(weak_ptr<cCollider> collider);
+	const vector<shared_ptr<cCollider>>& GetColliders() const;
+	void AddCollider(weak_ptr<cCollider> collider);
+	void DeleteCollider(weak_ptr<cCollider> collider);
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMesh> Clone() const override;
@@ -33,5 +34,5 @@ private:
 	weak_ptr<cModelBone> _parentBone;
 	vector<shared_ptr<cModelMeshPart>> _meshParts;
 
-	shared_ptr<cCollider> _collider;
+	vector<shared_ptr<cCollider>> _colliders;
 };

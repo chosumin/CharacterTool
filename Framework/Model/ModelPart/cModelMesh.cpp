@@ -32,14 +32,27 @@ weak_ptr<sTransform> cModelMesh::GetParentTransform() const
 	return _parentBone.lock()->GetAbsoluteTransform();
 }
 
-weak_ptr<cCollider> cModelMesh::GetCollider() const
+const vector<shared_ptr<cCollider>>& cModelMesh::GetColliders() const
 {
-	return _collider;
+	return _colliders;
 }
 
-void cModelMesh::SetCollider(weak_ptr<cCollider> collider)
+void cModelMesh::AddCollider(weak_ptr<cCollider> collider)
 {
-	_collider = collider.lock();
+	_colliders.emplace_back(collider.lock());
+}
+
+void cModelMesh::DeleteCollider(weak_ptr<cCollider> collider)
+{
+	auto colPtr = collider.lock();
+	for (auto iter = _colliders.begin(); iter != _colliders.end(); iter++)
+	{
+		if (*iter == colPtr)
+		{
+			_colliders.erase(iter);
+			break;
+		}
+	}
 }
 
 void cModelMesh::Binding()

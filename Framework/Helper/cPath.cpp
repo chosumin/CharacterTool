@@ -8,6 +8,7 @@ const WCHAR* cPath::ModelFilter = L"Model\0*.material;*.fbx";
 const WCHAR* cPath::MaterialFilter = L"Model\0*.material";
 const WCHAR* cPath::MeshFilter = L"Model\0*.mesh";
 const WCHAR* cPath::FbxFilter = L"Model\0*.fbx";
+const WCHAR* cPath::AnimFbxFilter = L"Animation\0*.anim;*.fbx";
 
 void cPath::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func)
 {
@@ -164,4 +165,36 @@ wstring cPath::GetFileNameWithoutExtension(wstring path)
 
 	size_t index = fileName.find_last_of('.');
 	return fileName.substr(0, index);
+}
+
+void cPath::CreateFolder(string path)
+{
+	CreateFolder(cString::Wstring(path));
+}
+
+void cPath::CreateFolder(wstring path)
+{
+	if (ExistDirectory(path) == false)
+		CreateDirectory(path.c_str(), nullptr);
+}
+
+void cPath::CreateFolders(string path)
+{
+	CreateFolders(cString::Wstring(path));
+}
+
+void cPath::CreateFolders(wstring path)
+{
+	cString::Replace(&path, L"\\", L"/");
+
+	vector<wstring> folders;
+	cString::Split(&folders, path, L"/");
+
+	wstring temp = L"";
+	for (auto& folder : folders)
+	{
+		temp += folder + L"/";
+		if (ExistDirectory(temp) == false)
+			CreateFolder(temp);
+	}
 }

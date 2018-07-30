@@ -39,7 +39,7 @@ wstring cString::Combine(vector<wstring> paths)
 /***********************
 compare를 replace로 변경
 ************************/
-void cString::Replace(string * str, string compare, string replace)
+void cString::Replace(OUT string * str, string compare, string replace)
 {
 	string temp = *str;
 
@@ -53,7 +53,7 @@ void cString::Replace(string * str, string compare, string replace)
 	*str = temp;
 }
 
-void cString::Replace(wstring * str, wstring compare, wstring replace)
+void cString::Replace(OUT wstring * str, wstring compare, wstring replace)
 {
 	wstring temp = *str;
 
@@ -65,4 +65,38 @@ void cString::Replace(wstring * str, wstring compare, wstring replace)
 	}
 
 	*str = temp;
+}
+
+void cString::Split(OUT vector<string> * result, string origin, string tok)
+{
+	result->clear();
+
+	int cutAt = 0; //자를 위치s
+	while ((cutAt = (int)origin.find_first_of(tok)) != origin.npos)
+	{
+		if (cutAt > 0) //자르는 위치가 0보다크면
+			result->push_back(origin.substr(0, cutAt));
+
+		origin = origin.substr(cutAt + 1);
+	}
+
+	if (origin.length() > 0) //자르고도 남은 것이 있다면
+		result->push_back(origin.substr(0, cutAt));
+}
+
+void cString::Split(OUT vector<wstring> * result, wstring origin, wstring tok)
+{
+	result->clear();
+
+	int cutAt = 0; //자를 위치s
+	while ((cutAt = (int)origin.find_first_of(tok)) != origin.npos)
+	{
+		if (cutAt > 0) //자르는 위치가 0보다크면
+			result->push_back(origin.substr(0, cutAt));
+
+		origin = origin.substr(cutAt + 1);
+	}
+
+	if (origin.length() > 0) //자르고도 남은 것이 있다면
+		result->push_back(origin.substr(0, cutAt));
 }

@@ -2,9 +2,9 @@
 #include "cActor.h"
 #include "./Model/cModel.h"
 #include "./Transform/sTransform.h"
-#include "./Model/cModelAnimPlayer.h"
 #include "./BehaviorTree/cBehaviorTree.h"
 #include "./Collider/cActorColliders.h"
+#include "./Animator/cAnimator.h"
 
 cActor::~cActor()
 {
@@ -13,21 +13,23 @@ cActor::~cActor()
 void cActor::Init()
 {
 	_colliders = make_shared<cActorColliders>(shared_from_this());
+	_animator = make_shared<cAnimator>(_model);
 }
 
 void cActor::Update()
 {
 	if (_transform)
 		_transform->Update();
-
+	
 	if (_behaviorTree)
 		_behaviorTree->Update();
 
-	if (_anim)
-		_anim->Update(_transform);
+	if (_animator)
+		_animator->Update();
 
+	//fixme : 애니메이터 있을 때와 없을 때 다르게 모델 업데이트 처리
 	if (_model)
-		_model->Update(_transform->Matrix);
+		_model->Update(_transform);
 
 	if (_colliders)
 		_colliders->Update();
@@ -35,14 +37,15 @@ void cActor::Update()
 
 void cActor::Render()
 {
-	if (_anim)
-		_anim->Render();
+	/*if (_anim)
+		_anim->Render();*/
 
 	if (_model)
 		_model->Render();
 
-	if (_colliders)
-		_colliders->Render();
+	//툴 클래스에서 액터 콜라이더 렌더링 처리
+	/*if (_colliders)
+		_colliders->Render();*/
 }
 
 weak_ptr<cModel> cActor::GetModel() const
@@ -66,6 +69,11 @@ weak_ptr<cActorColliders> cActor::GetColliders() const
 	return _colliders;
 }
 
+weak_ptr<cAnimator> cActor::GetAnimator() const
+{
+	return _animator;
+}
+
 void cActor::GetAction(eAction actionType)
 {
 	if(_actions[actionType])
@@ -78,7 +86,7 @@ void cActor::SetAction(eAction actionType, function<void()> func)
 
 UINT cActor::GetCurrentAnim() const
 {
-	return _anim->GetClip();
+	return 0;
 }
 
 void cActor::SetModel(weak_ptr<cModel> model)
@@ -91,23 +99,23 @@ void cActor::SetModel(weak_ptr<cModel> model)
 
 void cActor::Idle()
 {
-	if (_anim->GetClip() != 0)
+	/*if (_anim->GetClip() != 0)
 		_anim->SetClip(0);
 
-	isAttack = false;
+	isAttack = false;*/
 }
 
 void cActor::Rotate(float deltaY)
 {
-	//회전
-	if(_anim->GetClip() != 1)
-		_anim->SetClip(1);
-	_transform->Rotate({ 0, deltaY, 0 });
+	////회전
+	//if(_anim->GetClip() != 1)
+	//	_anim->SetClip(1);
+	//_transform->Rotate({ 0, deltaY, 0 });
 }
 
 void cActor::Move(D3DXVECTOR3 direction, float velocity)
 {
-	if (velocity >= cFrame::Delta() * 30)
+	/*if (velocity >= cFrame::Delta() * 30)
 	{
 		if (_anim->GetClip() != 2)
 			_anim->SetClip(2);
@@ -120,20 +128,20 @@ void cActor::Move(D3DXVECTOR3 direction, float velocity)
 
 	auto rotate = _transform->GetRotationMatrix();
 	D3DXVec3TransformNormal(&direction, &direction, &rotate);
-	_transform->Position += direction * velocity;
+	_transform->Position += direction * velocity;*/
 }
 
 void cActor::Attack()
 {
-	if (_anim->GetClip() != 6)
-		_anim->SetClip(6);
+	//if (_anim->GetClip() != 6)
+	//	_anim->SetClip(6);
 
-	//hack : 애니메이션 끝나면 idle로 바꾸기
-	if (timeGetTime() - time > 1500)
-	{
-		_anim->SetClip(0);
-		isAttack = false;
-	}
+	////hack : 애니메이션 끝나면 idle로 바꾸기
+	//if (timeGetTime() - time > 1500)
+	//{
+	//	_anim->SetClip(0);
+	//	isAttack = false;
+	//}
 	//if(_anim->)
 
 	//todo : 캡슐 교차 판정
@@ -141,15 +149,15 @@ void cActor::Attack()
 
 void cActor::Damage()
 {
-	if (_anim->GetClip() != 8)
-		_anim->SetClip(8);
+	//if (_anim->GetClip() != 8)
+	//	_anim->SetClip(8);
 
-	//hack : 애니메이션 끝나면 idle로 바꾸기
-	if (timeGetTime() - time > 800)
-	{
-		_anim->SetClip(0);
-		isDamage = false;
-	}
+	////hack : 애니메이션 끝나면 idle로 바꾸기
+	//if (timeGetTime() - time > 800)
+	//{
+	//	_anim->SetClip(0);
+	//	isDamage = false;
+	//}
 }
 
 weak_ptr<cCollider> cActor::GetCollider(UINT num) const
