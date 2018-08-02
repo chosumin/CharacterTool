@@ -10,6 +10,8 @@ private:
 public:
 	cModelBone();
 	~cModelBone();
+	
+	void Animate(const D3DXMATRIX& animated, const D3DXMATRIX* root);
 public:
 	/*******************
 		Getter Setter
@@ -28,6 +30,12 @@ public:
 	vector<weak_ptr<cModelBone>>& GetChildren();
 
 	weak_ptr<sTransform> GetAbsoluteTransform();
+	weak_ptr<sTransform> GetAnimatedTransform();
+	weak_ptr<sTransform> GetSkinnedTransform();
+
+	const vector<shared_ptr<cCollider>>& GetColliders() const;
+	void AddCollider(weak_ptr<cCollider> collider);
+	void DeleteCollider(weak_ptr<cCollider> collider);
 private:
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelBone> Clone() const override;
@@ -40,5 +48,10 @@ private:
 	shared_ptr<sTransform> _transform;
 	shared_ptr<sTransform> _absoluteTransform;
 
+	shared_ptr<sTransform> _animatedTransform;
+	shared_ptr<sTransform> _skinnedTransform;
+
 	vector<weak_ptr<cModelBone>> _children;
+
+	vector<shared_ptr<cCollider>> _colliders;
 };

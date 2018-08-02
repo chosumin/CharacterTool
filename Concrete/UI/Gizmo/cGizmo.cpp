@@ -83,6 +83,9 @@ void cGizmo::SetMyTransform()
 {
 	auto delegateLocalPtr = _delegateLocal.lock();
 
+	//hack : skinnedTransform Å×½ºÆ®
+	delegateLocalPtr->Decompose();
+
 	_myLocal->Position = delegateLocalPtr->Position;
 	_myLocal->Rotation = delegateLocalPtr->Rotation;
 	_myLocal->Quaternion = delegateLocalPtr->Quaternion;

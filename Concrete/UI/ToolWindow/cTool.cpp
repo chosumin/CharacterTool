@@ -44,5 +44,5 @@ void UI::cTool::SendMe()
 	vector<UINT> receivers;
 	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
 
-	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RecieveTool, (void*)&shared_from_this());
+	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RECIEVE_TOOL, (void*)&shared_from_this());
 }

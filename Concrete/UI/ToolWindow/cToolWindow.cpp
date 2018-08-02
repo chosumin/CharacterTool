@@ -68,12 +68,16 @@ void UI::cToolWindow::HandleMessage(const sTelegram & msg)
 {
 	switch (msg.message)
 	{
-		case eMessageType::RecieveActor:
+		case eMessageType::RECIEVE_ACTOR:
 			RecieveActor(msg);
 		break;
-		case eMessageType::RecieveTool:
+		case eMessageType::RECIEVE_TOOL:
 			RecieveTool(msg);
 		break;
+		case eMessageType::SAVE_ACTOR:
+			SaveActor(msg);
+		break;
+
 	}
 }
 
@@ -92,4 +96,12 @@ void UI::cToolWindow::RecieveActor(const sTelegram & msg)
 void UI::cToolWindow::RecieveTool(const sTelegram & msg)
 {
 	_selectedTool = *(weak_ptr<cTool>*)(msg.extraInfo);
+}
+
+void UI::cToolWindow::SaveActor(const sTelegram & msg)
+{
+	for (auto&& tool : _tools)
+	{
+
+	}
 }

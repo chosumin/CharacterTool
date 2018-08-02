@@ -2,6 +2,8 @@
 #include "cTransformTool.h"
 #include "./GameObject/cActor.h"
 #include "./UI/Gizmo/cGizmo.h"
+#include "./Helper/Json.h"
+#include "./Transform/sTransform.h"
 
 UI::cTransformTool::cTransformTool()
 {
@@ -58,4 +60,19 @@ void UI::cTransformTool::ShowTransform()
 
 	cDebug::Log("Transform Selected!");
 	cGizmo::Get()->AddTransform(actorPtr->GetTransform());
+}
+
+void UI::cTransformTool::SaveJson(Json::Value& root)
+{
+	//todo : 스케일링만 저장되도록
+	_actor.lock()->GetTransform().lock()->Scaling;
+	Json::Value transform;
+	Json::SetValue(transform, "Scale", )
+	root["Transform"]
+	Json::SetValue(root,)
+	
+}
+
+void UI::cTransformTool::LoadJson(Json::Value& root)
+{
 }

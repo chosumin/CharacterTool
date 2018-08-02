@@ -39,9 +39,7 @@ void UI::cActorMenu::PostRender()
 			}
 
 			if (ImGui::MenuItem("Save Actor", ""))
-			{
-
-			}
+				SaveActor();
 
 			ImGui::EndMenu();
 		}
@@ -61,7 +59,7 @@ void UI::cActorMenu::HandleMessage(const sTelegram & msg)
 {
 	switch (msg.message)
 	{
-		case eMessageType::RecieveActor:
+		case eMessageType::RECIEVE_ACTOR:
 		{
 			_actor = *(weak_ptr<cActor>*)(msg.extraInfo);
 		}
@@ -82,9 +80,25 @@ void UI::cActorMenu::NewActor()
 	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
 
 	//새 액터를 관여된 객체들에게 전달
-	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RecieveActor, (void*)&actor);
+	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RECIEVE_ACTOR, (void*)&actor);
 
 	_actorName = "New Actor";
 
 	cDebug::Log("Created New Actor!");
+}
+
+void UI::cActorMenu::SaveActor()
+{
+	//툴에게 저장 메시지 보냄
+	vector<UINT> receivers;
+	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
+
+	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RECIEVE_ACTOR, nullptr);
+
+	cDebug::Log(("Save Success! : " + _actorName).c_str());
+}
+
+bool UI::cActorMenu::AlertActor()
+{
+	return false;
 }

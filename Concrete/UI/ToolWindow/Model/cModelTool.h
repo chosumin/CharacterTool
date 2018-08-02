@@ -21,6 +21,8 @@ namespace UI
 		virtual void Render() override;
 		virtual void ShowHierarchy(int i) override;
 		virtual void ShowInspector() override;
+		virtual void SaveJson(Json::Value& root) override;
+		virtual void LoadJson(Json::Value& root) override;
 	private:
 		/********************
 			하이어라키 관련

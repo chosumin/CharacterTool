@@ -3,13 +3,14 @@
 
 enum class eMessageType
 {
-	None,
+	NONE,
 
 	/*************
 		UI ฐüทร
 	**************/
-	RecieveActor,
-	RecieveTool
+	RECIEVE_ACTOR,
+	RECIEVE_TOOL,
+	SAVE_ACTOR,
 };
 
 struct sTelegram
@@ -22,7 +23,7 @@ struct sTelegram
 
 	sTelegram()
 	{
-		message = eMessageType::None;
+		message = eMessageType::NONE;
 		extraInfo = NULL;
 	}
 

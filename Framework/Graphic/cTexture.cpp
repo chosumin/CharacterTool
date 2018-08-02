@@ -59,7 +59,7 @@ void cTexture::SetBlankShaderResource(UINT slot)
 cTexture::cTexture(wstring file, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	:_fileName(file)
 {
-	Load(this, loadInfo);
+	LoadJson(this, loadInfo);
 
 	D3D11_SAMPLER_DESC desc;
 	cStates::GetSamplerDesc(&desc);
@@ -135,7 +135,7 @@ D3D11_TEXTURE2D_DESC cTexture::ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOL
 	return desc;
 }
 
-void cTexture::Load(cTexture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
+void cTexture::LoadJson(cTexture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 {
 	ScratchImage image; //복사 이미지
 

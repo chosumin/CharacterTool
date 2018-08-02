@@ -41,7 +41,7 @@ void cActorManager::HandleMessage(const sTelegram & msg)
 {
 	switch (msg.message)
 	{
-		case eMessageType::RecieveActor:
+		case eMessageType::RECIEVE_ACTOR:
 		{
 			auto actor = (weak_ptr<cActor>*)(msg.extraInfo);
 			_actor = actor->lock();

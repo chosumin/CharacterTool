@@ -3,6 +3,7 @@
 #include "./Collider/cColliderFactory.h"
 #include "./Collider/cCollider.h"
 #include "./Model/ModelPart/cModelMesh.h"
+#include "./Model/ModelPart/cModelBone.h"
 
 cActorColliders::cActorColliders(weak_ptr<cActor> actor)
 	:_actor(actor)
@@ -37,16 +38,18 @@ void cActorColliders::Render()
 	}
 }
 
-void cActorColliders::AddCollider(bool attack, eColliderShape shape,
-								  weak_ptr<cModelMesh> mesh,
+void cActorColliders::AddCollider(bool attack,
+ eColliderShape shape, weak_ptr<cModelBone> bone,
 								  const D3DXMATRIX & matrix)
 {
-	auto meshPtr = mesh.lock();
+	auto bonePtr = bone.lock();
 
 	auto type = attack ? eColliderType::ATTACK : eColliderType::DAMAGE;
-	shared_ptr<cCollider> col = cColliderFactory::Create(type, shape, meshPtr->GetParentTransform(), matrix);
 
-	meshPtr->AddCollider(col);
+	//애니메이티드 본
+	shared_ptr<cCollider> col = cColliderFactory::Create(type, shape, bonePtr->GetAnimatedTransform(), matrix);
+
+	bonePtr->AddCollider(col);
 
 	AddCollider(col);
 }

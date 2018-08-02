@@ -108,11 +108,10 @@ void cModelFactory::ReadMesh(wstring file)
 		{
 			auto bone = make_shared<cModelBone>();
 			ReadModelBoneData(r, bone);
-			_model->_originalBones.emplace_back(move(bone));
+			_model->_bones.emplace_back(move(bone));
 		}
 
-		_model->_animatedTM.assign(count, cMath::MATRIX_IDENTITY);
-		_model->UpdateWorld();
+		//_model->_animatedTM.assign(count, cMath::MATRIX_IDENTITY);
 		_model->_skinnedTM.assign(count, cMath::MATRIX_IDENTITY);
 
 		count = r->UInt();
@@ -140,6 +139,8 @@ void cModelFactory::ReadModelBoneData(weak_ptr<cBinaryReader> r, weak_ptr<cModel
 
 	bonePtr->_transform->Decompose();
 	bonePtr->_absoluteTransform->Decompose();
+
+	*bonePtr->_animatedTransform = *bonePtr->_absoluteTransform;
 }
 
 void cModelFactory::ReadMeshData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMesh> mesh)
@@ -152,18 +153,35 @@ void cModelFactory::ReadMeshData(weak_ptr<cBinaryReader> r, weak_ptr<cModelMesh>
 	LinkMeshToBone(mesh, parentBoneIndex);
 
 	UINT partCount = readerPtr->UInt();
+
+	vector<wstring> matNames;
 	for (UINT k = 0; k < partCount; k++)
 	{
 		auto meshPart = make_shared<cModelMeshPart>();
 		ReadMeshPartData(r, meshPart);
-		meshPtr->_meshParts.push_back(move(meshPart));
+
+		bool duplicate = false;
+		for (auto&& matName : matNames)
+		{
+			if (meshPart->_materialName == matName)
+			{
+				duplicate = true;
+				break;
+			}
+		}
+
+		if (duplicate == false)
+		{
+			matNames.push_back(meshPart->_materialName);
+			meshPtr->_meshParts.push_back(move(meshPart));
+		}
 	}
 }
 
 void cModelFactory::LinkMeshToBone(weak_ptr<cModelMesh> mesh, int parentBoneIndex)
 {
 	auto meshPtr = mesh.lock();
-	for (auto&& bone : _model->_originalBones)
+	for (auto&& bone : _model->_bones)
 	{
 		if (parentBoneIndex == bone->_index)
 		{
@@ -205,19 +223,19 @@ void cModelFactory::BindMeshData()
 			part->_material = _model->GetMaterial(part->_materialName);
 	}
 
-	_model->_rootBone = _model->_originalBones[0];
-	for (auto&& bone : _model->_originalBones)
+	_model->_rootBone = _model->_bones[0];
+	for (auto&& bone : _model->_bones)
 	{
 		if (bone->_parentIndex > -1)
 		{
-			bone->_parent = _model->_originalBones[bone->_parentIndex];
+			bone->_parent = _model->_bones[bone->_parentIndex];
 			bone->_parent.lock()->_children.push_back(bone);
 		}
 	}
 
 	for (auto&& mesh : _model->_meshes)
 	{
-		mesh->_parentBone = _model->_originalBones[mesh->_parentBoneIndex];
+		mesh->_parentBone = _model->_bones[mesh->_parentBoneIndex];
 		mesh->Binding();
 	}
 }

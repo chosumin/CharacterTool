@@ -19,7 +19,8 @@ void cPath::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, fu
 	cString::Replace(&tempFolder, L"/", L"\\");
 
 	OPENFILENAME ofn;
-	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	memset(&ofn, 0, sizeof(OPENFILENAME));
+	//ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.lpstrFilter = filter;
 	ofn.lpstrFile = name;
@@ -37,6 +38,68 @@ void cPath::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, fu
 
 			func(loadName);
 		}
+	}
+}
+
+void cPath::OpenMultiFileDialog(wstring file, const WCHAR * filter, wstring folder, function<void(wstring)> func)
+{
+	WCHAR name[512];
+	wcscpy_s(name, file.c_str());
+
+	wstring tempFolder = folder;
+	cString::Replace(&tempFolder, L"/", L"\\");
+
+	OPENFILENAME ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAME));
+	//ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lpstrFilter = filter;
+	ofn.lpstrFile = name;
+	ofn.lpstrFileTitle = L"파일 불러오기";
+	ofn.nMaxFile = 512;
+	ofn.lpstrInitialDir = tempFolder.c_str();
+	ofn.Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT;
+
+	if (GetOpenFileName(&ofn) != 0)
+	{
+		if (func != nullptr)
+			OpenFiles(name, func);
+	}
+}
+
+void cPath::OpenFiles(LPWSTR lpstrFilesWithPath, function<void(wstring)> func)
+{
+	UINT        i;
+	UINT        nInsertedItems = 0;
+	const UINT    nMaxLen = 512;
+	WCHAR        szPath[nMaxLen];
+	WCHAR        szFile[nMaxLen];
+
+	// 파일의 경로를 szPath에 복사
+	wcscpy(szPath, lpstrFilesWithPath);
+	if (NULL == szPath[0])
+		return;
+
+	// 선택된 파일이 1개인 경우
+	if (IsThereOneFile(lpstrFilesWithPath))
+	{
+		wstring loadName = lpstrFilesWithPath;
+		cString::Replace(&loadName, L"\\", L"/");
+		func(loadName);
+
+		return;
+	}
+
+	// 선택된 파일이 2개 이상인 경우
+	for (i = wcslen(lpstrFilesWithPath) + 1; NULL != lpstrFilesWithPath[i]; i += (wcslen(lpstrFilesWithPath + i) + 1))
+	{
+		wcscpy(szFile, lpstrFilesWithPath + i);
+		wstring fileName = szFile;
+		wstring loadName = lpstrFilesWithPath;
+		loadName += L"/" + fileName;
+
+		cString::Replace(&loadName, L"\\", L"/");
+		func(loadName);
 	}
 }
 
@@ -197,4 +260,10 @@ void cPath::CreateFolders(wstring path)
 		if (ExistDirectory(temp) == false)
 			CreateFolder(temp);
 	}
+}
+
+BOOL cPath::IsThereOneFile(LPWSTR lpstrFilesWithPath)
+{
+	UINT i = wcslen(lpstrFilesWithPath) + 1;
+	return (lpstrFilesWithPath[i] == NULL) ? TRUE : FALSE;
 }

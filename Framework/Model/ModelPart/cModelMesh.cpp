@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "cModelMesh.h"
 #include "cModelMeshPart.h"
-
 #include "./Transform/sTransform.h"
 #include "./Model/ModelPart/cModelBone.h"
 
@@ -30,29 +29,6 @@ unique_ptr<cModelMesh> cModelMesh::Clone() const
 weak_ptr<sTransform> cModelMesh::GetParentTransform() const
 {
 	return _parentBone.lock()->GetAbsoluteTransform();
-}
-
-const vector<shared_ptr<cCollider>>& cModelMesh::GetColliders() const
-{
-	return _colliders;
-}
-
-void cModelMesh::AddCollider(weak_ptr<cCollider> collider)
-{
-	_colliders.emplace_back(collider.lock());
-}
-
-void cModelMesh::DeleteCollider(weak_ptr<cCollider> collider)
-{
-	auto colPtr = collider.lock();
-	for (auto iter = _colliders.begin(); iter != _colliders.end(); iter++)
-	{
-		if (*iter == colPtr)
-		{
-			_colliders.erase(iter);
-			break;
-		}
-	}
 }
 
 void cModelMesh::Binding()

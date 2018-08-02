@@ -27,7 +27,6 @@ void cActor::Update()
 	if (_animator)
 		_animator->Update();
 
-	//fixme : 애니메이터 있을 때와 없을 때 다르게 모델 업데이트 처리
 	if (_model)
 		_model->Update(_transform);
 
@@ -37,11 +36,20 @@ void cActor::Update()
 
 void cActor::Render()
 {
-	/*if (_anim)
-		_anim->Render();*/
+	if (_transform)
+		_transform->SetVSBuffer(1);
 
 	if (_model)
+	{
+		_model->SetPlayedBuffer(false);
+
+		if (_animator &&
+			_animator->GetMode() != cAnimator::Mode::STOP)
+			_model->SetPlayedBuffer(true);
+
 		_model->Render();
+	}
+		
 
 	//툴 클래스에서 액터 콜라이더 렌더링 처리
 	/*if (_colliders)

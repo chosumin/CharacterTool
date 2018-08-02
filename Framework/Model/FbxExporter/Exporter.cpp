@@ -6,6 +6,7 @@
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
 #include "./Helper/Json.h"
+#include "./Helper/cMath.h"
 
 Fbx::Exporter::Exporter(wstring fbxFile)
 {
@@ -263,15 +264,20 @@ unique_ptr<Fbx::FbxVertex> Fbx::Exporter::CreatePolygonVertex(FbxMesh *mesh, int
 
 	vertex->ControlPoint = cpIndex;
 
+	D3DXMATRIX mat;
+	D3DXMatrixRotationX(&mat, cMath::ToRadian(-90));
+
 	//À§Ä¡ »ðÀÔ
 	FbxVector4 position = mesh->GetControlPointAt(cpIndex);
 	vertex->Vertex.position = Fbx::Utility::ToVector3(position);
+	D3DXVec3TransformCoord(&vertex->Vertex.position, &vertex->Vertex.position, &mat);
 
 	//¹ý¼± »ðÀÔ
 	FbxVector4 normal;
 	mesh->GetPolygonVertexNormal(p, vi, normal);
 	normal.Normalize();
 	vertex->Vertex.normal = Fbx::Utility::ToVector3(normal);
+	D3DXVec3TransformCoord(&vertex->Vertex.normal, &vertex->Vertex.normal, &mat);
 
 	//¸ÓÅÍ¸®¾ó ÀÌ¸§ »ðÀÔ
 	vertex->MaterialName = Fbx::Utility::GetMaterialName(mesh, p, cpIndex);

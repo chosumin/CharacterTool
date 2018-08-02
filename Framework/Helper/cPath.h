@@ -4,6 +4,8 @@ class cPath
 {
 public:
 	static void OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func);
+	static void OpenMultiFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func);
+	
 	static void SaveFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func);
 
 	static bool ExistFile(string path);
@@ -37,4 +39,7 @@ public:
 	static const WCHAR* MeshFilter;
 	static const WCHAR* FbxFilter;
 	static const WCHAR* AnimFbxFilter;
+private:
+	static BOOL IsThereOneFile(LPWSTR lpstrFilesWithPath);
+	static void OpenFiles(LPWSTR lpstrFilesWithPath, function<void(wstring)> func);
 };

@@ -4,6 +4,8 @@ class cAnimClip;
 class cModel;
 class cAnimator
 {
+private:
+	using ClipIter = vector<shared_ptr<cAnimClip>>::iterator;
 public:
 	enum class Mode
 	{
@@ -16,27 +18,25 @@ public:
 	void Update();
 
 	void SetCurrentClip(weak_ptr<cAnimClip> clip);
+	bool Duplicated(weak_ptr<cAnimClip> clip);
 	void AddClip(weak_ptr<cAnimClip> clip);
-	void DeleteClip(weak_ptr<cAnimClip> clip);
+	ClipIter DeleteClip(weak_ptr<cAnimClip> clip);
 public:
 	/*******************
 		Getter Setter
 	********************/
 	const vector<shared_ptr<cAnimClip>>& GetClips() const;
 	int GetCurrentFrameCount();
+	void SetCurrentFrameCount(int count) { _currentKeyFrame = count; }
 	int GetLastFrameCount();
 
-	void SetMode(Mode mode)
-	{
-		_mode = mode;
-	}
+	Mode GetMode();
+	void SetMode(Mode mode);
 
 	void SetModel(weak_ptr<cModel> model);
 private:
 	void UpdateTime();
 	void UpdateBones();
-
-	void SetIdentityAnimation();
 private:
 	Mode _mode;
 

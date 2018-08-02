@@ -3,6 +3,8 @@
 #include "./Graphic/cMaterial.h"
 
 cModelMeshPart::cModelMeshPart()
+	: _vb(nullptr)
+	, _ib(nullptr)
 {
 }
 

@@ -88,7 +88,7 @@ void UI::cAnimTool::ShowAnimatorInspector()
 
 void UI::cAnimTool::OpenAnimationClip()
 {
-	cPath::OpenFileDialog(L"Open Animation Clip", cPath::AnimFbxFilter, Asset, [this](wstring path)
+	cPath::OpenMultiFileDialog(L"Open Animation Clip", cPath::AnimFbxFilter, Asset, [this](wstring path)
 	{
 		auto extension = cPath::GetExtension(path);
 
@@ -101,7 +101,13 @@ void UI::cAnimTool::OpenAnimationClip()
 		auto clip = cAnimClip::Create(directory, name);
 
 		if (clip->IsCorrectBones(_model.lock()->GetBones()))
-			_animator.lock()->AddClip(clip);
+		{
+			auto animPtr = _animator.lock();
+			if (animPtr->Duplicated(clip))
+				cDebug::Log("Duplicated Clip!");
+			else
+				animPtr->AddClip(clip);
+		}
 		else
 			//todo : 팝업 띄우기
 			cDebug::Log("Unfitting Bones!");
@@ -131,19 +137,17 @@ void UI::cAnimTool::ShowProgressInspector()
 	else
 		currentCount = lastCount = 0;
 
-	ImGui::SliderInt("Frame", &currentCount, 0, lastCount);
-	
-	if (ImGui::Button("PAUSE"))
-	{
-		if (animPtr)
-			animPtr->SetMode(cAnimator::Mode::PAUSE);
-	}
-	ImGui::SameLine();
+	if (ImGui::SliderInt("Frame", &currentCount, 0, lastCount))
+		animPtr->SetCurrentFrameCount(currentCount);
+
 	if (ImGui::Button("PLAY"))
-	{
-		if (animPtr)
-			animPtr->SetMode(cAnimator::Mode::PLAY);
-	}
+		animPtr->SetMode(cAnimator::Mode::PLAY);
+	ImGui::SameLine();
+	if (ImGui::Button("PAUSE"))
+		animPtr->SetMode(cAnimator::Mode::PAUSE);
+	ImGui::SameLine();
+	if (ImGui::Button("STOP"))
+		animPtr->SetMode(cAnimator::Mode::STOP);
 }
 
 void UI::cAnimTool::SelectBone(weak_ptr<cModelBone> bone)
@@ -182,24 +186,38 @@ void UI::cAnimTool::ShowAnimationList()
 {
 	auto animPtr = _animator.lock();
 
-	for (const auto& clip : animPtr->GetClips())
+	int index = 1;
+	auto iter = animPtr->GetClips().begin();
+	for (; iter != animPtr->GetClips().end(); index++)
 	{
 		//클립 선택
-		if (ImGui::Selectable(cString::String(clip->GetName()).c_str()))
+		if (ImGui::Selectable(cString::String((*iter)->GetName()).c_str(), true, 0, ImVec2(150, 20)))
 		{
-			_selectedClip = clip;
-			animPtr->SetCurrentClip(clip);
-			cDebug::Log((cString::String(clip->GetName()) + " Selected!").c_str());
+			_selectedClip = *iter;
+			animPtr->SetCurrentClip(*iter);
+			cDebug::Log((cString::String((*iter)->GetName()) + " Selected!").c_str());
 		}
-		
+
 		ImGui::SameLine();
 
-		if (ImGui::Button("Delete"))
+		if (ImGui::Button(("Delete " + to_string(index)).c_str()))
 		{
 			//hack : clip 순회 중인데 중간에 clip 삭제함
-			animPtr->DeleteClip(clip);
+			iter = animPtr->DeleteClip(*iter);
 		}
+		else
+			iter++;
+
+		ImGui::Separator();
 	}
+}
+
+void UI::cAnimTool::SaveJson(Json::Value& root)
+{
+}
+
+void UI::cAnimTool::LoadJson(Json::Value& root)
+{
 }
 
 bool UI::cAnimTool::Alert()

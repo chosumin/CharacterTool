@@ -3,6 +3,7 @@
 #include "../Model/cModelTool.h"
 #include "./Model/cModel.h"
 #include "./Model/ModelPart/cModelMesh.h"
+#include "./Model/ModelPart/cModelBone.h"
 #include "./GameObject/cActor.h"
 #include "./UI/Gizmo/cGizmo.h"
 #include "./Collider/cActorColliders.h"
@@ -84,10 +85,10 @@ void UI::cColliderTool::ShowInspector()
 void UI::cColliderTool::ShowAddWindowInspector()
 {
 	//선택된 본
-	ImGui::Text("Mesh : "); ImGui::SameLine();
-	auto mesh = _selectedMesh.lock();
-	string meshName = mesh ? cString::String(mesh->GetName()) : "None";
-	ImGui::Text(meshName.c_str());
+	ImGui::Text("Bone : "); ImGui::SameLine();
+	auto bone = _selectedBone.lock();
+	string boneName = bone ? cString::String(bone->GetName()) : "None";
+	ImGui::Text(boneName.c_str());
 
 	//선택된 모양
 	ImGui::Text("Shape : "); ImGui::SameLine();
@@ -100,7 +101,7 @@ void UI::cColliderTool::ShowAddWindowInspector()
 
 	if (ImGui::Button("Add"))
 	{
-		if (!MeshAlert())
+		if (!BoneAlert())
 			AddCollider();
 	}
 }
@@ -112,7 +113,7 @@ void UI::cColliderTool::AddCollider()
 	auto colliders = _actor.lock()->GetColliders().lock();
 	colliders->AddCollider(_selectAttack,
 						   shape,
-						   _selectedMesh.lock(),
+						   _selectedBone.lock(),
 						   cMath::MATRIX_IDENTITY);
 
 	cDebug::Log("Collider Added!");
@@ -120,15 +121,15 @@ void UI::cColliderTool::AddCollider()
 
 void UI::cColliderTool::ShowColliderInspector(eColliderType type, int& index)
 {
-	auto meshes = _model.lock()->GetMeshes();
-	for (auto&& mesh : meshes)
-		ShowColliders(type, mesh, index);
+	auto bones = _model.lock()->GetBones();
+	for (auto&& bone : bones)
+		ShowColliders(type, bone, index);
 }
 
-void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelMesh> mesh, int& index)
+void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelBone> bone, int& index)
 {
-	auto meshPtr = mesh.lock();
-	auto colliderVec = meshPtr->GetColliders();
+	auto bonePtr = bone.lock();
+	auto colliderVec = bonePtr->GetColliders();
 
 	for (auto&& col : colliderVec)
 	{
@@ -148,11 +149,11 @@ void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelMesh> m
 			if (ImGui::Button(("Delete " + to_string(index - 1)).c_str()))
 			{
 				//삭제
-				meshPtr->DeleteCollider(col);
+				bonePtr->DeleteCollider(col);
 				continue;
 			}
 
-			ImGui::Text("Mesh : %s", cString::String(meshPtr->GetName()).c_str());
+			ImGui::Text("Bone : %s", cString::String(bonePtr->GetName()).c_str());
 
 			auto shape = cColliderFactory::GetList()[static_cast<int>(col->GetShape())];
 			ImGui::Text("Shape : %s", shape);
@@ -164,17 +165,18 @@ void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelMesh> m
 
 void UI::cColliderTool::SelectBone(weak_ptr<cModelBone> bone)
 {
+	_selectedBone = bone;
 }
 
 void UI::cColliderTool::SelectMesh(weak_ptr<cModelMesh> mesh)
 {
-	_selectedMesh = mesh;
+	//_selectedMesh = mesh;
 }
 
 void UI::cColliderTool::ChangeModel(weak_ptr<cModel> newModel)
 {
 	_model = newModel;
-	_selectedMesh.reset();
+	_selectedBone.reset();
 }
 
 bool UI::cColliderTool::Alert()
@@ -191,16 +193,24 @@ bool UI::cColliderTool::Alert()
 	return false;
 }
 
-bool UI::cColliderTool::MeshAlert()
+bool UI::cColliderTool::BoneAlert()
 {
 	if (Alert())
 		return true;
 
-	if (_selectedMesh.expired())
+	if (_selectedBone.expired())
 	{
-		cDebug::Log("Select Mesh First!");
+		cDebug::Log("Select Bone First!");
 		return true;
 	}
 
 	return false;
+}
+
+void UI::cColliderTool::SaveJson(Json::Value& root)
+{
+}
+
+void UI::cColliderTool::LoadJson(Json::Value& root)
+{
 }

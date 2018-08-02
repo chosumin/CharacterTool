@@ -20,6 +20,10 @@ namespace UI
 		virtual void FunctionInitialize() override;
 
 		void NewActor();
+		void SaveActor();
+
+		//액터가 존재할 경우 경고창 띄움
+		bool AlertActor();
 	private:
 		string _actorName;
 		weak_ptr<cActor> _actor;

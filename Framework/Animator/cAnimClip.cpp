@@ -65,7 +65,8 @@ void cAnimClip::Interpolate(OUT D3DXMATRIX * pSRT, const wstring& boneName, floa
 
 bool cAnimClip::IsCorrectBones(const vector<shared_ptr<cModelBone>>& bones)
 {
-	for (auto&& keyFrame : _keyFrames)
+	//fixme : 배트맨과 캣우먼 모두 같은 애니메이션으로 동작하는데 어떻게 할지 고민
+	/*for (auto&& keyFrame : _keyFrames)
 	{
 		bool fit = false;
 		for (auto&& bone : bones)
@@ -79,7 +80,15 @@ bool cAnimClip::IsCorrectBones(const vector<shared_ptr<cModelBone>>& bones)
 
 		if (fit == false)
 			return false;
-	}
+	}*/
+
+	return true;
+}
+
+bool cAnimClip::IsCorrectKeyFrame(const wstring & boneName)
+{
+	if (_keyFrames[boneName] == nullptr)
+		return false;
 
 	return true;
 }

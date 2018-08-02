@@ -3,7 +3,7 @@
 #include "./Helper/cMath.h"
 
 sTransform::sTransform()
-	:Position(0, 0, 0)
+	: Position(0, 0, 0)
 	, Scaling(1, 1, 1)
 	, Rotation(0, 0, 0)
 {

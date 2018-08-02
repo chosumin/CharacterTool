@@ -20,6 +20,9 @@ namespace UI
 
 		virtual void ShowHierarchy(int i) = 0;
 		virtual void ShowInspector() = 0;
+		
+		virtual void SaveJson(Json::Value& root) = 0;
+		virtual void LoadJson(Json::Value& root) = 0;
 	protected:
 		bool AlertActor();
 		void SendMe();

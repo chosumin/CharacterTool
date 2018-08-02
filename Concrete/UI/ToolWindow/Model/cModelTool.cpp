@@ -79,7 +79,8 @@ void UI::cModelTool::ShowMeshHierarchy()
 
 			cGizmo::Get()->AddTransform(meshTransform);
 
-			NotifySelectedMesh(mesh);
+			//todo : 메쉬 전달시 주석 해제
+			//NotifySelectedMesh(mesh);
 		}
 	}
 }
@@ -89,7 +90,7 @@ void UI::cModelTool::ShowBoneHierarchy(weak_ptr<cModelBone> bone)
 	auto bonePtr = bone.lock();
 	auto boneIndex = bonePtr->GetIndex();
 	auto boneName = cString::String(bonePtr->GetName());
-	auto boneTransform = bonePtr->GetAbsoluteTransform();
+	auto boneTransform = bonePtr->GetAnimatedTransform();
 
 	if (ImGui::TreeNodeEx(to_string(boneIndex).c_str()))
 	{
@@ -113,12 +114,12 @@ void UI::cModelTool::SelectBone(string boneName,
 		cDebug::Log((boneName + " Selected!").c_str());
 		_selectSubTool = true;
 
-		auto boneTransform = bone.lock()->GetAbsoluteTransform();
+		auto boneTransform = bone.lock()->GetAnimatedTransform();
 
 		cGizmo::Get()->AddTransform(boneTransform);
 
 		//todo : 본 전달시 주석 해제
-		//NotifySelectedBone(bone);
+		NotifySelectedBone(bone);
 	}
 }
 
@@ -249,4 +250,12 @@ bool UI::cModelTool::AlertModel()
 	}
 
 	return false;
+}
+
+void UI::cModelTool::SaveJson(Json::Value& root)
+{
+}
+
+void UI::cModelTool::LoadJson(Json::Value& root)
+{
 }

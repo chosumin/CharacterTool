@@ -4,7 +4,7 @@ enum class eColliderShape;
 struct sTransform;
 class cActor;
 class cCollider;
-class cModelMesh;
+class cModelBone;
 class cActorColliders
 {
 public:
@@ -14,8 +14,8 @@ public:
 	void Update();
 	void Render();
 
-	void AddCollider(bool attack, eColliderShape shape,
-					 weak_ptr<cModelMesh> mesh,
+	void AddCollider(bool attack,
+ eColliderShape shape, weak_ptr<cModelBone> bone,
 					 const D3DXMATRIX& matrix);
 	void AddCollider(weak_ptr<cCollider> collider);
 

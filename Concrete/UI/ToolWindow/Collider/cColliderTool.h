@@ -22,6 +22,8 @@ namespace UI
 		virtual void Render() override;
 		virtual void ShowHierarchy(int i) override;
 		virtual void ShowInspector() override;
+		virtual void SaveJson(Json::Value& root) override;
+		virtual void LoadJson(Json::Value& root) override;
 	public:
 		// iObserver을(를) 통해 상속됨
 		virtual void SelectBone(weak_ptr<cModelBone> bone) override;
@@ -49,7 +51,7 @@ namespace UI
 		void ShowColliderInspector(eColliderType type, int& index);
 
 		//콜라이더 리스트
-		void ShowColliders(eColliderType type, weak_ptr<cModelMesh> mesh, int& index);
+		void ShowColliders(eColliderType type, weak_ptr<cModelBone> bone, int& index);
 	private:
 		/**********
 			공통
@@ -57,10 +59,10 @@ namespace UI
 
 		//액터나 모델이 없다면 경고문을 출력한다.
 		bool Alert();
-		bool MeshAlert();
+		bool BoneAlert();
 	private:
 		weak_ptr<cModelTool> _modelTool;
-		weak_ptr<cModelMesh> _selectedMesh;
+		weak_ptr<cModelBone> _selectedBone;
 		weak_ptr<cModel> _model;
 		weak_ptr<cActorColliders> _colliders;
 

@@ -33,6 +33,10 @@ public:
 	//본과 키프레임이 일치하는지 비교
 	//@param : 비교할 본 컨테이너
 	bool IsCorrectBones(const vector<shared_ptr<cModelBone>>& bones);
+
+	//해당 이름을 가진 키프레임이 존재하는지 비교
+	//@param : 비교할 이름
+	bool IsCorrectKeyFrame(const wstring& boneName);
 private:
 	cAnimClip(wstring filePath, wstring fileName);
 
