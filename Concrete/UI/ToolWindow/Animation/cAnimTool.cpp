@@ -98,20 +98,41 @@ void UI::cAnimTool::OpenAnimationClip()
 
 		wstring& directory = cPath::GetDirectoryName(path);
 		wstring& name = cPath::GetFileName(path);
-		auto clip = cAnimClip::Create(directory, name);
-
-		if (clip->IsCorrectBones(_model.lock()->GetBones()))
-		{
-			auto animPtr = _animator.lock();
-			if (animPtr->Duplicated(clip))
-				cDebug::Log("Duplicated Clip!");
-			else
-				animPtr->AddClip(clip);
-		}
-		else
-			//todo : 팝업 띄우기
-			cDebug::Log("Unfitting Bones!");
+		CreateClip(directory, name);
 	});
+}
+
+void UI::cAnimTool::ExportFbx(wstring path, OUT wstring * newPath)
+{
+	Fbx::Exporter exporter{ path };
+
+	cPath::SaveFileDialog(cPath::GetFileNameWithoutExtension(path), L"Animation\0*.anim", Model, [&exporter, &newPath](wstring savePath)
+	{
+		exporter.ExportAnimation(cPath::GetDirectoryName(savePath),
+								 cPath::GetFileName(savePath));
+
+		//추출한 새 경로를 반환
+		*newPath = savePath + L".anim";
+	});
+
+	cDebug::Log("Fbx Export Success!");
+}
+
+void UI::cAnimTool::CreateClip(const wstring & directory, const wstring & name)
+{
+	auto clip = cAnimClip::Create(directory, name);
+
+	if (clip->IsCorrectBones(_model.lock()->GetBones()))
+	{
+		auto animPtr = _animator.lock();
+		if (animPtr->Duplicated(clip))
+			cDebug::Log("Duplicated Clip!");
+		else
+			animPtr->AddClip(clip);
+	}
+	else
+		//todo : 팝업 띄우기
+		cDebug::Log("Unfitting Bones!");
 }
 
 string UI::cAnimTool::GetClipName()
@@ -150,41 +171,11 @@ void UI::cAnimTool::ShowProgressInspector()
 		animPtr->SetMode(cAnimator::Mode::STOP);
 }
 
-void UI::cAnimTool::SelectBone(weak_ptr<cModelBone> bone)
-{
-	//todo : 파티클을 붙일 본
-}
-
-void UI::cAnimTool::SelectMesh(weak_ptr<cModelMesh> mesh)
-{
-	//DO NOTHING
-}
-
-void UI::cAnimTool::ChangeModel(weak_ptr<cModel> newModel)
-{
-	_model = newModel;
-	_animator.lock()->SetModel(_model);
-}
-
-void UI::cAnimTool::ExportFbx(wstring path, OUT wstring * newPath)
-{
-	Fbx::Exporter exporter{ path };
-
-	cPath::SaveFileDialog(cPath::GetFileNameWithoutExtension(path), L"Animation\0*.anim", Model, [&exporter, &newPath](wstring savePath)
-	{
-		exporter.ExportAnimation(cPath::GetDirectoryName(savePath),
-								cPath::GetFileName(savePath));
-
-		//추출한 새 경로를 반환
-		*newPath = savePath + L".anim";
-	});
-
-	cDebug::Log("Fbx Export Success!");
-}
-
 void UI::cAnimTool::ShowAnimationList()
 {
 	auto animPtr = _animator.lock();
+	if (!animPtr)
+		return;
 
 	int index = 1;
 	auto iter = animPtr->GetClips().begin();
@@ -214,10 +205,45 @@ void UI::cAnimTool::ShowAnimationList()
 
 void UI::cAnimTool::SaveJson(Json::Value& root)
 {
+	Json::Value animations;
+
+	auto animPtr = _animator.lock();
+
+	for (auto&& clip : animPtr->GetClips())
+	{
+		string path = cString::String(clip->GetFilePath());
+		string name = cString::String(clip->GetName());
+		animations.append(path + name);
+	}
+
+	root["Animations"] = animations;
 }
 
-void UI::cAnimTool::LoadJson(Json::Value& root)
+void UI::cAnimTool::LoadJson()
 {
+	//DO NOTHING
+}
+
+void UI::cAnimTool::SetActor(weak_ptr<cActor> actor)
+{
+	_actor = actor;
+	_animator = _actor.lock()->GetAnimator();
+}
+
+void UI::cAnimTool::SelectBone(weak_ptr<cModelBone> bone)
+{
+	//todo : 파티클을 붙일 본
+}
+
+void UI::cAnimTool::SelectMesh(weak_ptr<cModelMesh> mesh)
+{
+	//DO NOTHING
+}
+
+void UI::cAnimTool::ChangeModel(weak_ptr<cModel> newModel)
+{
+	_model = newModel;
+	_animator.lock()->SetModel(newModel);
 }
 
 bool UI::cAnimTool::Alert()

@@ -9,6 +9,7 @@ const WCHAR* cPath::MaterialFilter = L"Model\0*.material";
 const WCHAR* cPath::MeshFilter = L"Model\0*.mesh";
 const WCHAR* cPath::FbxFilter = L"Model\0*.fbx";
 const WCHAR* cPath::AnimFbxFilter = L"Animation\0*.anim;*.fbx";
+const WCHAR* cPath::TOP_UPPER_FOLDERNAME = L"DX11_3D";
 
 void cPath::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func)
 {

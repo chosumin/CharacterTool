@@ -27,6 +27,8 @@ std::unique_ptr<cModel> cModel::Clone() const
 	struct make_unique_enabler : public cModel {};
 	auto model = make_unique<make_unique_enabler>();
 	
+	model->_modelPath = _modelPath;
+
 	for (auto&& material : _materials)
 		model->_materials.push_back(material->Clone());
 
@@ -108,6 +110,17 @@ weak_ptr<cModelMesh> cModel::GetMesh(wstring name)
 const vector<shared_ptr<cModelBone>>& cModel::GetBones() const
 {
 	return _bones;
+}
+
+weak_ptr<cModelBone> cModel::GetBone(const wstring & name) const
+{
+	for (auto&& bone : _bones)
+	{
+		if (bone->GetName() == name)
+			return bone;
+	}
+
+	return weak_ptr<cModelBone>();
 }
 
 void cModel::SetPlayedBuffer(bool isPlayAnim)

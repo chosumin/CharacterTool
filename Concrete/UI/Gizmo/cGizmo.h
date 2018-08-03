@@ -7,8 +7,12 @@ class cGizmo : public cSingletone<cGizmo>
 private:
 	friend class cSingletone<cGizmo>;
 public:
+	//초기화시 글로벌변수 세팅
 	void SetGlobalVariable(weak_ptr<sGlobalVariable> global);
 public:
+	//기즈모 클릭시 트랜스폼 추가
+	//@param : 객체의 로컬 Transform
+	//@param : 객체의 월드 Transform
 	void AddTransform(weak_ptr<sTransform> localTransform,
 					  weak_ptr<sTransform> worldTransform = weak_ptr<sTransform>());
 	void Update();

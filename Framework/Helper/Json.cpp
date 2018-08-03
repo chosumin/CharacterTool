@@ -2,24 +2,24 @@
 #include "Json.h"
 #include "./Helper/cString.h"
 
-void Json::GetValue(Json::Value & parent, string name, bool & vec)
+void Json::GetValue(Json::Value & parent, string name, bool & value)
 {
-	vec = parent[name.c_str()].asBool();
+	value = parent[name.c_str()].asBool();
 }
 
-void Json::SetValue(Json::Value & parent, string name, bool & vec)
+void Json::SetValue(Json::Value & parent, string name, bool & value)
 {
-	parent[name.c_str()] = vec;
+	parent[name.c_str()] = value;
 }
 
-void Json::GetValue(Json::Value & parent, string name, float & vec)
+void Json::GetValue(Json::Value & parent, string name, float & value)
 {
-	vec = parent[name.c_str()].asFloat();
+	value = parent[name.c_str()].asFloat();
 }
 
-void Json::SetValue(Json::Value & parent, string name, float & vec)
+void Json::SetValue(Json::Value & parent, string name, float & value)
 {
-	parent[name.c_str()] = vec;
+	parent[name.c_str()] = value;
 }
 
 void Json::GetValue(Json::Value & parent, string name, D3DXVECTOR2 & vec)
@@ -46,6 +46,18 @@ void Json::SetValue(Json::Value & parent, string name, D3DXVECTOR3 & vec)
 		parent[name.c_str()].append(vec[i]);
 }
 
+void Json::GetValue(Json::Value & parent, string name, D3DXMATRIX & mat)
+{
+	for (int i = 0; i < 16; i++)
+		mat[i] = parent[name.c_str()][i].asFloat();
+}
+
+void Json::SetValue(Json::Value & parent, string name, D3DXMATRIX & mat)
+{
+	for (int i = 0; i < 16; i++)
+		parent[name.c_str()].append(mat[i]);
+}
+
 void Json::GetValue(Json::Value & parent, string name, D3DXCOLOR & vec)
 {
 	for (int i = 0; i < 4; i++)
@@ -69,6 +81,26 @@ void Json::GetValue(Json::Value & parent, string name, string & value)
 void Json::SetValue(Json::Value & parent, string name, string & value)
 {
 	parent[name.c_str()].append(value);
+}
+
+void Json::GetValue(Json::Value & parent, string name, int & value)
+{
+	value = parent[name.c_str()].asInt();
+}
+
+void Json::SetValue(Json::Value & parent, string name, int & value)
+{
+	parent[name.c_str()] = value;
+}
+
+void Json::GetValue(Json::Value & parent, string name, UINT & value)
+{
+	value = parent[name.c_str()].asUInt();
+}
+
+void Json::SetValue(Json::Value & parent, string name, UINT & value)
+{
+	parent[name.c_str()] = value;
 }
 
 void Json::ReadData(wstring file, Json::Value * root)

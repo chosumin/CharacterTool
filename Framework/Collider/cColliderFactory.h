@@ -10,7 +10,7 @@ public:
 	static unique_ptr<cCollider> Create(eColliderType type,
 										eColliderShape shape,
 										weak_ptr<sTransform> parent,
-										const D3DXMATRIX& matrix);
+										const D3DXMATRIX& localTM);
 	static const vector<const char*>& GetList();
 private:
 	static unique_ptr<cCollider> CreateCylinder();

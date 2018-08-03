@@ -38,13 +38,11 @@ void cActorColliders::Render()
 	}
 }
 
-void cActorColliders::AddCollider(bool attack,
+void cActorColliders::AddCollider(eColliderType type,
  eColliderShape shape, weak_ptr<cModelBone> bone,
 								  const D3DXMATRIX & matrix)
 {
 	auto bonePtr = bone.lock();
-
-	auto type = attack ? eColliderType::ATTACK : eColliderType::DAMAGE;
 
 	//애니메이티드 본
 	shared_ptr<cCollider> col = cColliderFactory::Create(type, shape, bonePtr->GetAnimatedTransform(), matrix);

@@ -15,6 +15,8 @@ public:
 	const wstring& GetName() const { return _name; }
 	void SetName(wstring name) { _name = name; }
 
+	const wstring& GetFilePath() const { return _filePath; }
+
 	//시간 당 프레임
 	float GetFrameRate() const { return _frameRate; }
 
@@ -42,6 +44,7 @@ private:
 
 	void ReadAnimation(wstring file);
 private:
+	wstring _filePath;
 	wstring _name;
 
 	int _totalFrame; //전체 프레임 수

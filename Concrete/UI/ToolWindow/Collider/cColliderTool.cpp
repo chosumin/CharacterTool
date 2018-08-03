@@ -5,6 +5,7 @@
 #include "./Model/ModelPart/cModelMesh.h"
 #include "./Model/ModelPart/cModelBone.h"
 #include "./GameObject/cActor.h"
+#include "./Transform/sTransform.h"
 #include "./UI/Gizmo/cGizmo.h"
 #include "./Collider/cActorColliders.h"
 #include "./Collider/cCollider.h"
@@ -111,9 +112,10 @@ void UI::cColliderTool::AddCollider()
 	eColliderShape shape = static_cast<eColliderShape>(_shapeNumber);
 
 	auto colliders = _actor.lock()->GetColliders().lock();
-	colliders->AddCollider(_selectAttack,
-						   shape,
-						   _selectedBone.lock(),
+
+	auto type = _selectAttack ? eColliderType::ATTACK : eColliderType::DAMAGE;
+
+	colliders->AddCollider(type, shape, _selectedBone,
 						   cMath::MATRIX_IDENTITY);
 
 	cDebug::Log("Collider Added!");
@@ -209,8 +211,39 @@ bool UI::cColliderTool::BoneAlert()
 
 void UI::cColliderTool::SaveJson(Json::Value& root)
 {
+	Json::Value colliders;
+
+	auto modelPtr = _model.lock();
+
+	//본을 순회
+	for (auto&& bone : modelPtr->GetBones())
+	{
+		string boneName = cString::String(bone->GetName());
+
+		//본이 소유한 충돌체 순회
+		for (auto&& collider : bone->GetColliders())
+		{
+			Json::Value colliderJson;
+
+			Json::SetValue(colliderJson, "ParentName", boneName);
+
+			int shape = static_cast<int>(collider->GetShape());
+			Json::SetValue(colliderJson, "Shape", shape);
+
+			int type = static_cast<int>(collider->GetType());
+			Json::SetValue(colliderJson, "Type", type);
+
+			auto tmPtr = collider->GetLocalTransform().lock();
+			Json::SetValue(colliderJson, "LocalTM", tmPtr->Matrix);
+
+			colliders.append(colliderJson);
+		}
+	}
+
+	root["Colliders"] = colliders;
 }
 
-void UI::cColliderTool::LoadJson(Json::Value& root)
+void UI::cColliderTool::LoadJson()
 {
+	//DO NOTHING
 }

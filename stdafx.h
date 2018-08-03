@@ -84,6 +84,7 @@ const wstring Model = Content + L"Model/";
 #include "./System/cFrame.h"
 
 #include "./Helper/cBinary.h"
+#include "./Helper/Json.h"
 
 #include "./Viewer/cPerspective.h"
 #include "./Viewer/cViewport.h"

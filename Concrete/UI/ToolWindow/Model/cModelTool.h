@@ -22,7 +22,7 @@ namespace UI
 		virtual void ShowHierarchy(int i) override;
 		virtual void ShowInspector() override;
 		virtual void SaveJson(Json::Value& root) override;
-		virtual void LoadJson(Json::Value& root) override;
+		virtual void LoadJson() override;
 	private:
 		/********************
 			하이어라키 관련

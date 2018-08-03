@@ -12,6 +12,7 @@ cActor::~cActor()
 
 void cActor::Init()
 {
+	_transform = make_shared<sTransform>();
 	_colliders = make_shared<cActorColliders>(shared_from_this());
 	_animator = make_shared<cAnimator>(_model);
 }
@@ -189,6 +190,7 @@ void cActor::ControlTransform(string name, weak_ptr<struct sTransform> transform
 }
 
 cActor::cActor()
+	:_name(L"New Actor")
 {
 }
 

@@ -11,6 +11,7 @@ enum class eMessageType
 	RECIEVE_ACTOR,
 	RECIEVE_TOOL,
 	SAVE_ACTOR,
+	LOAD_ACTOR,
 };
 
 struct sTelegram

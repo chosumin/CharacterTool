@@ -3,6 +3,7 @@
 #include "AnimKeyFrames.h"
 #include "./Model/ModelPart/cModelBone.h"
 #include "./Helper/cString.h"
+#include "./Helper/cPath.h"
 
 shared_ptr<cAnimClip> cAnimClip::Create(wstring filePath, wstring fileName)
 {
@@ -106,6 +107,8 @@ void cAnimClip::ReadAnimation(wstring file)
 		for (UINT i = 0; i < count; i++)
 		{
 			_name = cString::Wstring(r->String());
+			_name = cPath::GetFileName(file);
+			_filePath = cPath::GetDirectoryName(file);
 
 			_totalFrame = r->Int();
 			_frameRate = r->Float();

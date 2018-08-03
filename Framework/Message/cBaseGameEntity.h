@@ -16,6 +16,7 @@ public:
 	//메세지 통신
 	virtual void HandleMessage(const sTelegram& msg) = 0;
 protected:
+	//메시지 extraInfo에 사용될 msgMap의 요소 정의
 	virtual void FunctionInitialize() = 0;
 
 	//해당 객체가 메시지를 받은 뒤 그 메시지에 따라 해야할 콜백 함수

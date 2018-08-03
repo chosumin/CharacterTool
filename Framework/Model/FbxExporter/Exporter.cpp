@@ -45,18 +45,18 @@ void Fbx::Exporter::ExportMaterial(wstring saveFolder, wstring saveName)
 {
 	int count = _scene->GetMaterialCount();
 
-	//Fbx 머터리얼 컨테이너 순회
+	//Fbx 머티리얼 컨테이너 순회
 	for (int i = 0; i < count; i++)
 		PushMaterials(i);
 
-	//사용자 머터리얼 정보 파일 저장할 폴더 경로 생성
+	//사용자 머티리얼 정보 파일 저장할 폴더 경로 생성
 	if (cPath::ExistDirectory(saveFolder) == false)
 		CreateDirectory(saveFolder.c_str(), nullptr);
 
 	//Json 루트 노드 생성
 	Json::Value root;
 
-	//사용자 머터리얼 컨테이너 순회
+	//사용자 머티리얼 컨테이너 순회
 	for (auto&& material : _materials)
 		WriteMaterialData(root, saveFolder, move(material));
 	

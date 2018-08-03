@@ -21,6 +21,8 @@ unique_ptr<cModel> cModelFactory::Create(wstring filePath, wstring fileName)
 
 	_model = make_unique<make_unique_enabler>();
 
+	_model->_modelPath = filePath + fileName;
+	
 	ReadMaterials(filePath + fileName + L".material");
 	ReadMesh(filePath + fileName + L".mesh");
 

@@ -2,6 +2,8 @@
 #include "cModelTool.h"
 #include "iObserver.h"
 #include "./GameObject/cActor.h"
+#include "./Graphic/cMaterial.h"
+#include "./Graphic/cTexture.h"
 #include "./Model/cModel.h"
 #include "./Model/ModelPart/cModelBone.h"
 #include "./Model/ModelPart/cModelMesh.h"
@@ -141,10 +143,10 @@ void UI::cModelTool::NotifySelectedMesh(weak_ptr<cModelMesh> mesh)
 
 void UI::cModelTool::ShowInspector()
 {
-	ShowModelInspector();
-
 	if (_selectSubTool)
 		ShowTransformInspector();
+
+	ShowModelInspector();
 }
 
 void UI::cModelTool::ShowTransformInspector()
@@ -163,11 +165,10 @@ void UI::cModelTool::ShowModelInspector()
 		{
 			//todo : 이미 모델이 존재하면 팝업 띄워서 물어보기
 			OpenFile();
-			NotifyChangeModel();
 		}
 
 		ShowMeshInfo();
-		//todo : 머티리얼 정보 표시하기
+		//todo : 머티리얼 정보를 띄운다.
 	}
 }
 
@@ -216,13 +217,16 @@ void UI::cModelTool::ExportFbx(wstring path, OUT wstring *newPath)
 
 void UI::cModelTool::OpenModel(wstring path, wstring name)
 {
-	//todo : 모델 팩토리 수정
 	shared_ptr<cModel> model = cModelFactory::Create(path, name);
 
 	_model = model;
 	_actor.lock()->SetModel(model);
 
 	_modelName = cString::String(name);
+
+	//옵저버에게 모델 변경을 통지
+	NotifyChangeModel();
+
 	cDebug::Log((_modelName + " Open!").c_str());
 }
 
@@ -254,8 +258,31 @@ bool UI::cModelTool::AlertModel()
 
 void UI::cModelTool::SaveJson(Json::Value& root)
 {
+	Json::Value model;
+
+	//모델 경로 저장
+	Json::Value modelPath;
+	
+	auto modelPtr = _model.lock();
+	if (!modelPtr)
+		return;
+
+	Json::SetValue(model, "FilePath", cString::String(modelPtr->GetFilePath()));
+
+	//todo : 머티리얼 쉐이더 파일 저장
+
+	root["Model"] = model;
 }
 
-void UI::cModelTool::LoadJson(Json::Value& root)
+void UI::cModelTool::LoadJson()
 {
+	_model = _actor.lock()->GetModel();
+	auto path = _model.lock()->GetFilePath();
+	path = cPath::GetFileNameWithoutExtension(path);
+
+	_modelName = cString::String(path);
+
+	//todo : 머티리얼 생성
+
+	NotifyChangeModel();
 }

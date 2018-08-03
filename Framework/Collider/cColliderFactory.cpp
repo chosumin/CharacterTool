@@ -13,9 +13,9 @@ weak_ptr<sTransform> cColliderFactory::_parent;
 unique_ptr<cCollider> cColliderFactory::Create(eColliderType type,
 											   eColliderShape shape,
 											   weak_ptr<sTransform> parent,
-											   const D3DXMATRIX & matrix)
+											   const D3DXMATRIX & localTM)
 {
-	_matrix = matrix;
+	_matrix = localTM;
 	_parent = parent;
 
 	unique_ptr<cCollider> collider;
@@ -30,8 +30,10 @@ unique_ptr<cCollider> cColliderFactory::Create(eColliderType type,
 		case eColliderShape::SPHERE:
 			collider = CreateSphere();
 			break;
-
 	}
+
+	collider->_localTransform->Matrix = _matrix;
+	collider->_localTransform->Decompose();
 
 	collider->_type = type;
 	collider->_shape = shape;

@@ -21,7 +21,9 @@ namespace UI
 
 		void NewActor();
 		void SaveActor();
+		void LoadActor();
 
+		void CreateActor(weak_ptr<cActor> actor, eMessageType type);
 		//액터가 존재할 경우 경고창 띄움
 		bool AlertActor();
 	private:

@@ -9,6 +9,7 @@
 #include "./Model/cModelTool.h"
 #include "./Collider/cColliderTool.h"
 #include "./Animation/cAnimTool.h"
+#include "./Helper/Json.h"
 
 UI::cToolWindow::cToolWindow()
 {
@@ -26,6 +27,7 @@ UI::cToolWindow::~cToolWindow()
 
 void UI::cToolWindow::Init()
 {
+	FunctionInitialize();
 	cEntityManager::Get()->RegisterEntity(eIdGroup::CharacterTool, shared_from_this());
 
 	for (auto&& tool : _tools)
@@ -66,42 +68,42 @@ void UI::cToolWindow::PostRender()
 
 void UI::cToolWindow::HandleMessage(const sTelegram & msg)
 {
-	switch (msg.message)
-	{
-		case eMessageType::RECIEVE_ACTOR:
-			RecieveActor(msg);
-		break;
-		case eMessageType::RECIEVE_TOOL:
-			RecieveTool(msg);
-		break;
-		case eMessageType::SAVE_ACTOR:
-			SaveActor(msg);
-		break;
-
-	}
+	if (msgMap[msg.message])
+		msgMap[msg.message](msg);
 }
 
 void UI::cToolWindow::FunctionInitialize()
 {
-}
-
-void UI::cToolWindow::RecieveActor(const sTelegram & msg)
-{
-	_actor = *(weak_ptr<cActor>*)(msg.extraInfo);
-
-	for (auto&& tool : _tools)
-		tool->SetActor(_actor);
-}
-
-void UI::cToolWindow::RecieveTool(const sTelegram & msg)
-{
-	_selectedTool = *(weak_ptr<cTool>*)(msg.extraInfo);
-}
-
-void UI::cToolWindow::SaveActor(const sTelegram & msg)
-{
-	for (auto&& tool : _tools)
+	msgMap[eMessageType::RECIEVE_ACTOR] = [this](const sTelegram& msg)
 	{
+		_actor = *(weak_ptr<cActor>*)(msg.extraInfo);
 
-	}
+		for (auto&& tool : _tools)
+			tool->SetActor(_actor);
+	};
+
+	msgMap[eMessageType::RECIEVE_TOOL] = [this](const sTelegram& msg)
+	{
+		_selectedTool = *(weak_ptr<cTool>*)(msg.extraInfo);
+	};
+
+	msgMap[eMessageType::SAVE_ACTOR] = [this](const sTelegram& msg)
+	{
+		Json::Value *root = static_cast<Json::Value*>(msg.extraInfo);
+		for (auto&& tool : _tools)
+		{
+			tool->SaveJson(*root);
+		}
+	};
+
+	msgMap[eMessageType::LOAD_ACTOR] = [this](const sTelegram& msg)
+	{
+		_actor = *(weak_ptr<cActor>*)(msg.extraInfo);
+
+		for(auto&& tool : _tools)
+			tool->SetActor(_actor);
+
+		for (auto&& tool : _tools)
+			tool->LoadJson();
+	};
 }

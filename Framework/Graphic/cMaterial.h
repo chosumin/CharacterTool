@@ -28,19 +28,31 @@ public:
 	/********************
 		Getter Setter
 	*********************/
+
+	//머티리얼얼 파일명
 	wstring GetName() const { return _name; }
+	//머티리얼얼 파일명 변경
 	void SetName(wstring name) { _name = name; }
 
+	//머티리얼얼 쉐이더 변경
 	void SetShader(string file);
 	void SetShader(wstring file);
 	void SetShader(shared_ptr<cShader> shader);
 
+	//반사 종류에 따른 색 반환
 	D3DXCOLOR* GetTextureColor(ColorType eType);
 	float* GetTextureColor(ColorType eType, int i);//i는 어떤값이나 넣어도 됨
+
+	//반사 색 변경
 	void SetTextureColor(ColorType eType, D3DXCOLOR color, float value);
 	void SetTextureColor(ColorType eType, float r, float g, float b, float value);
 
+	//반사 텍스쳐 컨테이너 반환
+	unordered_map<TextureType, shared_ptr<cTexture>> GetTextureMaps() const;
+	//반사 텍스쳐 반환
 	weak_ptr<cTexture> GetTextureMap(TextureType eType);
+
+	//반사 텍스쳐 변경
 	void SetTextureMap(TextureType eType, wstring file, D3DX11_IMAGE_LOAD_INFO * info = nullptr);
 	void SetTextureMap(TextureType eType, string file, D3DX11_IMAGE_LOAD_INFO * info = nullptr);
 
@@ -53,10 +65,10 @@ private:
 	D3DXCOLOR& GetColor(ColorType eType);
 	float& GetColor(ColorType eType, int i);
 private:
-	//머터리얼 이름
+	//머티리얼 이름
 	wstring _name = L"";
 
-	//머터리얼 버퍼
+	//머티리얼 버퍼
 	shared_ptr<cMaterialBuffer> _cbuffer = nullptr;
 
 	//쉐이더

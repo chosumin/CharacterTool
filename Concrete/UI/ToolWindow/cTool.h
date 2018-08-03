@@ -13,7 +13,7 @@ namespace UI
 		virtual void Init();
 		virtual void HandleMessage(const sTelegram & msg) override;
 
-		void SetActor(weak_ptr<cActor> actor);
+		virtual void SetActor(weak_ptr<cActor> actor);
 	public:
 		virtual void Update() = 0;
 		virtual void Render() = 0;
@@ -22,7 +22,7 @@ namespace UI
 		virtual void ShowInspector() = 0;
 		
 		virtual void SaveJson(Json::Value& root) = 0;
-		virtual void LoadJson(Json::Value& root) = 0;
+		virtual void LoadJson() = 0;
 	protected:
 		bool AlertActor();
 		void SendMe();

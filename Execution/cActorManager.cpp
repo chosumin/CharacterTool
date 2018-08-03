@@ -47,6 +47,12 @@ void cActorManager::HandleMessage(const sTelegram & msg)
 			_actor = actor->lock();
 		}
 		break;
+		case eMessageType::LOAD_ACTOR:
+		{
+			auto actor = (weak_ptr<cActor>*)(msg.extraInfo);
+			_actor = actor->lock();
+		}
+		break;
 	}
 }
 

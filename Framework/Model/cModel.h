@@ -30,6 +30,8 @@ public:
 	/*******************
 		Getter Setter
 	********************/
+	const wstring& GetFilePath() { return _modelPath; }
+
 	vector<shared_ptr<cMaterial>>& GetMaterials();
 
 	weak_ptr<cMaterial> GetMaterial(wstring name) const;
@@ -43,6 +45,7 @@ public:
 	const vector<shared_ptr<cModelBone>>& GetBones() const;
 	UINT GetBoneCount() const { return _bones.size(); }
 	weak_ptr<cModelBone> GetBone(UINT index) const { return _bones[index]; }
+	weak_ptr<cModelBone> GetBone(const wstring& name) const;
    
 	weak_ptr<cModelBone> GetRoot() const { return _rootBone; }
 
@@ -55,6 +58,8 @@ protected:
 	*************/
 	cModel();
 private:
+	wstring _modelPath;
+
 	weak_ptr<sTransform> _rootTransform;
 
 	weak_ptr<cModelBone> _rootBone;

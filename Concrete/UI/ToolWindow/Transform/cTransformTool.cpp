@@ -64,15 +64,14 @@ void UI::cTransformTool::ShowTransform()
 
 void UI::cTransformTool::SaveJson(Json::Value& root)
 {
-	//todo : 스케일링만 저장되도록
-	_actor.lock()->GetTransform().lock()->Scaling;
+	//스케일링만 저장되도록
+	auto& scale = _actor.lock()->GetTransform().lock()->Scaling;
 	Json::Value transform;
-	Json::SetValue(transform, "Scale", )
-	root["Transform"]
-	Json::SetValue(root,)
-	
+	Json::SetValue(transform, "Scale", scale);
+	root["Transform"] = transform;
 }
 
-void UI::cTransformTool::LoadJson(Json::Value& root)
+void UI::cTransformTool::LoadJson()
 {
+	//DO NOTHING
 }

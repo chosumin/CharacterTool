@@ -14,7 +14,7 @@ public:
 	void Update();
 	void Render();
 
-	void AddCollider(bool attack,
+	void AddCollider(eColliderType type,
  eColliderShape shape, weak_ptr<cModelBone> bone,
 					 const D3DXMATRIX& matrix);
 	void AddCollider(weak_ptr<cCollider> collider);

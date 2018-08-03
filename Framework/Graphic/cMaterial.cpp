@@ -76,6 +76,11 @@ void cMaterial::SetTextureColor(ColorType eType, float r, float g, float b, floa
 	SetTextureColor(eType, { r,g,b,1 }, value);
 }
 
+unordered_map<TextureType, shared_ptr<cTexture>> cMaterial::GetTextureMaps() const
+{
+	return _textureMap;
+}
+
 weak_ptr<cTexture> cMaterial::GetTextureMap(TextureType eType)
 {
 	return _textureMap[eType];
