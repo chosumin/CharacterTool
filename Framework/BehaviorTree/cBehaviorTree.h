@@ -5,12 +5,15 @@ class cActor;
 class cBehaviorTree
 {
 public:
-	cBehaviorTree(weak_ptr<cActor> actor, int i);
+	cBehaviorTree(weak_ptr<cActor> actor);
 	~cBehaviorTree();
 
 	void Update();
 	void ReadBinary(wstring file);
+
+	weak_ptr<cSelector> GetRoot() const;
+
 private:
-	unique_ptr<cSelector> _root;
+	shared_ptr<cSelector> _root;
 	weak_ptr<cActor> _actor;
 };

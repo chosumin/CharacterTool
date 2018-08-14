@@ -14,7 +14,7 @@ private:
 	void CreateModel(Json::Value& root);
 	void CreateCollider(Json::Value& root);
 	void CreateAnimator(Json::Value& root);
-	void CreateBehaviorTree(int i);
+	void CreateBehaviorTree(Json::Value& root);
 	void CreateAction();
 private:
 	shared_ptr<cActor> _actor;

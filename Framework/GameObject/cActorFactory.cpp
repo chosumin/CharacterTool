@@ -119,9 +119,9 @@ void cActorFactory::CreateAnimator(Json::Value& root)
 	}
 }
 
-void cActorFactory::CreateBehaviorTree(int i)
+void cActorFactory::CreateBehaviorTree(Json::Value& root)
 {
-	_actor->_behaviorTree = make_unique<cBehaviorTree>(_actor, i);
+	//todo : 행동트리 파싱
 }
 
 void cActorFactory::CreateAction()

@@ -33,6 +33,8 @@ void UI::cColliderTool::Update()
 	auto actorPtr = _actor.lock();
 	if(actorPtr)
 		_colliders = actorPtr->GetColliders();
+
+	//todo : 만료된 충돌체 삭제
 }
 
 void UI::cColliderTool::Render()
@@ -140,7 +142,8 @@ void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelBone> b
 
 		if (col->GetType() == type)
 		{
-			if (ImGui::Selectable(("No." + to_string(index++) + " Collider").c_str(), true, 0, ImVec2(150, 20)))
+			ImGui::PushID(index++);
+			if (ImGui::Selectable("Collider", true, 0, ImVec2(150, 20)))
 			{
 				auto transform = col->GetLocalTransform();
 				auto world = col->GetWorldTransform();
@@ -148,19 +151,19 @@ void UI::cColliderTool::ShowColliders(eColliderType type, weak_ptr<cModelBone> b
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button(("Delete " + to_string(index - 1)).c_str()))
-			{
-				//삭제
+
+			if (ImGui::Button("Delete"))
 				bonePtr->DeleteCollider(col);
-				continue;
+			else
+			{
+				ImGui::Text("Bone : %s", cString::String(bonePtr->GetName()).c_str());
+
+				auto shape = cColliderFactory::GetList()[static_cast<int>(col->GetShape())];
+				ImGui::Text("Shape : %s", shape);
+
+				ImGui::Separator();
 			}
-
-			ImGui::Text("Bone : %s", cString::String(bonePtr->GetName()).c_str());
-
-			auto shape = cColliderFactory::GetList()[static_cast<int>(col->GetShape())];
-			ImGui::Text("Shape : %s", shape);
-
-			ImGui::Separator();
+			ImGui::PopID();
 		}
 	}
 }

@@ -33,12 +33,6 @@ cGameMain::cGameMain()
 	_globalVariable->MainCamera->SetRotationDegree(0, 0);
 
 	cDebug::SetDebugMode(true);
-
-	/*Fbx::Exporter exporter{ Asset + L"BM_Movement/Cover_Idle.FBX" };
-
-	exporter.ExportAnimation(Model + L"Batman/", L"Cover_Idle");
-
-	int a = 10;*/
 }
 
 void cGameMain::Init()

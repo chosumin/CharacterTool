@@ -15,6 +15,7 @@ void cActor::Init()
 	_transform = make_shared<sTransform>();
 	_colliders = make_shared<cActorColliders>(shared_from_this());
 	_animator = make_shared<cAnimator>(_model);
+	_behaviorTree = make_shared<cBehaviorTree>(shared_from_this());
 }
 
 void cActor::Update()
@@ -51,7 +52,6 @@ void cActor::Render()
 		_model->Render();
 	}
 		
-
 	//툴 클래스에서 액터 콜라이더 렌더링 처리
 	/*if (_colliders)
 		_colliders->Render();*/
@@ -81,6 +81,11 @@ weak_ptr<cActorColliders> cActor::GetColliders() const
 weak_ptr<cAnimator> cActor::GetAnimator() const
 {
 	return _animator;
+}
+
+weak_ptr<cBehaviorTree> cActor::GetBehaviorTree() const
+{
+	return _behaviorTree;
 }
 
 void cActor::GetAction(eAction actionType)

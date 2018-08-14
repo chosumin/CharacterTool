@@ -16,6 +16,7 @@ cActorColliders::~cActorColliders()
 
 void cActorColliders::Update()
 {
+	//fixme : 콜라이더 툴로 이동
 	for (auto iter = _colliders.begin(); iter != _colliders.end();)
 	{
 		auto colPtr = iter->lock();

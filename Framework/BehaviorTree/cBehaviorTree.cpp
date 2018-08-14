@@ -3,14 +3,12 @@
 #include "./Concrete/Component/BehaviorTree/ConditionTasks.h"
 #include "./Concrete/Component/BehaviorTree/ActionTasks.h"
 
-cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor, int i)
+cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor)
 	:_actor(actor)
 {
-	//todo : 행동 트리 툴 만들기
-
-	_root = make_unique<cSelector>();
-	
-	if (i == 0)
+	_root = make_shared<cSelector>("Root");
+	_root->SetPosition(ImVec2(350, 100));
+	/*if (i == 0)
 	{
 		auto attackSeq = make_unique<cSequence>();
 		attackSeq->AddChild(make_unique<cAttackKeyPress>(actor));
@@ -31,7 +29,7 @@ cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor, int i)
 	{
 		_root->AddChild(make_unique <cDamageAction>(actor));
 	}
-	_root->AddChild(make_unique<cIdleAction>(actor));
+	_root->AddChild(make_unique<cIdleAction>(actor));*/
 }
 
 cBehaviorTree::~cBehaviorTree()
@@ -45,4 +43,9 @@ void cBehaviorTree::Update()
 
 void cBehaviorTree::ReadBinary(wstring file)
 {
+}
+
+weak_ptr<cSelector> cBehaviorTree::GetRoot() const
+{
+	return _root;
 }

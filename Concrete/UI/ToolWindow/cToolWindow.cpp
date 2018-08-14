@@ -9,7 +9,7 @@
 #include "./Model/cModelTool.h"
 #include "./Collider/cColliderTool.h"
 #include "./Animation/cAnimTool.h"
-#include "./Helper/Json.h"
+#include "./BehaviorTree/cBtreeTool.h"
 
 UI::cToolWindow::cToolWindow()
 {
@@ -18,6 +18,7 @@ UI::cToolWindow::cToolWindow()
 	_tools.emplace_back(modelTool);
 	_tools.emplace_back(make_shared<cColliderTool>(modelTool));
 	_tools.emplace_back(make_shared<cAnimTool>(modelTool));
+	_tools.emplace_back(make_shared<cBtreeTool>());
 }
 
 UI::cToolWindow::~cToolWindow()
