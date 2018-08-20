@@ -33,6 +33,11 @@ cAnimClip::~cAnimClip()
 	_keyFrames.clear();
 }
 
+D3DXMATRIX & cAnimClip::GetFrameTransform(wstring boneName, UINT count)
+{
+	return _keyFrames[boneName]->FrameData[count].Transform;
+}
+
 void cAnimClip::Interpolate(OUT D3DXMATRIX * pSRT, const wstring& boneName, float keyFrameFactor, UINT current, UINT next)
 {
 	D3DXMATRIX S, R, T;

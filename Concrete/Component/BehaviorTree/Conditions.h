@@ -1,7 +1,6 @@
 #pragma once
 #include "./BehaviorTree/BaseTasks.h"
 
-class cActor;
 class cSideKeyPress : public cTask
 {
 public:

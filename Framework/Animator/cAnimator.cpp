@@ -31,6 +31,9 @@ void cAnimator::Update()
 
 void cAnimator::SetCurrentClip(weak_ptr<cAnimClip> clip)
 {
+	_mode = Mode::PLAY;
+	_currentKeyFrame = 0;
+	_nextKeyFrame = 0;
 	_currentClip = clip;
 }
 
@@ -160,13 +163,26 @@ void cAnimator::UpdateBones()
 			return;
 
 		//키프레임 애니메이션 계산
-		D3DXMATRIX localAnim;
-		clipPtr->Interpolate(&localAnim,
+
+		/*clipPtr->Interpolate(&localAnim,
 							 bone->GetName(),
 							 _keyFrameFactor,
 							 _currentKeyFrame,
-							 _nextKeyFrame);
+							 _nextKeyFrame);*/
+		D3DXMATRIX& localAnim = clipPtr->GetFrameTransform(bone->GetName(), _currentKeyFrame);
 
+		if (i == 0)
+		{
+			localAnim._41 = position.x;
+			localAnim._42 = position.y;
+			localAnim._43 = position.z;
+		}
+			
 		modelPtr->AnimateBone(i, localAnim);
 	}
+}
+
+void cAnimator::PostRender()
+{
+	ImGui::InputFloat3("Pos", &position[0]);
 }

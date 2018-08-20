@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ConditionTasks.h"
+#include "Conditions.h"
 #include "./GameObject/cActor.h"
 #include "./Interface/iAction.h"
 

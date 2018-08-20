@@ -23,6 +23,8 @@ public:
 	//전체 프레임 수
 	int GetTotalFrame() const { return _totalFrame; }
 
+	D3DXMATRIX& GetFrameTransform(wstring boneName, UINT count);
+
 	//보간한 행렬 내보냄
 	//@param : 저장할 행렬
 	//@param : 보간할 본

@@ -28,6 +28,8 @@ public:
 
 	//클립 삭제
 	ClipIter DeleteClip(weak_ptr<cAnimClip> clip);
+
+	void PostRender();
 public:
 	/*******************
 		Getter Setter
@@ -67,4 +69,6 @@ private:
 	int _nextKeyFrame; //다음 프레임 번호
 	float _frameTime; //프레임 경과 시간
 	float _keyFrameFactor; //보간 비율
+
+	D3DXVECTOR3 position = { 0,0,0 };
 };

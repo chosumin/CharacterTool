@@ -6,16 +6,24 @@ enum class eTaskState
 	NONE, DELETE_ALL, DELETE_ONLY_ME, DELETE_ONLY_SUBNODES
 };
 
-class cTask : public iCloneable<cTask>
+class cBehaviorTree;
+class cTask :
+	public iCloneable<cTask>,
+	public enable_shared_from_this<cTask>
 {
 public:
 	using Task = std::shared_ptr<cTask>;
 	using TaskList = std::vector<Task>;
 
-	cTask(string name, ImVec2& position = ImVec2(0,0));
+	cTask(weak_ptr<cBehaviorTree> tree, string name, const ImVec2& position = ImVec2(0,0));
 
 	virtual ~cTask() {}
+
+	//트리 순회하며 실행되는 함수
 	virtual bool Run() = 0;
+
+	//매 프레임마다 호출되는 함수
+	virtual void Update() = 0;
 
 	//노드 정보창 출력
 	virtual void RenderInfo() = 0;
@@ -42,9 +50,14 @@ public:
 	void SetColor(ImVec4&& color) { _color = color; }
 
 	eTaskState GetState() const { return _delete; }
+
+	void SetBehaviorTree(weak_ptr<cBehaviorTree> tree)
+	{ _tree = tree; }
 protected:
 	string _taskName;
 	ImVec2 _pos;
+
+	weak_ptr<cBehaviorTree> _tree;
 private:
 	ImVec2 _size;
 	ImVec4 _color;
@@ -57,6 +70,8 @@ public:
 	cCompositeTask(string name);
 	~cCompositeTask();
 	
+	virtual void Update() override {}
+
 	virtual TaskList* GetChildren() override;
 	virtual void RenderInfo() override;
 
@@ -71,7 +86,7 @@ private:
 class cSelector : public cCompositeTask
 {
 public:
-	cSelector(ImVec2& position = ImVec2(0, 0));
+	cSelector(const ImVec2& position = ImVec2(0, 0));
 	cSelector(string name);
 
 	virtual bool Run() override;
@@ -80,7 +95,7 @@ public:
 class cSequence : public cCompositeTask
 {
 public:
-	cSequence(ImVec2& position = ImVec2(0, 0));
+	cSequence(const ImVec2& position = ImVec2(0, 0));
 
 	virtual bool Run() override;
 };

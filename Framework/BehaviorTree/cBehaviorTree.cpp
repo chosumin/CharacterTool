@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "cBehaviorTree.h"
-#include "./Concrete/Component/BehaviorTree/ConditionTasks.h"
-#include "./Concrete/Component/BehaviorTree/ActionTasks.h"
+#include "./Concrete/Component/BehaviorTree/Conditions.h"
+#include "./Concrete/Component/BehaviorTree/Actions.h"
 
 cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor)
 	:_actor(actor)
@@ -36,9 +36,16 @@ cBehaviorTree::~cBehaviorTree()
 {
 }
 
-void cBehaviorTree::Update()
+void cBehaviorTree::Run()
 {
 	_root->Run();
+}
+
+void cBehaviorTree::Update()
+{
+	auto curTask = _currentTask.lock();
+	if (curTask)
+		curTask->Update();
 }
 
 void cBehaviorTree::ReadBinary(wstring file)
@@ -48,4 +55,9 @@ void cBehaviorTree::ReadBinary(wstring file)
 weak_ptr<cSelector> cBehaviorTree::GetRoot() const
 {
 	return _root;
+}
+
+void cBehaviorTree::SetCurrentTask(weak_ptr<cTask> task)
+{
+	_currentTask = task;
 }

@@ -14,7 +14,7 @@ void cDebug::PrintLogs()
 	}
 	_logList.clear();
 
-	ImGui::Begin("Console");
+	ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 	{
 		//todo : 클리어 버튼, 로그 식별자 만들기
 

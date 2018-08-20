@@ -53,8 +53,7 @@ void UI::cActorMenu::PostRender()
 		ImGui::EndMainMenuBar();
 	}
 
-	bool flag = true;
-	ImGui::Begin("Hierarchy", &flag, ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 	{
 		ImGui::TextColored(ImVec4(1, 1, 0, 1), _actorName.c_str());
 	}
@@ -109,7 +108,7 @@ void UI::cActorMenu::CreateActor(weak_ptr<cActor> actor, eMessageType type)
 
 	_actorName = cString::String(_actor.lock()->GetName());
 
-	cDebug::Log((_actorName + " is Created!").c_str());
+	cDebug::Log((_actorName + " has been created!").c_str());
 }
 
 void UI::cActorMenu::SaveActor()

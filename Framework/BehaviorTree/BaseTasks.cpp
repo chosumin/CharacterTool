@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "BaseTasks.h"
+#include "cBehaviorTree.h"
 
-cTask::cTask(string name, ImVec2& position)
+cTask::cTask(weak_ptr<cBehaviorTree> tree, string name, const ImVec2& position)
 	: _taskName(name)
 	, _pos(position)
 	, _delete(eTaskState::NONE)
+	, _tree(tree)
 {
 }
 
@@ -54,7 +56,7 @@ cTask::TaskList * cTask::GetChildren()
 /**********************************************************/
 
 cCompositeTask::cCompositeTask(string name)
-	: cTask(name)
+	: cTask(weak_ptr<cBehaviorTree>(), name)
 {
 }
 
@@ -85,7 +87,7 @@ std::unique_ptr<cTask> cCompositeTask::Clone() const
 
 /**********************************************************/
 
-cSelector::cSelector(ImVec2& position)
+cSelector::cSelector(const ImVec2& position)
 	: cCompositeTask("Selector")
 {
 	_pos = position;
@@ -109,7 +111,7 @@ bool cSelector::Run()
 
 /**********************************************************/
 
-cSequence::cSequence(ImVec2& position)
+cSequence::cSequence(const ImVec2& position)
 	:cCompositeTask("Sequence")
 {
 	_pos = position;

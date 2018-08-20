@@ -2,6 +2,8 @@
 #include "cBtreeTool.h"
 #include "./GameObject/cActor.h"
 #include "./BehaviorTree/cBehaviorTree.h"
+#include "./Component/BehaviorTree/Actions.h"
+#include "./Component/BehaviorTree/cTaskFactory.h"
 
 static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); }
 static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y); }
@@ -12,11 +14,6 @@ UI::cBtreeTool::cBtreeTool()
 
 UI::cBtreeTool::~cBtreeTool()
 {
-}
-
-void UI::cBtreeTool::Init()
-{
-	cTool::Init();
 }
 
 void UI::cBtreeTool::Update()
@@ -100,18 +97,17 @@ void UI::cBtreeTool::SelectBTree()
 void UI::cBtreeTool::DrawBackground()
 {
 	// Create our child canvas
-	ImGui::Text("Hold middle mouse button to scroll (%.2f,%.2f)", _scrolling.x, _scrolling.y);
+	ImGui::Text("Screen Position (%.2f,%.2f)", _scrolling.x, _scrolling.y);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, 1));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, IM_COL32(60, 60, 70, 200));
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 	ImGui::PushItemWidth(120.0f);
 
-	//그리드 생성
 	_offset = ImGui::GetCursorScreenPos() + _scrolling;
 	_drawList = ImGui::GetWindowDrawList();
-	// Display grid
 
+	//그리드 생성
 	ImU32 GRID_COLOR = IM_COL32(200, 200, 200, 40);
 	float GRID_SZ = 64.0f;
 	ImVec2 win_pos = ImGui::GetCursorScreenPos();
@@ -201,7 +197,7 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 	ImGui::SetCursorScreenPos(node_rect_min + NODE_WINDOW_PADDING);
 
 	//노드 정보 출력
-	ImGui::BeginGroup(); // Lock horizontal position		
+	ImGui::BeginGroup();
 	taskPtr->RenderInfo();
 	ImGui::EndGroup();
 
@@ -210,6 +206,8 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 	//사이즈 지정
 	taskPtr->SetSize(ImGui::GetItemRectSize() + NODE_WINDOW_PADDING + NODE_WINDOW_PADDING);
 	auto taskSize = taskPtr->GetSize();
+
+	//너비는 자식 노드 수, 컨텐츠 사이즈 중 큰 것 선택
 	if(taskPtr->GetChildren())
 		taskPtr->SetSize(ImVec2(max(taskSize.x, taskPtr->GetChildren()->size() * NODE_GAP), taskSize.y));
 	ImVec2 node_rect_max = node_rect_min + taskPtr->GetSize();
@@ -279,6 +277,7 @@ void UI::cBtreeTool::DrawTextMenu()
 		_selectedTask.reset();
 		_hoveredTask.reset();
 		_openContextMenu = true;
+		_newTaskPos = GetMousePos();
 	}
 
 	if (_openContextMenu)
@@ -293,8 +292,6 @@ void UI::cBtreeTool::DrawTextMenu()
 
 	if (ImGui::BeginPopup("context_menu"))
 	{
-		ImVec2 scene_pos = ImGui::GetMousePosOnOpeningCurrentPopup() - _offset;
-		
 		if (_selectedTask.expired())
 			DrawAddMenu();
 		else
@@ -308,20 +305,37 @@ void UI::cBtreeTool::DrawTextMenu()
 
 void UI::cBtreeTool::DrawAddMenu()
 {
-	ImGui::Text("Create Node");
+	ImGui::Text("Create Task");
 	ImGui::Separator();
 
-	//새 노드
-	if (ImGui::MenuItem("New Node", nullptr, false, true))
+	cTaskFactory taskFactory;
+	shared_ptr<cTask> task;
+
+	if (ImGui::BeginMenu("Actions", true))
 	{
-		_newTasks.emplace_back(make_shared<cSelector>(GetMousePos()));
-		
+		task = taskFactory.ShowActionMenu(_actor, _bTree, _newTaskPos);
+		ImGui::EndMenu();
 	}
+
+	if (ImGui::BeginMenu("Conditions", true))
+	{
+		task = taskFactory.ShowConditionMenu(_bTree, _newTaskPos);
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::MenuItem("Selector", nullptr, false, true))
+		task = taskFactory.CreateSelector(_newTaskPos);
+
+	if (ImGui::MenuItem("Sequence", nullptr, false, true))
+		task = taskFactory.CreateSequence(_newTaskPos);
 
 	//붙여넣기
 	if (ImGui::MenuItem("Paste Node", nullptr, false, true))
 	{
 	}
+
+	if (task)
+		_newTasks.emplace_back(move(task));
 }
 
 void UI::cBtreeTool::DrawNodeMenu()
@@ -331,13 +345,8 @@ void UI::cBtreeTool::DrawNodeMenu()
 	ImGui::Text("%s", taskPtr->GetName().c_str());
 	ImGui::Separator();
 
+	//선택한 노드의 삭제, 복사 메뉴
 	taskPtr->RenderMenu();
-}
-
-void UI::cBtreeTool::Scroll()
-{
-	if (ImGui::IsWindowHovered() && ImGui::IsMouseDragging(0, 0.0f) && !(_clickNewNode || _clickMoveNode))
-		_scrolling = _scrolling + ImGui::GetIO().MouseDelta;
 }
 
 void UI::cBtreeTool::ConnectNode()
@@ -347,10 +356,10 @@ void UI::cBtreeTool::ConnectNode()
 		for (UINT i = 0; i < _newTasks.size(); i++)
 		{
 			auto task = _newTasks[i];
-			
+
 			auto circlePos = GetNodeStart(task);
 
-			if (MouseIsInCircle(GetMousePos(), circlePos))
+			if (Intersect(GetMousePos(), circlePos))
 			{
 				//호버링된 원 색 변경
 				_drawList->AddCircleFilled(_offset + circlePos, NODE_SLOT_RADIUS, IM_COL32(250, 250, 250, 250));
@@ -409,7 +418,7 @@ void UI::cBtreeTool::FindConnectNode(const ImVec2& mousePos, weak_ptr<cTask> tas
 
 	if (taskPtr->GetChildren())
 	{
-		if (MouseIsInCircle(mousePos, addCircle))
+		if (Intersect(mousePos, addCircle))
 		{
 			_connectedTask = task;
 			_drawList->AddCircleFilled(addCircle, NODE_SLOT_RADIUS, IM_COL32(255, 0, 0, 150));
@@ -444,7 +453,7 @@ void UI::cBtreeTool::MoveNode()
 
 	if (_clickMoveNode)
 	{
-		_drawList->AddLine(_offset + GetNodeEnd(_nodeToMove.first.lock(), _nodeToMove.second), _offset + GetMousePos(), IM_COL32(250,250,250,150), 3.0f);
+		_drawList->AddLine(_offset + GetNodeEnd(_nodeToMove.first.lock(), _nodeToMove.second), _offset + GetMousePos(), IM_COL32(250, 250, 250, 150), 3.0f);
 
 		//이동 대상 노드를 선택 중
 		SelectMoveNode(GetMousePos(), treePtr->GetRoot(), [this](weak_ptr<cTask> task, UINT i)
@@ -500,14 +509,14 @@ void UI::cBtreeTool::SelectMoveNode(const ImVec2& mousePos,
 									function<void(weak_ptr<cTask>, UINT)> func)
 {
 	auto taskPtr = task.lock();
-	if (!taskPtr && !taskPtr->GetChildren())
+	if (!taskPtr || !taskPtr->GetChildren())
 		return;
 
 	for (UINT i = 0; i < taskPtr->GetChildren()->size(); i++)
 	{
 		auto circlePos = GetNodeEnd(taskPtr, i);
 
-		if (MouseIsInCircle(mousePos, circlePos))
+		if (Intersect(mousePos, circlePos))
 		{
 			//호버링 노드 색 변경
 			_drawList->AddCircleFilled(_offset + circlePos, NODE_SLOT_RADIUS, IM_COL32(250, 250, 250, 250));
@@ -518,6 +527,12 @@ void UI::cBtreeTool::SelectMoveNode(const ImVec2& mousePos,
 		auto child = taskPtr->GetChildren()->at(i);
 		SelectMoveNode(mousePos, child, func);
 	}
+}
+
+void UI::cBtreeTool::Scroll()
+{
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseDragging(0, 0.0f) && !(_clickNewNode || _clickMoveNode))
+		_scrolling = _scrolling + ImGui::GetIO().MouseDelta;
 }
 
 void UI::cBtreeTool::DeleteNode(weak_ptr<cTask> task)
@@ -589,7 +604,7 @@ ImVec2 UI::cBtreeTool::GetMousePos()
 	return mousePos;
 }
 
-bool UI::cBtreeTool::MouseIsInCircle(const ImVec2& mouse, const ImVec2 & circlePos)
+bool UI::cBtreeTool::Intersect(const ImVec2& mouse, const ImVec2 & circlePos)
 {
 	bool isIn = true;
 	isIn &= mouse.x > circlePos.x - NODE_SLOT_RADIUS;

@@ -38,6 +38,9 @@ void cActor::Update()
 
 void cActor::Render()
 {
+	if (_animator)
+		_animator->PostRender();
+
 	if (_transform)
 		_transform->SetVSBuffer(1);
 

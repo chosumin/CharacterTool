@@ -66,11 +66,17 @@ void cMenuBar::ShowMenuBar()
 			ImGui::EndMenu();
 		}
 
-		//소프트코딩 변환
-		ImGui::SetCursorScreenPos(ImVec2(1200, 0));
-		ImGui::Text("FPS : %4.0f", ImGui::GetIO().Framerate);
-
 		ImGui::EndMainMenuBar();
+	}
+
+	auto pos = ImVec2(0, ImGui::GetIO().DisplaySize.y - 60);
+	ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+	ImGui::SetNextWindowBgAlpha(0.3f); // Transparent background
+	bool open = true;
+	if (ImGui::Begin("FPS", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+	{
+		ImGui::Text("FPS : %4.0f", ImGui::GetIO().Framerate);
+		ImGui::End();
 	}
 }
 

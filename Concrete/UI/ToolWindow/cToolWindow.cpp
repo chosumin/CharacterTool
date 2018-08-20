@@ -50,8 +50,7 @@ void UI::cToolWindow::Render()
 
 void UI::cToolWindow::PostRender()
 {
-	bool flag = true;
-	ImGui::Begin("Hierarchy", &flag, ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 	{
 		for (UINT i = 0; i < _tools.size(); i++)
 			_tools[i]->ShowHierarchy(i + 1);
@@ -59,7 +58,7 @@ void UI::cToolWindow::PostRender()
 	ImGui::End();
 
 	bool flag2 = true;
-	ImGui::Begin("Inspector");
+	ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 	{
 		if (_selectedTool.expired() == false)
 			_selectedTool.lock()->ShowInspector();

@@ -14,7 +14,6 @@ namespace UI
 		~cBtreeTool();
 	public:
 		// cTool을(를) 통해 상속됨
-		virtual void Init() override;
 		virtual void Update() override;
 		virtual void Render() override;
 		virtual void ShowHierarchy(int i) override;
@@ -22,52 +21,74 @@ namespace UI
 		virtual void SaveJson(Json::Value& root) override;
 		virtual void LoadJson() override;
 	private:
+		//하이어라키에서 항목 선택
 		void SelectBTree();
-
+		
+		//삭제할 노드가 있다면 삭제
+		void DeleteNode(weak_ptr<cTask> task);
+	private:
+		/***********************
+			인스펙터 서브 루틴
+		************************/
 		void DrawBackground();
-		void EndBackground();
+
+		//베지어 곡선 출력
 		void DrawLinks();
 		void DrawLink(weak_ptr<cTask> task);
+
+		//노드 출력
 		void DrawNodes();
 		void DrawNode(OUT int& id, weak_ptr<cTask> task);
+
+		//메뉴 팝업 출력
 		void DrawTextMenu();
+		//노드 생성 팝업
 		void DrawAddMenu();
+		//선택한 노드의 삭제, 복사 메뉴
 		void DrawNodeMenu();
-		void Scroll();
 
 		//새로 추가된 노드를 트리에 연결
 		void ConnectNode();
-
 		//연결된 노드가 있는지 확인
+		//@param : 마우스 좌표
+		//@param : 재귀 노드
 		void FindConnectNode(const ImVec2& mousePos, weak_ptr<cTask> task);
 
 		//트리 노드간 이동
 		void MoveNode();
-
 		//트리 노드 중 이동할 노드 선택되었는지 확인
+		//@param : 마우스 좌표
+		//@param : 재귀 노드
+		//@param : 이동할 노드 선택 후 콜백 함수
 		void SelectMoveNode(const ImVec2& mousePos,
 							weak_ptr<cTask> task,
 							function<void(weak_ptr<cTask>, UINT)> func);
 
-		//삭제할 노드가 있다면 삭제
-		void DeleteNode(weak_ptr<cTask> task);
+		void Scroll();
+
+		void EndBackground();
 	private:
-		ImVec2 GetNodeStart(shared_ptr<cTask> task); //부모 점
-		ImVec2 GetNodeEnd(shared_ptr<cTask> task, UINT childNum); //자식 점
+		//부모 점
+		ImVec2 GetNodeStart(shared_ptr<cTask> task);
+		//자식 점
+		ImVec2 GetNodeEnd(shared_ptr<cTask> task, UINT childNum);
+		//마우스 위치
 		ImVec2 GetMousePos();
-		bool MouseIsInCircle(const ImVec2& mouse, const ImVec2& circlePos);
+
+		//두 점 교차 판정
+		bool Intersect(const ImVec2& mouse, const ImVec2& circlePos);
 	private:
-		const float NODE_SLOT_RADIUS = 5.5f;
+		const float NODE_SLOT_RADIUS = 5.5f; //원 반지름
 		const ImVec2 NODE_WINDOW_PADDING = ImVec2(8.0f, 8.0f);
 		const float MOUSE_PADDING = -58.0f;
 		const float NODE_GAP = 25.0f; //자식 노드 선 간격
 
 		weak_ptr<cBehaviorTree> _bTree;
 
-		ImVec2 _scrolling = ImVec2(0.0f, 0.0f);
+		ImVec2 _scrolling = ImVec2(0.0f, 0.0f); //스크린 위치
 		
-		ImDrawList* _drawList;
-		ImVec2 _offset;
+		ImDrawList* _drawList; //캔버스
+		ImVec2 _offset; //마우스와 스크린 위치 더한 값
 		bool _openContextMenu = false;
 		weak_ptr<cTask> _hoveredTask;
 		
@@ -78,6 +99,7 @@ namespace UI
 		bool _clickNewNode = false; //클릭되었는지
 		int _selectedNewTask; //새 노드 리스트 중 선택된 노드
 		weak_ptr<cTask> _connectedTask; //연결할 노드
+		ImVec2 _newTaskPos; //새로 생성될 노드의 위치
 
 		//@first : 이동할 노드의 부모 노드 @second : 이동할 노드의 번호
 		pair<weak_ptr<cTask>, UINT> _nodeToMove;

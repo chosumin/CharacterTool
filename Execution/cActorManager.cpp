@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "cActorManager.h"
-
 #include "./GameObject/cActor.h"
-
+#include "./BehaviorTree/cBehaviorTree.h"
 #include "./Message/cEntityManager.h"
 #include "./Message/cMessageDispatcher.h"
 
@@ -35,6 +34,37 @@ void cActorManager::Render()
 
 void cActorManager::PostRender()
 {
+	bool open = true;
+	
+	ImGuiWindowFlags flag;
+	flag = ImGuiWindowFlags_NoTitleBar;
+	flag |= ImGuiWindowFlags_NoMove;
+	//flag |= ImGuiWindowFlags_NoResize;
+	ImGui::SetNextWindowBgAlpha(0.3f);
+
+	auto pos = ImVec2(300.0f,
+					  25.0f);
+	ImGui::SetNextWindowPos(pos);
+	ImGui::Begin("ActorManager",&open, flag);
+	{
+		//씬 시작 버튼
+		if (ImGui::Button("Start"))
+		{
+			if (_actor)
+			{
+				auto treePtr = _actor->GetBehaviorTree().lock();
+				if (treePtr)
+					treePtr->Run();
+			}
+		}
+		ImGui::SameLine();
+		//씬 종료 버튼
+		if (ImGui::Button("Stop"))
+		{
+
+		}
+	}
+	ImGui::End();
 }
 
 void cActorManager::HandleMessage(const sTelegram & msg)
