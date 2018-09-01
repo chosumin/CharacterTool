@@ -2,12 +2,28 @@
 #include "BaseTasks.h"
 #include "cBehaviorTree.h"
 
-cTask::cTask(weak_ptr<cBehaviorTree> tree, string name, const ImVec2& position)
+cTask::cTask(weak_ptr<cBehaviorTree> tree, string name,
+			 const ImVec2& position, const weak_ptr<cTask>& parent)
 	: _taskName(name)
 	, _pos(position)
 	, _delete(eTaskState::NONE)
 	, _tree(tree)
+	, _state(eState::NONE)
+	, _parent(parent)
 {
+}
+
+void cTask::SetInitState(const bool& includeRunning)
+{
+	//러닝 포함 모두 초기화이거나 러닝상태 아닐 경우 초기화
+	if (includeRunning || _state != eState::RUNNING)
+			_state = eState::NONE;
+	
+	if (GetChildren())
+	{
+		for (auto&& child : *GetChildren())
+			child->SetInitState(includeRunning);
+	}
 }
 
 bool cTask::RenderMenu()
@@ -53,15 +69,87 @@ cTask::TaskList * cTask::GetChildren()
 	return nullptr;
 }
 
+weak_ptr<cTask> cTask::GetParent() const
+{
+	return _parent;
+}
+
 /**********************************************************/
 
-cCompositeTask::cCompositeTask(string name)
-	: cTask(weak_ptr<cBehaviorTree>(), name)
+const char* cCompositeTask::ITEMS[3] = { "Selector", "Sequence", "Parallel" };
+
+cCompositeTask::cCompositeTask(weak_ptr<cBehaviorTree> tree,
+							   const ImVec2& position,
+							   weak_ptr<cTask> parent)
+	: cTask(tree, "Composite Task", position, parent)
+	, _type(0)
 {
 }
 
 cCompositeTask::~cCompositeTask()
 {
+}
+
+cTask::eState cCompositeTask::Run()
+{
+	UINT i = 0;
+	if (_state == eState::RUNNING)
+	{
+		for (; i < _children.size(); ++i)
+		{
+			if (_children[i]->GetRunningState() == eState::RUNNING)
+				break;
+		}
+	}
+
+	switch (_type)
+	{
+		case 0: //Selector
+		{
+			for (; i < _children.size(); ++i)
+			{
+				_state = _children[i]->Run();
+				if (_state == eState::SUCCESS || _state == eState::RUNNING)
+					return _state;
+			}
+			
+			return _state = eState::FAILURE;
+		}
+		case 1: //Sequence
+		{
+			for (; i < _children.size(); ++i)
+			{
+				_state = _children[i]->Run();
+				if (_state == eState::FAILURE || _state == eState::RUNNING)
+					return _state;
+			}
+
+			return _state = eState::SUCCESS;
+		}
+		case 2: //Parallel
+		{
+			UINT successCount = 0;
+			for (; i < _children.size(); ++i)
+			{
+				_state = _children[i]->Run();
+
+				if (_state == eState::FAILURE)
+					return _state;
+
+				if (_state == eState::SUCCESS)
+					successCount++;
+			}
+
+			_state = successCount >= _children.size() ? eState::SUCCESS : eState::RUNNING;
+
+			if (_state == eState::RUNNING)
+				_tree.lock()->SetCurrentTask(shared_from_this());
+
+			return _state;
+		}
+	}
+
+	return eState::NONE;
 }
 
 cCompositeTask::TaskList * cCompositeTask::GetChildren()
@@ -72,6 +160,10 @@ cCompositeTask::TaskList * cCompositeTask::GetChildren()
 void cCompositeTask::RenderInfo()
 {
 	ImGui::Text("%s", GetName().c_str());
+
+	ImGui::NewLine();
+
+	ImGui::Combo("", &_type, ITEMS, 3);
 }
 
 void cCompositeTask::AddChild(std::shared_ptr<cTask> child)
@@ -87,43 +179,13 @@ std::unique_ptr<cTask> cCompositeTask::Clone() const
 
 /**********************************************************/
 
-cSelector::cSelector(const ImVec2& position)
-	: cCompositeTask("Selector")
+cRootTask::cRootTask()
+	:cCompositeTask(weak_ptr<cBehaviorTree>())
 {
-	_pos = position;
+	_taskName = "ROOT";
+	_type = 0;
 }
 
-cSelector::cSelector(string name)
-	:cCompositeTask(name)
+cRootTask::~cRootTask()
 {
-}
-
-bool cSelector::Run()
-{
-	for (auto&& child : *GetChildren())
-	{
-		if (child->Run())
-			return true;
-	}
-
-	return false;
-}
-
-/**********************************************************/
-
-cSequence::cSequence(const ImVec2& position)
-	:cCompositeTask("Sequence")
-{
-	_pos = position;
-}
-
-bool cSequence::Run()
-{
-	for (auto&& child : *GetChildren())
-	{
-		if (!child->Run())
-			return false;
-	}
-
-	return true;
 }

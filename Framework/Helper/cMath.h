@@ -30,4 +30,6 @@ public:
 
 	//두 벡터의 거리의 제곱 반환
 	static float DistanceSquared(const D3DXVECTOR3& value1, const D3DXVECTOR3& value2);
+
+	static bool IsVec3Equal(const D3DXVECTOR3& value, const D3DXVECTOR3& value2);
 };

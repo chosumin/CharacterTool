@@ -4,6 +4,7 @@
 #include "./BehaviorTree/cBehaviorTree.h"
 #include "./Message/cEntityManager.h"
 #include "./Message/cMessageDispatcher.h"
+#include "./Viewer/cCameraFactory.h"
 
 cActorManager::cActorManager(weak_ptr<sGlobalVariable> global)
 	:_global(global)
@@ -22,8 +23,11 @@ void cActorManager::Init()
 
 void cActorManager::Update()
 {
-	if (_actor)
-		_actor->Update();
+	if (_isStart)
+	{
+		if (_actor)
+			_actor->Update();
+	}
 }
 
 void cActorManager::Render()
@@ -50,18 +54,23 @@ void cActorManager::PostRender()
 		//씬 시작 버튼
 		if (ImGui::Button("Start"))
 		{
+			_isStart = true;
+			//플레이어 3인칭 시점 카메라 전환
+
 			if (_actor)
 			{
-				auto treePtr = _actor->GetBehaviorTree().lock();
-				if (treePtr)
-					treePtr->Run();
+				_global.lock()->MainCamera = cCameraFactory::Get()->GetThirdPersonCamera(_actor->GetTransform());
 			}
 		}
 		ImGui::SameLine();
 		//씬 종료 버튼
 		if (ImGui::Button("Stop"))
 		{
-
+			_isStart = false;
+			if (_actor)
+			{
+				_global.lock()->MainCamera = cCameraFactory::Get()->GetFreePointCamera(D3DXVECTOR3{ 0,0,-5 }, D3DXVECTOR2{ 0,0 });
+			}
 		}
 	}
 	ImGui::End();

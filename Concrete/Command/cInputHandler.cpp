@@ -5,19 +5,18 @@
 
 cInputHandler::cInputHandler()
 {
-	mCommandInfo[eCommand::MoveR] = make_unique<cRMoveCommand>();
+
+	mPlayerCommands[eCommand::MOVE_FORWARD] = sPlayerKey("Move Foward", 'W');
+	mPlayerCommands[eCommand::MOVE_BACKWARD] = sPlayerKey("Move Backward", 'S');
+	mPlayerCommands[eCommand::MOVE_LEFT] = sPlayerKey("Move Left", 'A');
+	mPlayerCommands[eCommand::MOVE_RIGHT] = sPlayerKey("Move Right", 'D');
+
+	mPlayerCommands[eCommand::MELEE_ATTACK] = sPlayerKey("Melee Attack", VK_LBUTTON);
 }
 
 cInputHandler::~cInputHandler()
 {
 	Destroy(0);
-}
-
-void cInputHandler::Move(eCommand command)
-{
-	//todo : 이동 명령 생성
-	//todo : 이동 명령 실행
-	//todo : Insert(pCommand);
 }
 
 void cInputHandler::Undo()
@@ -49,8 +48,9 @@ void cInputHandler::Redo()
 
 void cInputHandler::ShowKeyCombo()
 {
-	for (auto&& command : mCommandInfo)
-		command.second->ShowKeyCombo();
+	/*for (auto&& command : mPlayerCommands)
+		command.second->ShowKeyCombo();*/
+	//todo : 입력키 변경 화면
 }
 
 void cInputHandler::PostRender()
@@ -65,6 +65,21 @@ void cInputHandler::PostRender()
 			Redo();
 	}
 	ImGui::End();
+}
+
+bool cInputHandler::OnKeyEvent(eKeyEventType type, eCommand button)
+{
+	switch (type)
+	{
+		case eKeyEventType::DOWN:
+			return cKeyboard::Get()->Down(mPlayerCommands[button].Key);
+		case eKeyEventType::PRESS:
+			return cKeyboard::Get()->Press(mPlayerCommands[button].Key);
+		case eKeyEventType::UP:
+			return cKeyboard::Get()->Up(mPlayerCommands[button].Key);
+	}
+
+	return false;
 }
 
 void cInputHandler::Insert(unique_ptr<cCommand> pCommand)

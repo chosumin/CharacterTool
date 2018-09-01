@@ -10,6 +10,7 @@ static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return Im
 
 UI::cBtreeTool::cBtreeTool()
 {
+	_parentOfNewTasks = make_shared<cRootTask>();
 }
 
 UI::cBtreeTool::~cBtreeTool()
@@ -28,6 +29,8 @@ void UI::cBtreeTool::Update()
 	//만료된 노드 삭제
 	if(!_bTree.expired())
 		DeleteNode(_bTree.lock()->GetRoot());
+
+	DeleteNode(_parentOfNewTasks);
 
 	_openContextMenu = false;
 	_hoveredTask.reset();
@@ -177,7 +180,7 @@ void UI::cBtreeTool::DrawNodes()
 	int id = 0;
 	DrawNode(id, treePtr->GetRoot());
 
-	for (auto&& task : _newTasks)
+	for (auto&& task : *_parentOfNewTasks->GetChildren())
 		DrawNode(id, task);
 
 	_drawList->ChannelsMerge();
@@ -319,15 +322,16 @@ void UI::cBtreeTool::DrawAddMenu()
 
 	if (ImGui::BeginMenu("Conditions", true))
 	{
-		task = taskFactory.ShowConditionMenu(_bTree, _newTaskPos);
+		if (!_actor.expired())
+		{
+			auto blackboard = _actor.lock()->GetBlackboard();
+			task = taskFactory.ShowConditionMenu(blackboard, _bTree, _newTaskPos);
+		}
 		ImGui::EndMenu();
 	}
 
-	if (ImGui::MenuItem("Selector", nullptr, false, true))
-		task = taskFactory.CreateSelector(_newTaskPos);
-
-	if (ImGui::MenuItem("Sequence", nullptr, false, true))
-		task = taskFactory.CreateSequence(_newTaskPos);
+	if (ImGui::MenuItem("Composite Task", nullptr, false, true))
+		task = taskFactory.CreateComposition(_bTree, _newTaskPos);
 
 	//붙여넣기
 	if (ImGui::MenuItem("Paste Node", nullptr, false, true))
@@ -335,7 +339,7 @@ void UI::cBtreeTool::DrawAddMenu()
 	}
 
 	if (task)
-		_newTasks.emplace_back(move(task));
+		_parentOfNewTasks->GetChildren()->emplace_back(move(task));
 }
 
 void UI::cBtreeTool::DrawNodeMenu()
@@ -353,9 +357,9 @@ void UI::cBtreeTool::ConnectNode()
 {
 	if (_clickNewNode == false)
 	{
-		for (UINT i = 0; i < _newTasks.size(); i++)
+		for (UINT i = 0; i < _parentOfNewTasks->GetChildren()->size(); i++)
 		{
-			auto task = _newTasks[i];
+			auto task = _parentOfNewTasks->GetChildren()->at(i);
 
 			auto circlePos = GetNodeStart(task);
 
@@ -377,7 +381,7 @@ void UI::cBtreeTool::ConnectNode()
 
 	if (_clickNewNode)
 	{
-		ImVec2 p1 = _offset + GetNodeStart(_newTasks[_selectedNewTask]);
+		ImVec2 p1 = _offset + GetNodeStart(_parentOfNewTasks->GetChildren()->at(_selectedNewTask));
 		ImVec2 p2 = _offset + GetMousePos();
 
 		//마우스와 베지어 곡선
@@ -394,10 +398,13 @@ void UI::cBtreeTool::ConnectNode()
 				//연결
 				if (!_connectedTask.expired())
 				{
-					_connectedTask.lock()->AddChild(_newTasks[_selectedNewTask]);
+					_connectedTask.lock()->AddChild(_parentOfNewTasks->GetChildren()->at(_selectedNewTask));
+
+					//노드 부모 세팅
+					_parentOfNewTasks->GetChildren()->at(_selectedNewTask)->SetParent(_connectedTask);
 
 					//새 노드 목록에서 삭제
-					_newTasks.erase(_newTasks.begin() + _selectedNewTask);
+					_parentOfNewTasks->GetChildren()->erase(_parentOfNewTasks->GetChildren()->begin() + _selectedNewTask);
 				}
 				_clickNewNode = false;
 				_selectedNewTask = -1;
@@ -462,15 +469,17 @@ void UI::cBtreeTool::MoveNode()
 			_targetToMove.second = i;
 		});
 
+		FindConnectNode(_offset + GetMousePos(), treePtr->GetRoot());
+
 		//이동 대상 노드를 찾음
 		if (ImGui::IsMouseReleased(0))
 		{
 			auto parent = _nodeToMove.first.lock();
 			auto targetParent = _targetToMove.first.lock();
+			UINT i = _targetToMove.second;
+			UINT moveIndex = _nodeToMove.second;
 			if (targetParent)
 			{
-				UINT i = _targetToMove.second;
-				UINT moveIndex = _nodeToMove.second;
 				auto temp = parent->GetChildren()->at(moveIndex);
 				if (parent == targetParent)
 				{
@@ -493,11 +502,34 @@ void UI::cBtreeTool::MoveNode()
 					//다른 부모의 노드를 이동하는지
 					(*parent->GetChildren())[moveIndex] = (*targetParent->GetChildren())[i];
 					(*targetParent->GetChildren())[i] = temp;
+
+					//새로운 부모 세팅
+					(*parent->GetChildren())[moveIndex]->SetParent(parent);
+
+					(*targetParent->GetChildren())[i]->SetParent(targetParent);
 				}
 				temp.reset();
 				_targetToMove.first.reset();
 			}
 
+			//_targetNewParent 이용해서 부모 변경하기
+			auto temp = _connectedTask.lock();
+			if (temp)
+			{
+				//옮겨질 태스크
+				auto target = parent->GetChildren()->at(moveIndex);
+
+				//부모 변경
+				target->SetParent(temp);
+				temp->AddChild(target);
+
+				//원래 부모에서 삭제
+				parent->GetChildren()->erase(parent->GetChildren()->begin() + moveIndex);
+
+				_connectedTask.reset();
+
+			}
+			
 			_clickMoveNode = false;
 			_nodeToMove.first.reset();
 		}
@@ -559,6 +591,7 @@ void UI::cBtreeTool::DeleteNode(weak_ptr<cTask> task)
 				auto grandChildren = child->GetChildren();
 				for (auto iter = grandChildren->rbegin(); iter != grandChildren->rend(); iter++)
 				{
+					(*iter)->SetParent(taskPtr);
 					children->insert(children->begin() + i, *iter);
 				}
 

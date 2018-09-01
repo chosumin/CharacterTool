@@ -108,6 +108,16 @@ float cMath::DistanceSquared(const D3DXVECTOR3 & value1, const D3DXVECTOR3 & val
 	return x * x + y * y + z * z;
 }
 
+bool cMath::IsVec3Equal(const D3DXVECTOR3 & value, const D3DXVECTOR3 & value2)
+{
+	if (fabs(value.x - value2.x) > D3DX_16F_EPSILON ||
+		fabs(value.y - value2.y) > D3DX_16F_EPSILON ||
+		fabs(value.z - value2.z) > D3DX_16F_EPSILON)
+		return false;
+
+	return true;
+}
+
 int cMath::Random(int r1, int r2)
 {
 	return (int)(rand() % (r2 - r1 + 1)) + r1;

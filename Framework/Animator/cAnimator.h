@@ -18,7 +18,7 @@ public:
 	void Update();
 
 	//현재 실행되는 클립 교체
-	void SetCurrentClip(weak_ptr<cAnimClip> clip);
+	void SetCurrentClip(weak_ptr<cAnimClip> clip, bool overwrite = true);
 
 	//중복된 클립이 있는지 확인
 	bool Duplicated(weak_ptr<cAnimClip> clip);
@@ -28,6 +28,8 @@ public:
 
 	//클립 삭제
 	ClipIter DeleteClip(weak_ptr<cAnimClip> clip);
+
+	bool IsEndAnimation();
 
 	void PostRender();
 public:
@@ -69,6 +71,4 @@ private:
 	int _nextKeyFrame; //다음 프레임 번호
 	float _frameTime; //프레임 경과 시간
 	float _keyFrameFactor; //보간 비율
-
-	D3DXVECTOR3 position = { 0,0,0 };
 };

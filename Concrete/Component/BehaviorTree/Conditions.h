@@ -1,85 +1,67 @@
 #pragma once
 #include "./BehaviorTree/BaseTasks.h"
 
-class cSideKeyPress : public cTask
+class cActor;
+class cBlackboard;
+
+class cBoolCondition : public cTask
 {
 public:
-	cSideKeyPress(weak_ptr<cActor> actor);
-	~cSideKeyPress();
+	cBoolCondition(weak_ptr<cBlackboard> blackboard,
+				   weak_ptr<cBehaviorTree> tree,
+				   const ImVec2& position,
+				   const weak_ptr<cTask>& parent = weak_ptr<cTask>());
+	~cBoolCondition();
 
 	// cTask을(를) 통해 상속됨
-	virtual bool Run() override;
+	virtual std::unique_ptr<cTask> Clone() const override;
+	virtual eState Run() override;
+	virtual void RenderInfo() override;
 private:
-	weak_ptr<cActor> _actor;
+	weak_ptr<cBlackboard> _blackboard;
+
+	string _boolParam;
+	bool _boolean;
+
+	//todo : 퍼센티지 안에 속하는지
+	//todo : 단순 bool 비교
+	//todo : 값 비교, 큰지 작은지 같은지
 };
 
-/*********************************************************/
+/******************************************************************/
 
-class cUpKeyPress : public cTask
+class cValueCompareCondition : public cTask
 {
 public:
-	cUpKeyPress(weak_ptr<cActor> actor);
-	~cUpKeyPress();
+	cValueCompareCondition(weak_ptr<cBlackboard> blackboard,
+						   weak_ptr<cBehaviorTree> tree,
+						   const ImVec2& position,
+						   const weak_ptr<cTask>& parent = weak_ptr<cTask>());
+	~cValueCompareCondition();
 
 	// cTask을(를) 통해 상속됨
-	virtual bool Run() override;
+	virtual std::unique_ptr<cTask> Clone() const override;
+	virtual eState Run() override;
+	virtual void RenderInfo() override;
 private:
-	weak_ptr<cActor> _actor;
+	/*enum class eInequalitySign
+	{
+		GREATER_THAN_RIGHT, LESSER_THAN_RIGHT,
+		EQUAL,
+		EQUAL_GREATER_THAN_RIGHT, EQUAL_LESSER_THAN_RIGHT
+	};
+	eInequalitySign _sign;*/
+	
+	weak_ptr<cBlackboard> _blackboard;
+
+	string _valueParam;
+
+	D3DXVECTOR3 _compare;
 };
 
-/*********************************************************/
+/******************************************************************/
 
-class cIdleAction : public cTask
+class cPercentageCondition : public cTask
 {
-public:
-	cIdleAction(weak_ptr<cActor> actor);
-	~cIdleAction();
 
-	// cTask을(를) 통해 상속됨
-	virtual bool Run() override;
-private:
-	weak_ptr<cActor> _actor;
-};
-
-/*********************************************************/
-
-class cAttackKeyPress : public cTask
-{
-public:
-	cAttackKeyPress(weak_ptr<cActor> actor);
-	~cAttackKeyPress();
-
-	// cTask을(를) 통해 상속됨
-	virtual bool Run() override;
-private:
-	weak_ptr<cActor> _actor;
-};
-
-/*********************************************************/
-
-class cAnimIsEnd : public cTask
-{
-public:
-	cAnimIsEnd(weak_ptr<cActor> actor, UINT animIndex);
-	~cAnimIsEnd();
-
-	// cTask을(를) 통해 상속됨
-	virtual bool Run() override;
-private:
-	weak_ptr<cActor> _actor;
-	UINT _animIndex;
-};
-
-/*********************************************************/
-
-class cDamageAction : public cTask
-{
-public:
-	cDamageAction(weak_ptr<cActor> actor);
-	~cDamageAction();
-
-	// cTask을(를) 통해 상속됨
-	virtual bool Run() override;
-private:
-	weak_ptr<cActor> _actor;
 };

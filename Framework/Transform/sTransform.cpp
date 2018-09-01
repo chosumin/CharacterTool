@@ -103,7 +103,7 @@ void sTransform::Rotate(const D3DXVECTOR3 & axis, float deltaRadian)
 	}
 }
 
-void sTransform::Rotate(D3DXVECTOR3 deltaAngle)
+void sTransform::Rotate(const D3DXVECTOR3& deltaAngle)
 {
 	//회전 축 구하기(x,y,z)
 	D3DXVECTOR3 axis;
@@ -142,6 +142,19 @@ void sTransform::Translation()
 	D3DXMatrixTranslation(&_positionMatrix, Position.x, Position.y, Position.z);
 }
 
+void sTransform::Move(float speed, const D3DXVECTOR3& direction)
+{
+	if (direction == D3DXVECTOR3{ 0,0,0 })
+	{
+		D3DXVECTOR3 dir;
+		GetDirection(dir);
+
+		Position += dir * speed * cFrame::Delta();
+	}
+	else
+		Position += direction * speed * cFrame::Delta();
+}
+
 void sTransform::SetMatrix(const D3DXMATRIX & world)
 {
 	_worldBuffer->SetMatrix(world);
@@ -160,6 +173,13 @@ const D3DXMATRIX & sTransform::GetRotationMatrix() const
 const D3DXMATRIX & sTransform::GetScaleMatrix() const
 {
 	return _scaleMatrix;
+}
+
+void sTransform::GetDirection(OUT D3DXVECTOR3 & direction)
+{
+	direction.x = _rotationMatrix._31;
+	direction.y = _rotationMatrix._32;
+	direction.z = _rotationMatrix._33;
 }
 
 void sTransform::GetAxis(D3DXVECTOR3 * axis, const D3DXVECTOR3 & angle)

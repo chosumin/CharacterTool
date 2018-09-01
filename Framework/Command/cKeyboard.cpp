@@ -10,6 +10,7 @@ void cKeyboard::Update()
 
 	GetKeyboardState(keyState);
 
+	action = false;
 	for (DWORD i = 0; i < MAX_INPUT_KEY; i++)
 	{
 		byte key = keyState[i] & 0x80;
@@ -19,11 +20,20 @@ void cKeyboard::Update()
 		int state = keyState[i];
 
 		if (oldState == 0 && state == 1)
+		{
 			keyMap[i] = KEY_INPUT_STATUS_DOWN; //이전 0, 현재 1 - KeyDown
+			action = true;
+		}
 		else if (oldState == 1 && state == 0)
+		{
 			keyMap[i] = KEY_INPUT_STATUS_UP; //이전 1, 현재 0 - KeyUp
+			action = true;
+		}
 		else if (oldState == 1 && state == 1)
+		{
 			keyMap[i] = KEY_INPUT_STATUS_PRESS; //이전 1, 현재 1 - KeyPress
+			action = true;
+		}
 		else
 			keyMap[i] = KEY_INPUT_STATUS_NONE;
 	}
@@ -45,6 +55,7 @@ bool cKeyboard::Press(DWORD key) const
 }
 
 cKeyboard::cKeyboard()
+	:action(false)
 {
 	ZeroMemory(keyState, sizeof(keyState));
 	ZeroMemory(keyOldState, sizeof(keyOldState));

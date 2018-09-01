@@ -66,7 +66,7 @@ void cMovingGizmo::Move(const D3DXMATRIX& colMatrix, const D3DXMATRIX* updateMat
 {
 	auto globalPtr = _global.lock();
 	D3DXMATRIX view, proj;
-	globalPtr->MainCamera->GetMatrix(&view);
+	globalPtr->MainCamera.lock()->GetMatrix(&view);
 	globalPtr->Perspective->GetMatrix(&proj);
 
 	auto mouse = GetMouseDelta();

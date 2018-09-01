@@ -143,10 +143,10 @@ void cGizmo::Update()
 	SelectMode();
 
 	auto globalPtr = _global.lock();
-	auto dir = globalPtr->MainCamera->GetDirection(globalPtr->Viewport.get(), globalPtr->Perspective.get());
+	auto dir = globalPtr->MainCamera.lock()->GetDirection(globalPtr->Viewport.get(), globalPtr->Perspective.get());
 
 	D3DXVECTOR3 pos;
-	globalPtr->MainCamera->GetPosition(&pos);
+	globalPtr->MainCamera.lock()->GetPosition(&pos);
 
 	SetScaleRate(pos);
 

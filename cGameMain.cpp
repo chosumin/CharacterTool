@@ -1,19 +1,15 @@
 #include "stdafx.h"
 #include "cGameMain.h"
-
 #include "./Execution/cModels.h"
 #include "./Execution/cEnvironment.h"
 #include "./Execution/cMenuBar.h"
 #include "./Execution/cUI.h"
 #include "./Execution/cActorManager.h"
-
-#include "./Viewer/cFreePointCamera.h"
+#include "./Viewer/cCameraFactory.h"
 #include "./Helper/cMath.h"
-
 #include "./Message/cEntityManager.h"
 #include "./Message/cMessageDispatcher.h"
-
-#include "./Model/FbxExporter/Exporter.h"
+#include "./Command/cInputHandler.h"
 
 cGameMain::cGameMain()
 {
@@ -28,11 +24,11 @@ cGameMain::cGameMain()
 	_globalVariable->Viewport = make_shared<cViewport>(desc.Width, desc.Height);
 	_globalVariable->GlobalLight = make_shared<cLightBuffer>();
 	_globalVariable->GuiSettings = make_shared<sGuiSettings>();
-	_globalVariable->MainCamera = make_shared<cFreePointCamera>(100.0f);
-	_globalVariable->MainCamera->SetPosition(0, 0, -5);
-	_globalVariable->MainCamera->SetRotationDegree(0, 0);
+
+	_globalVariable->MainCamera = cCameraFactory::Get()->GetFreePointCamera(D3DXVECTOR3{ 0,0,-5 }, D3DXVECTOR2{ 0,0 });
 
 	cDebug::SetDebugMode(true);
+	cInputHandler::Get();
 }
 
 void cGameMain::Init()
@@ -55,11 +51,13 @@ cGameMain::~cGameMain()
 
 	cEntityManager::Delete();
 	cMessageDispatcher::Delete();
+	cInputHandler::Delete();
+	cCameraFactory::Delete();
 }
 
 void cGameMain::Update()
 {
-	_globalVariable->MainCamera->Update();
+	_globalVariable->MainCamera.lock()->Update();
 	D3DXVECTOR3 up{ 0, 1, 0 };
 	float dot = D3DXVec3Dot(&_globalVariable->GlobalLight->Data.Direction, &up);
 	float intensity = cMath::Clamp(dot * 1.5f, 0, 1);
@@ -78,7 +76,7 @@ void cGameMain::PreRender()
 void cGameMain::Render()
 {
 	D3DXMATRIX view, projection;
-	_globalVariable->MainCamera->GetMatrix(&view);
+	_globalVariable->MainCamera.lock()->GetMatrix(&view);
 	_globalVariable->Perspective->GetMatrix(&projection);
 
 	_globalVariable->ViewProjection->SetView(view);

@@ -5,8 +5,6 @@
 class cBehaviorTree;
 namespace UI
 {
-	struct sBtreeNode;
-	struct sBtreeNodeLink;
 	class cBtreeTool : public cTool
 	{
 	public:
@@ -82,9 +80,6 @@ namespace UI
 		const ImVec2 NODE_WINDOW_PADDING = ImVec2(8.0f, 8.0f);
 		const float MOUSE_PADDING = -58.0f;
 		const float NODE_GAP = 25.0f; //자식 노드 선 간격
-
-		weak_ptr<cBehaviorTree> _bTree;
-
 		ImVec2 _scrolling = ImVec2(0.0f, 0.0f); //스크린 위치
 		
 		ImDrawList* _drawList; //캔버스
@@ -92,10 +87,12 @@ namespace UI
 		bool _openContextMenu = false;
 		weak_ptr<cTask> _hoveredTask;
 		
+		weak_ptr<cBehaviorTree> _bTree;
+
 		weak_ptr<cTask> _selectedTask; //현재 선택된 노드
 
 		//트리에 추가되지 않은 노드
-		vector<shared_ptr<cTask>> _newTasks;
+		shared_ptr<cRootTask> _parentOfNewTasks;
 		bool _clickNewNode = false; //클릭되었는지
 		int _selectedNewTask; //새 노드 리스트 중 선택된 노드
 		weak_ptr<cTask> _connectedTask; //연결할 노드

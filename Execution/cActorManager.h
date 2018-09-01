@@ -24,4 +24,6 @@ private:
 private:
 	weak_ptr<sGlobalVariable> _global;
 	shared_ptr<class cActor> _actor;
+
+	bool _isStart;
 };

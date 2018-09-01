@@ -21,7 +21,7 @@ struct sGlobalVariable
 	shared_ptr<class cViewProjectionBuffer> ViewProjection;
 	shared_ptr<class cPerspective> Perspective;
 	shared_ptr<class cViewport> Viewport;
-	shared_ptr<class cCamera> MainCamera;
+	weak_ptr<class cCamera> MainCamera;
 	shared_ptr<class cLightBuffer> GlobalLight;
 	shared_ptr<struct sGuiSettings> GuiSettings;
 };

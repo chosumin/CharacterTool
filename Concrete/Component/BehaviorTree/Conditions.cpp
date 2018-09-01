@@ -1,141 +1,147 @@
 #include "stdafx.h"
 #include "Conditions.h"
+#include "./Command/cInputHandler.h"
 #include "./GameObject/cActor.h"
 #include "./Interface/iAction.h"
+#include "./Blackboard/cBlackboard.h"
+#include "./Helper/cMath.h"
 
-cSideKeyPress::cSideKeyPress(weak_ptr<cActor> actor)
-	:cTask(typeid(this).name()),
-	_actor(actor)
+cBoolCondition::cBoolCondition(weak_ptr<cBlackboard> blackboard,
+							   weak_ptr<cBehaviorTree> tree,
+							   const ImVec2 & position,
+							   const weak_ptr<cTask>& parent)
+	: cTask(tree, "Bool Condition", position, parent)
+	, _blackboard(blackboard)
 {
 }
 
-cSideKeyPress::~cSideKeyPress()
+cBoolCondition::~cBoolCondition()
 {
 }
 
-bool cSideKeyPress::Run()
+std::unique_ptr<cTask> cBoolCondition::Clone() const
 {
-	//hack : 키를 매개변수로 받기
-	auto actorPtr = _actor.lock();
-	auto delta = cFrame::Delta() * 100.0f;
+	auto clone = make_unique<cBoolCondition>(_blackboard, _tree, _pos, _parent);
 
-	bool isPress = false;
-	if (cKeyboard::Get()->Press(VK_RIGHT))
+	clone->_boolParam = _boolParam;
+	clone->_boolean = _boolean;
+
+	return move(clone);
+}
+
+cTask::eState cBoolCondition::Run()
+{
+	auto blackboardPtr = _blackboard.lock();
+	if (blackboardPtr)
 	{
-		actorPtr->Rotate(delta);
-		isPress = true;
+		return blackboardPtr->GetBool(_boolParam) == _boolean ?
+			eState::SUCCESS : eState::FAILURE;
 	}
 
-	if (cKeyboard::Get()->Press(VK_LEFT))
+	return eState::NONE;
+}
+
+void cBoolCondition::RenderInfo()
+{
+	ImGui::TextColored(ImVec4(0, 255, 0, 1), _taskName.c_str());
+
+	ImGui::NewLine();
+
+	ImGui::PushID(0);
+	if (ImGui::BeginCombo("", _boolParam.c_str()))
 	{
-		actorPtr->Rotate(-delta);
-		isPress = true;
+		auto blackboardPtr = _blackboard.lock();
+		if (blackboardPtr)
+		{
+			for (const auto& key : blackboardPtr->GetBools())
+			{
+				const string& name = key.first;
+				bool isSelected = _boolParam == name;
+				if (ImGui::Selectable(name.c_str(), isSelected))
+					_boolParam = name;
+
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::PopID();
+
+	ImGui::Text("Is");
+
+	ImGui::PushID(1);
+	{
+		const char* items[] = { "True", "False" };
+
+		int type = _boolean ? 0 : 1;
+		
+		ImGui::Combo("", &type, items, IM_ARRAYSIZE(items));
+		_boolean = type == 0 ? true : false;
+	}
+	ImGui::PopID();
+}
+
+/*******************************************************************/
+
+cValueCompareCondition::cValueCompareCondition(weak_ptr<cBlackboard> blackboard, weak_ptr<cBehaviorTree> tree, const ImVec2 & position, const weak_ptr<cTask>& parent)
+	: cTask(tree, "Value Compare", position, parent)
+	, _blackboard(blackboard)
+	, _compare(0, 0, 0)
+{
+}
+
+cValueCompareCondition::~cValueCompareCondition()
+{
+}
+
+std::unique_ptr<cTask> cValueCompareCondition::Clone() const
+{
+	auto clone = make_unique<cValueCompareCondition>(_blackboard, _tree, _pos, _parent);
+
+	clone->_valueParam = _valueParam;
+	clone->_compare = _compare;
+
+	return move(clone);
+}
+
+cTask::eState cValueCompareCondition::Run()
+{
+	bool flag = false;
+	auto blackboardPtr = _blackboard.lock();
+	if (blackboardPtr)
+	{
+		D3DXVECTOR3 direction;
+		blackboardPtr->GetDirection(direction);
+
+		if (!cMath::IsVec3Equal(direction, _compare))
+			return eState::SUCCESS;
 	}
 
-	return isPress;
+	return eState::FAILURE;
 }
 
-/*********************************************************/
-
-cUpKeyPress::cUpKeyPress(weak_ptr<cActor> actor)
-	:cTask(typeid(this).name()),
-	_actor(actor)
+void cValueCompareCondition::RenderInfo()
 {
-}
+	ImGui::TextColored(ImVec4(0, 255, 0, 1), _taskName.c_str());
 
-cUpKeyPress::~cUpKeyPress()
-{
-}
+	ImGui::NewLine();
 
-bool cUpKeyPress::Run()
-{
-	auto actorPtr = _actor.lock();
-	if (cKeyboard::Get()->Press(VK_UP))
+	ImGui::PushID(0);
 	{
-		actorPtr->Move({ 0,0,1 }, cFrame::Delta() * 10.0f);
-		return true;
+		auto blackboardPtr = _blackboard.lock();
+		if (blackboardPtr)
+		{
+			D3DXVECTOR3 direction;
+			blackboardPtr->GetDirection(direction);
+		}
 	}
+	ImGui::PopID();
 
-	return false;
-}
+	ImGui::Text("Is Not Equal To");
 
-/*********************************************************/
-
-cIdleAction::cIdleAction(weak_ptr<cActor> actor)
-	:cTask(typeid(this).name()),
-	_actor(actor)
-{
-}
-
-cIdleAction::~cIdleAction()
-{
-}
-
-bool cIdleAction::Run()
-{
-	_actor.lock()->Idle();
-	return true;
-}
-
-/*********************************************************/
-
-cAttackKeyPress::cAttackKeyPress(weak_ptr<cActor> actor)
-	:cTask(typeid(this).name()),
-	_actor(actor)
-{
-}
-
-cAttackKeyPress::~cAttackKeyPress()
-{
-}
-
-bool cAttackKeyPress::Run()
-{
-	if (cKeyboard::Get()->Down(VK_SPACE))
+	ImGui::PushID(1);
 	{
-		_actor.lock()->time = timeGetTime();
-		_actor.lock()->isAttack = true;
+		ImGui::InputFloat3("", _compare);
 	}
-	return _actor.lock()->isAttack;
-}
-
-/*********************************************************/
-
-cAnimIsEnd::cAnimIsEnd(weak_ptr<cActor> actor, UINT animIndex)
-	:cTask(typeid(this).name()),
-	_actor(actor),
-	_animIndex(animIndex)
-{
-}
-
-cAnimIsEnd::~cAnimIsEnd()
-{
-}
-
-bool cAnimIsEnd::Run()
-{
-	//찾는 애니메이션이 실행 중이지 않으면 true
-	return (_actor.lock()->GetCurrentAnim() != _animIndex);
-}
-
-/*********************************************************/
-
-cDamageAction::cDamageAction(weak_ptr<cActor> actor)
-	:cTask(typeid(this).name()),
-	_actor(actor)
-{
-}
-
-cDamageAction::~cDamageAction()
-{
-}
-
-bool cDamageAction::Run()
-{
-	if (_actor.lock()->isDamage)
-	{
-		_actor.lock()->Damage();
-		return true;
-	}
-	return false;
+	ImGui::PopID();
 }

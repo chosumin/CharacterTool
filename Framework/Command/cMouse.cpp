@@ -2,6 +2,7 @@
 #include "cMouse.h"
 
 cMouse::cMouse()
+	:action(false)
 {
 	position = D3DXVECTOR3(0, 0, 0);
 	prevPosition = D3DXVECTOR3(0, 0, 0);
@@ -46,6 +47,8 @@ void cMouse::Update()
 	buttonStatus[1] = GetAsyncKeyState(VK_RBUTTON) & 0x8000 ? 1 : 0;
 	buttonStatus[2] = GetAsyncKeyState(VK_MBUTTON) & 0x8000 ? 1 : 0;
 
+	action = false;
+
 	//입력 상태 갱신
 	for (DWORD i = 0; i < MAX_INPUT_MOUSE; i++)
 	{
@@ -53,11 +56,20 @@ void cMouse::Update()
 		int tStatus = buttonStatus[i];
 
 		if (tOldStatus == 0 && tStatus == 1)
+		{
 			buttonMap[i] = BUTTON_INPUT_STATUS_DOWN;
+			action = true;
+		}
 		else if (tOldStatus == 1 && tStatus == 0)
+		{
 			buttonMap[i] = BUTTON_INPUT_STATUS_UP;
+			action = true;
+		}
 		else if (tOldStatus == 1 && tStatus == 1)
+		{
 			buttonMap[i] = BUTTON_INPUT_STATUS_PRESS;
+			action = true;
+		}
 		else
 			buttonMap[i] = BUTTON_INPUT_STATUS_NONE;
 	}

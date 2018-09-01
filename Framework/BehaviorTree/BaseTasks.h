@@ -12,18 +12,26 @@ class cTask :
 	public enable_shared_from_this<cTask>
 {
 public:
+	enum class eState
+	{
+		NONE, FAILURE, SUCCESS, RUNNING
+	};
+public:
 	using Task = std::shared_ptr<cTask>;
 	using TaskList = std::vector<Task>;
 
-	cTask(weak_ptr<cBehaviorTree> tree, string name, const ImVec2& position = ImVec2(0,0));
+	cTask(weak_ptr<cBehaviorTree> tree, string name,
+		  const ImVec2& position = ImVec2(0,0),
+		  const weak_ptr<cTask>& parent = weak_ptr<cTask>());
 
 	virtual ~cTask() {}
 
-	//트리 순회하며 실행되는 함수
-	virtual bool Run() = 0;
+	//None 상태로 변경
+	//@param : 러닝 상태도 초기화하는지 여부
+	void SetInitState(const bool& includeRunning);
 
-	//매 프레임마다 호출되는 함수
-	virtual void Update() = 0;
+	//순회하며 실행되는 함수
+	virtual eState Run() = 0;
 
 	//노드 정보창 출력
 	virtual void RenderInfo() = 0;
@@ -46,31 +54,36 @@ public:
 	const ImVec2& GetSize() { return _size; }
 	void SetSize(ImVec2&& size) { _size = size; }
 
-	const ImVec4& GetColor() { return _color; }
-	void SetColor(ImVec4&& color) { _color = color; }
-
 	eTaskState GetState() const { return _delete; }
 
 	void SetBehaviorTree(weak_ptr<cBehaviorTree> tree)
 	{ _tree = tree; }
+
+	eState GetRunningState() { return _state; }
+	
+	weak_ptr<cTask> GetParent() const;
+	void SetParent(weak_ptr<cTask> parent) { _parent = parent; }
 protected:
+	eState _state;
+	weak_ptr<cTask> _parent;
 	string _taskName;
 	ImVec2 _pos;
 
 	weak_ptr<cBehaviorTree> _tree;
 private:
 	ImVec2 _size;
-	ImVec4 _color;
 	eTaskState _delete;
 };
 
 class cCompositeTask : public cTask
 {
 public:
-	cCompositeTask(string name);
+	cCompositeTask(weak_ptr<cBehaviorTree> tree,
+				   const ImVec2& position = ImVec2(0, 0),
+				   weak_ptr<cTask> parent = weak_ptr<cTask>());
 	~cCompositeTask();
 	
-	virtual void Update() override {}
+	virtual eState Run() override;
 
 	virtual TaskList* GetChildren() override;
 	virtual void RenderInfo() override;
@@ -79,23 +92,17 @@ public:
 
 	// cTask을(를) 통해 상속됨
 	virtual std::unique_ptr<cTask> Clone() const override;
+protected:
+	int _type;
 private:
 	TaskList _children;
+
+	static const char* ITEMS[3];
 };
 
-class cSelector : public cCompositeTask
+class cRootTask : public cCompositeTask
 {
 public:
-	cSelector(const ImVec2& position = ImVec2(0, 0));
-	cSelector(string name);
-
-	virtual bool Run() override;
-};
-
-class cSequence : public cCompositeTask
-{
-public:
-	cSequence(const ImVec2& position = ImVec2(0, 0));
-
-	virtual bool Run() override;
+	cRootTask();
+	~cRootTask();
 };

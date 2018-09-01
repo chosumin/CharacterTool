@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "cTaskFactory.h"
-#include "cKeyCondition.h"
+#include "Conditions.h"
 #include "Actions.h"
 
-map<eKeyType, pair<DWORD, string>> cTaskFactory::_keyList;
 map<cTaskFactory::eActionType, string> cTaskFactory::_actions;
 map<cTaskFactory::eConditionType, string> cTaskFactory::_conditions;
 bool cTaskFactory::_init = false;
@@ -14,7 +13,6 @@ cTaskFactory::cTaskFactory()
 	{
 		InitActions();
 		InitConditions();
-		InitKeyList();
 		_init = true;
 	}
 }
@@ -28,30 +26,30 @@ unique_ptr<cTask> cTaskFactory::CreateAction(cTaskFactory::eActionType type, wea
 	switch (type)
 	{
 		case cTaskFactory::eActionType::ANIMATION:
-			return make_unique<cAnimationOnly>(actor, tree, position);
+			return make_unique<cSingleAnimation>(actor, tree, position);
+		case cTaskFactory::eActionType::MOVING:
+			return make_unique<cMovingAction>(actor, tree, position);
 	}
 	return nullptr;
 }
 
-unique_ptr<cTask> cTaskFactory::CreateCondition(cTaskFactory::eConditionType type, weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
+unique_ptr<cTask> cTaskFactory::CreateCondition(cTaskFactory::eConditionType type, weak_ptr<cBlackboard> blackboard, weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
 {
 	switch (type)
 	{
-		case cTaskFactory::eConditionType::KEY:
-			return make_unique<cKeyCondition>(tree, position);
+		case cTaskFactory::eConditionType::BOOL:
+		{	
+			return make_unique<cBoolCondition>(blackboard, tree, position);
+		}
+		case cTaskFactory::eConditionType::VALUE_COMPARE:
+			return make_unique<cValueCompareCondition>(blackboard, tree, position);
 	}
 	return nullptr;
 }
 
-unique_ptr<cTask> cTaskFactory::CreateSelector(const ImVec2 & position)
+unique_ptr<cTask> cTaskFactory::CreateComposition(weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
 {
-	return make_unique<cSelector>(position);
-}
-
-
-unique_ptr<cTask> cTaskFactory::CreateSequence(const ImVec2 & position)
-{
-	return make_unique<cSequence>(position);
+	return make_unique<cCompositeTask>(tree, position);
 }
 
 unique_ptr<cTask> cTaskFactory::ShowActionMenu(weak_ptr<cActor> actor, weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
@@ -73,7 +71,7 @@ unique_ptr<cTask> cTaskFactory::ShowActionMenu(weak_ptr<cActor> actor, weak_ptr<
 	return task;
 }
 
-unique_ptr<cTask> cTaskFactory::ShowConditionMenu(weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
+unique_ptr<cTask> cTaskFactory::ShowConditionMenu(weak_ptr<cBlackboard> blackboard, weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
 {
 	unique_ptr<cTask> task;
 	int i = 0;
@@ -83,7 +81,7 @@ unique_ptr<cTask> cTaskFactory::ShowConditionMenu(weak_ptr<cBehaviorTree> tree, 
 
 		if (ImGui::MenuItem(condition.second.c_str(), nullptr, false))
 		{
-			task = CreateCondition(condition.first, tree, position);
+			task = CreateCondition(condition.first, blackboard, tree, position);
 		}
 
 		ImGui::PopID();
@@ -92,30 +90,14 @@ unique_ptr<cTask> cTaskFactory::ShowConditionMenu(weak_ptr<cBehaviorTree> tree, 
 	return task;
 }
 
-const map<eKeyType, pair<DWORD, string>> & cTaskFactory::GetKeyList()
-{
-	return _keyList;
-}
-
 void cTaskFactory::InitActions()
 {
 	_actions[eActionType::ANIMATION] = "Animation";
+	_actions[eActionType::MOVING] = "Moving";
 }
 
 void cTaskFactory::InitConditions()
 {
-	_conditions[eConditionType::KEY] = "Key Condition";
-}
-
-void cTaskFactory::InitKeyList()
-{
-	_keyList[eKeyType::MoveForward] = pair<DWORD, string>('W', "MoveFoward");
-
-	_keyList[eKeyType::MoveBackward] = pair<DWORD, string>('S', "MoveBackward");
-
-	_keyList[eKeyType::MoveLeft] = pair<DWORD, string>('A', "MoveLeft");
-
-	_keyList[eKeyType::MoveRight] = pair<DWORD, string>('D', "MoveRight");
-
-	_keyList[eKeyType::MeleeAttack] = pair<DWORD, string>(0, "MeleeAttack");
+	_conditions[eConditionType::BOOL] = "Bool";
+	_conditions[eConditionType::VALUE_COMPARE] = "Value Compare";
 }

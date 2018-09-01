@@ -11,6 +11,7 @@ class cModel;
 class cActorColliders;
 class cAnimator;
 class cBehaviorTree;
+class cBlackboard;
 class cActor
 	: public enable_shared_from_this<cActor>
 {
@@ -22,20 +23,6 @@ public:
 	void Init();
 	void Update();
 	void Render();
-
-	//test : °úÁ¦¿ë
-	void Idle();
-	void Rotate(float deltaY);
-	void Move(D3DXVECTOR3 direction, float velocity);
-	void Attack();
-	void Damage();
-
-	bool isAttack = false;
-	bool isDamage = false;
-	DWORD time;
-	weak_ptr<cCollider> GetCollider(UINT num) const;
-	void PostRender(int i);
-	void ControlTransform(string name, weak_ptr<struct sTransform> transform);
 public:
 	/*******************
 		Getter Setter
@@ -47,7 +34,9 @@ public:
 	void SetModel(weak_ptr<cModel> model);
 
 	weak_ptr<struct sTransform> GetTransform() const;
+
 	weak_ptr<cActorColliders> GetColliders() const;
+
 	weak_ptr<cAnimator> GetAnimator() const;
 
 	weak_ptr<cBehaviorTree> GetBehaviorTree() const;
@@ -56,6 +45,9 @@ public:
 	void SetAction(eAction actionType, function<void()> func);
 
 	UINT GetCurrentAnim() const;
+	
+	weak_ptr<cBlackboard> GetBlackboard() const 
+	{ return _blackboard; }
 private:
 	cActor();
 private:
@@ -63,6 +55,7 @@ private:
 	shared_ptr<sTransform> _transform;
 	shared_ptr<cModel> _model;
 	shared_ptr<cAnimator> _animator;
+	shared_ptr<cBlackboard> _blackboard;
 	shared_ptr<cBehaviorTree> _behaviorTree;
 	unordered_map<eAction, function<void()>> _actions;
 

@@ -9,10 +9,13 @@ public:
 	bool Down(DWORD key) const;
 	bool Up(DWORD key) const;
 	bool Press(DWORD key) const;
+
+	bool OnAnyKeyEvent() { return action; }
 private:
 	cKeyboard();
 	~cKeyboard();
 private:
+	bool action;
 	byte keyState[MAX_INPUT_KEY];
 	byte keyOldState[MAX_INPUT_KEY];
 	byte keyMap[MAX_INPUT_KEY];

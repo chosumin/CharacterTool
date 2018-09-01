@@ -17,4 +17,3 @@ private:
 	shared_ptr<struct sGlobalVariable> _globalVariable;
 	vector<shared_ptr<iExecutable>> _vecObject;
 };
-

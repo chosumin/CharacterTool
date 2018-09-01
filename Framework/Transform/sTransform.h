@@ -14,16 +14,23 @@ public:
 	sTransform operator*(const sTransform& other);
 
 	//변화량만큼 회전
-	void Rotate(D3DXVECTOR3 deltaAngle);
+	void Rotate(const D3DXVECTOR3& deltaAngle);
 
 	//기저축을 중심으로 변화량만큼 회전
 	void RotateToFixedMatrix(const D3DXMATRIX& fixedMat, const D3DXVECTOR3& deltaAngle);
 
-	void SetMatrix(const D3DXMATRIX& world);
-	void SetVSBuffer(UINT slot);
-
 	const D3DXMATRIX& GetRotationMatrix() const;
 	const D3DXMATRIX& GetScaleMatrix() const;
+
+	void GetDirection(OUT D3DXVECTOR3& direction);
+
+	//이동
+	//@param : 속도
+	//@param : 방향(인수 없을시 현재 방향으로 이동)
+	void Move(float speed, const D3DXVECTOR3& direction = D3DXVECTOR3{ 0,0,0 });
+
+	void SetMatrix(const D3DXMATRIX& world);
+	void SetVSBuffer(UINT slot);
 private:
 	void Scale();
 	void Rotate();

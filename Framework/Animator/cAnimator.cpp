@@ -29,8 +29,12 @@ void cAnimator::Update()
 	UpdateBones();
 }
 
-void cAnimator::SetCurrentClip(weak_ptr<cAnimClip> clip)
+void cAnimator::SetCurrentClip(weak_ptr<cAnimClip> clip, bool overwrite)
 {
+	//덮어쓰기 아니면 리턴
+	if (!overwrite && (_currentClip.lock() == clip.lock()))
+		return;
+
 	_mode = Mode::PLAY;
 	_currentKeyFrame = 0;
 	_nextKeyFrame = 0;
@@ -65,6 +69,17 @@ cAnimator::ClipIter cAnimator::DeleteClip(weak_ptr<cAnimClip> clip)
 
 	assert(false && "삭제하려는 클립이 존재하지 않습니다!");
 	return _clips.begin();
+}
+
+bool cAnimator::IsEndAnimation()
+{
+	auto curClipPtr = _currentClip.lock();
+	if (curClipPtr)
+	{
+		return _currentKeyFrame >= curClipPtr->GetTotalFrame() - 1;
+	}
+
+	return false;
 }
 
 const vector<shared_ptr<cAnimClip>>& cAnimator::GetClips() const
@@ -172,11 +187,7 @@ void cAnimator::UpdateBones()
 		D3DXMATRIX& localAnim = clipPtr->GetFrameTransform(bone->GetName(), _currentKeyFrame);
 
 		if (i == 0)
-		{
-			localAnim._41 = position.x;
-			localAnim._42 = position.y;
-			localAnim._43 = position.z;
-		}
+			localAnim._43 = 0;
 			
 		modelPtr->AnimateBone(i, localAnim);
 	}
@@ -184,5 +195,4 @@ void cAnimator::UpdateBones()
 
 void cAnimator::PostRender()
 {
-	ImGui::InputFloat3("Pos", &position[0]);
 }
