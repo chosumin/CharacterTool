@@ -11,7 +11,7 @@ public:
 
 	void SetMatrix(D3DXMATRIX matrix)
 	{
-		Data.World = matrix;
+		memcpy(&Data.World, &matrix, sizeof(D3DXMATRIX));
 		D3DXMatrixTranspose(&Data.World, &Data.World);
 	}
 private:

@@ -3,12 +3,12 @@
 #include "./Blackboard/cBlackboard.h"
 #include "./Concrete/Component/BehaviorTree/Conditions.h"
 #include "./Concrete/Component/BehaviorTree/Actions.h"
-
-//test : 행동트리 테스트
-#include "./GameObject/cActor.h"
+#include "./Concrete/Component/BehaviorTree/cTaskFactory.h"
 
 cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor)
-	:_actor(actor)
+	: _defaultName(L"New Behavior Tree")
+	, _name(_defaultName)
+	, _actor(actor)
 {
 	_root = make_shared<cRootTask>();
 	_root->SetPosition(ImVec2(350, 100));
@@ -20,25 +20,15 @@ cBehaviorTree::~cBehaviorTree()
 
 void cBehaviorTree::Init()
 {
-	//test : 행동트리 테스트
-	auto seq = make_shared<cCompositeTask>(shared_from_this(), ImVec2(0, 0), _root);
-	auto cond = make_shared<cValueCompareCondition>(_actor.lock()->GetBlackboard(), shared_from_this(), ImVec2(0, 0), seq);
-	seq->AddChild(cond);
-	auto move1 = make_shared<cMovingAction>(_actor, shared_from_this(), ImVec2(0, 0), seq);
-	seq->AddChild(move1);
-
-	_root->AddChild(seq);
-
-	auto move2 = make_shared<cMovingAction>(_actor, shared_from_this(), ImVec2(0, 0), seq);
-
-	_root->AddChild(move2);
 }
 
 void cBehaviorTree::Run()
 {
-	//hack : 러닝 태스크도 초기화할지 말지 생각해보기
 	_root->SetInitState(true);
 	_root->Run();
+
+	//test : 행동트리 테스트
+	//_root->RenderName();
 }
 
 void cBehaviorTree::Update()
@@ -68,4 +58,20 @@ weak_ptr<cRootTask> cBehaviorTree::GetRoot() const
 void cBehaviorTree::SetCurrentTask(const weak_ptr<cTask> & task)
 {
 	_currentTask = task;
+}
+
+void cBehaviorTree::LoadJson(Json::Value & root)
+{
+	_root->GetChildren()->clear();
+
+	Json::Value rootValue = root[0];
+	_root->LoadJson(rootValue);
+
+	cTaskFactory factory;
+	factory.CreateTask(_root, rootValue["Children"], _actor);
+}
+
+void cBehaviorTree::SaveJson(Json::Value & root)
+{
+	_root->SaveJson(root);
 }

@@ -359,7 +359,6 @@ void Fbx::Exporter::PushBoneWeight(FbxMesh * mesh, OUT vector<struct FbxBoneWeig
 		cluster->GetTransformMatrix(transform);
 		cluster->GetTransformLinkMatrix(absoluteTransform);
 
-		//FIXME : SRT값 다 넣어주어야할듯
 		_bones[jointIndex]->Transform = Utility::ToMatrix(transform);
 		_bones[jointIndex]->AbsoluteTransform = Utility::ToMatrix(absoluteTransform);
 

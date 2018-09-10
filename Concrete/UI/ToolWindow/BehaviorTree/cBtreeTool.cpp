@@ -4,6 +4,8 @@
 #include "./BehaviorTree/cBehaviorTree.h"
 #include "./Component/BehaviorTree/Actions.h"
 #include "./Component/BehaviorTree/cTaskFactory.h"
+#include "./Helper/cString.h"
+#include "./Helper/cPath.h"
 
 static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); }
 static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y); }
@@ -54,6 +56,24 @@ void UI::cBtreeTool::ShowHierarchy(int i)
 
 void UI::cBtreeTool::ShowInspector()
 {
+	if (ImGui::CollapsingHeader("Behavior Tree"))
+	{
+		auto treePtr = _bTree.lock();
+		if (treePtr)
+		{
+			auto& name = cString::String(treePtr->GetName());
+			name = cPath::GetFileName(name);
+			ImGui::Text(name.c_str());
+
+			//todo : 로드할 것인지 다시 한번 물어보는 메시지 박스
+			if (ImGui::Button("Load"))
+				LoadBehaviorTree();
+
+			if (ImGui::Button("Save"))
+				SaveBehaviorTree();
+		}
+	}
+
 	ImGui::Begin("Behavior Tree Tool");
 	{
 		ImGui::BeginGroup();
@@ -76,12 +96,24 @@ void UI::cBtreeTool::ShowInspector()
 
 void UI::cBtreeTool::SaveJson(Json::Value& root)
 {
+	Json::Value behaviorTree;
 
+	auto bTreePtr = _bTree.lock();
+	if (bTreePtr)
+	{
+		//hack : 이미 저장된 행동트리를 다시 저장할지 고민
+		//if (bTreePtr->GetName() == bTreePtr->GetDefaultName())
+			SaveBehaviorTree();
+		
+		behaviorTree.append(cString::String(bTreePtr->GetName()));
+	}
+
+	root["Behavior Tree"] = behaviorTree;
 }
 
 void UI::cBtreeTool::LoadJson()
 {
-
+	//DO NOTHING
 }
 
 void UI::cBtreeTool::SelectBTree()
@@ -130,6 +162,41 @@ void UI::cBtreeTool::EndBackground()
 	ImGui::PopStyleVar(2);
 }
 
+void UI::cBtreeTool::LoadBehaviorTree()
+{
+	cPath::OpenFileDialog(L"Open Behavior Tree", cPath::BehaviorTreeFilter, Model, [this](wstring path)
+	{
+		Json::Value root;
+		Json::ReadData(path, &root);
+
+		auto treePtr = _bTree.lock();
+		if (treePtr)
+		{
+			treePtr->LoadJson(root);
+			treePtr->SetName(path);
+		}
+		_parentOfNewTasks->GetChildren()->clear();
+	});
+}
+
+void UI::cBtreeTool::SaveBehaviorTree()
+{
+	cPath::SaveFileDialog(L"Save Behavior Tree", cPath::BehaviorTreeFilter, Model, [this](wstring path)
+	{
+		Json::Value root;
+
+		//저장
+		_bTree.lock()->SaveJson(root);
+
+		wstring temp = cPath::GetDirectoryName(path) + cPath::GetFileNameWithoutExtension(path);
+		temp += L".bt";
+
+		_bTree.lock()->SetName(temp);
+
+		Json::WriteData(temp, &root);
+	});
+}
+
 void UI::cBtreeTool::DrawLinks()
 {
 	_drawList->ChannelsSplit(2);
@@ -140,6 +207,9 @@ void UI::cBtreeTool::DrawLinks()
 		return;
 
 	DrawLink(treePtr->GetRoot());
+
+	for (auto&& task : *_parentOfNewTasks->GetChildren())
+		DrawLink(task);
 }
 
 void UI::cBtreeTool::DrawLink(weak_ptr<cTask> task)
@@ -147,6 +217,9 @@ void UI::cBtreeTool::DrawLink(weak_ptr<cTask> task)
 	auto taskPtr = task.lock();
 
 	if (taskPtr->GetChildren() == nullptr)
+		return;
+
+	if (taskPtr->GetHide())
 		return;
 
 	UINT count = taskPtr->GetChildren()->size();
@@ -237,7 +310,13 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 		taskPtr->SetPosition(taskPtr->GetPosition() + ImGui::GetIO().MouseDelta);
 
 	//채움 색
+
+	//hack : 루트 하드코딩
 	ImU32 node_bg_color = ImGui::IsItemHovered() ? IM_COL32(75, 75, 75, 255) : IM_COL32(60, 60, 60, 255);
+
+	if (taskPtr->GetName() == "ROOT")
+		node_bg_color = IM_COL32(200, 200, 200, 255);
+
 
 	//노드 사각형
 	_drawList->AddRectFilled(node_rect_min, node_rect_max, node_bg_color, 4.0f);
@@ -250,6 +329,9 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 	_drawList->AddCircleFilled(p2, NODE_SLOT_RADIUS, IM_COL32(150, 150, 150, 250));
 
 	ImGui::PopID();
+
+	if (taskPtr->GetHide())
+		return;
 
 	if (taskPtr->GetChildren() == nullptr)
 		return;
@@ -336,10 +418,30 @@ void UI::cBtreeTool::DrawAddMenu()
 	//붙여넣기
 	if (ImGui::MenuItem("Paste Node", nullptr, false, true))
 	{
+		cTaskFactory factory;
+		task = factory.CopyTask(_copiedTask);
+		task->SetPosition(move(_newTaskPos));
+		if (task->GetChildren())
+		{
+			for (auto&& child : *task->GetChildren())
+				SetNodePosition(child, task->GetPosition());
+		}
 	}
 
 	if (task)
 		_parentOfNewTasks->GetChildren()->emplace_back(move(task));
+}
+
+void UI::cBtreeTool::SetNodePosition(weak_ptr<cTask> task, const ImVec2 & parentPos)
+{
+	auto taskPtr = task.lock();
+	taskPtr->SetPosition(taskPtr->GetPosition() + parentPos);
+
+	if (taskPtr->GetChildren())
+	{
+		for (auto&& child : *taskPtr->GetChildren())
+			SetNodePosition(child, taskPtr->GetPosition());
+	}
 }
 
 void UI::cBtreeTool::DrawNodeMenu()
@@ -350,7 +452,8 @@ void UI::cBtreeTool::DrawNodeMenu()
 	ImGui::Separator();
 
 	//선택한 노드의 삭제, 복사 메뉴
-	taskPtr->RenderMenu();
+	if (taskPtr->RenderMenu())
+		_copiedTask = taskPtr;
 }
 
 void UI::cBtreeTool::ConnectNode()
@@ -589,20 +692,24 @@ void UI::cBtreeTool::DeleteNode(weak_ptr<cTask> task)
 			{
 				//자식의 자식을 부모로 옮김
 				auto grandChildren = child->GetChildren();
-				for (auto iter = grandChildren->rbegin(); iter != grandChildren->rend(); iter++)
+				if (grandChildren)
 				{
-					(*iter)->SetParent(taskPtr);
-					children->insert(children->begin() + i, *iter);
-				}
+					for (auto iter = grandChildren->rbegin(); iter != grandChildren->rend(); iter++)
+					{
+						(*iter)->SetParent(taskPtr);
+						children->insert(children->begin() + i, *iter);
+					}
 
-				//자식 삭제
-				children->erase(children->begin() + i + grandChildren->size());
+					//자식 삭제
+					children->erase(children->begin() + i + grandChildren->size());
+				}
 			}
 			break;
 			case eTaskState::DELETE_ONLY_SUBNODES:
 			{
 				//자식의 자식만 삭제
-				child->GetChildren()->clear();
+				if(child->GetChildren())
+					child->GetChildren()->clear();
 			}
 			break;
 		}

@@ -1,10 +1,5 @@
 #pragma once
 
-enum class eAction
-{
-	Idle, Move
-};
-
 struct sTransform;
 class cCollider;
 class cModel;
@@ -23,6 +18,8 @@ public:
 	void Init();
 	void Update();
 	void Render();
+
+	void TestUpdate();
 public:
 	/*******************
 		Getter Setter
@@ -40,11 +37,6 @@ public:
 	weak_ptr<cAnimator> GetAnimator() const;
 
 	weak_ptr<cBehaviorTree> GetBehaviorTree() const;
-
-	void GetAction(eAction actionType);
-	void SetAction(eAction actionType, function<void()> func);
-
-	UINT GetCurrentAnim() const;
 	
 	weak_ptr<cBlackboard> GetBlackboard() const 
 	{ return _blackboard; }
@@ -57,7 +49,6 @@ private:
 	shared_ptr<cAnimator> _animator;
 	shared_ptr<cBlackboard> _blackboard;
 	shared_ptr<cBehaviorTree> _behaviorTree;
-	unordered_map<eAction, function<void()>> _actions;
 
 	shared_ptr<cActorColliders> _colliders;
 };

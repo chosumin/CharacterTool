@@ -1,5 +1,8 @@
 #pragma once
 #include "./Interface/iCloneable.h"
+#include "./Interface/iFile.h"
+
+static ImVec4 ActionTextColor = ImVec4(250, 250, 0, 1);
 
 enum class eTaskState
 {
@@ -9,6 +12,7 @@ enum class eTaskState
 class cBehaviorTree;
 class cTask :
 	public iCloneable<cTask>,
+	public iFile,
 	public enable_shared_from_this<cTask>
 {
 public:
@@ -21,7 +25,7 @@ public:
 	using TaskList = std::vector<Task>;
 
 	cTask(weak_ptr<cBehaviorTree> tree, string name,
-		  const ImVec2& position = ImVec2(0,0),
+		  const ImVec2& position = ImVec2(0, 0),
 		  const weak_ptr<cTask>& parent = weak_ptr<cTask>());
 
 	virtual ~cTask() {}
@@ -37,16 +41,33 @@ public:
 	virtual void RenderInfo() = 0;
 
 	//노드 메뉴창 출력
+	//복사 메뉴 클릭시 true 반환, 나머지 false
 	bool RenderMenu();
 
 	virtual void AddChild(std::shared_ptr<cTask> child) {}
+
+	//test : 행동트리 테스트
+	void RenderName()
+	{
+		if (_state == eState::SUCCESS || _state == eState::RUNNING)
+		{
+			cDebug::Log("%s", _taskName.c_str());
+			if (GetChildren())
+			{
+				for (auto&& child : *GetChildren())
+				{
+					child->RenderName();
+				}
+			}
+		}
+	}
 public:
 	/*******************
 		Getter Setter
 	********************/
 	virtual TaskList* GetChildren();
 
-	string GetName() const { return _taskName; }
+	const string & GetName() const { return _taskName; }
 
 	const ImVec2& GetPosition() { return _pos; }
 	void SetPosition(ImVec2&& pos) { _pos = pos; }
@@ -56,13 +77,19 @@ public:
 
 	eTaskState GetState() const { return _delete; }
 
-	void SetBehaviorTree(weak_ptr<cBehaviorTree> tree)
+	void SetBehaviorTree(const weak_ptr<cBehaviorTree> & tree)
 	{ _tree = tree; }
 
 	eState GetRunningState() { return _state; }
 	
 	weak_ptr<cTask> GetParent() const;
-	void SetParent(weak_ptr<cTask> parent) { _parent = parent; }
+	void SetParent(const weak_ptr<cTask> & parent)
+	{ _parent = parent; }
+
+	bool GetHide() const { return _hide; }
+protected:
+	void LoadDefaultInfo(Json::Value& task);
+	void SaveDefaultInfo(Json::Value& task);
 protected:
 	eState _state;
 	weak_ptr<cTask> _parent;
@@ -70,6 +97,8 @@ protected:
 	ImVec2 _pos;
 
 	weak_ptr<cBehaviorTree> _tree;
+
+	bool _hide; //숨김 체크
 private:
 	ImVec2 _size;
 	eTaskState _delete;
@@ -90,14 +119,20 @@ public:
 
 	virtual void AddChild(std::shared_ptr<cTask> child) override;
 
-	// cTask을(를) 통해 상속됨
+	//iCloneable 상속
 	virtual std::unique_ptr<cTask> Clone() const override;
+	
+	//iFile 상속
+	virtual void LoadJson(Json::Value& root) override;
+	virtual void SaveJson(Json::Value& root) override;
 protected:
-	int _type;
+	int _type; //selector, sequence, parallel
 private:
 	TaskList _children;
 
 	static const char* ITEMS[3];
+
+	char _summury[255]; //요약명
 };
 
 class cRootTask : public cCompositeTask

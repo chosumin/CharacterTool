@@ -5,9 +5,11 @@
 #include "./Message/cEntityManager.h"
 #include "./Message/cMessageDispatcher.h"
 #include "./Viewer/cCameraFactory.h"
+#include "./Transform/sTransform.h"
 
 cActorManager::cActorManager(weak_ptr<sGlobalVariable> global)
-	:_global(global)
+	: _global(global)
+	, _isStart(false)
 {
 }
 
@@ -61,6 +63,8 @@ void cActorManager::PostRender()
 			{
 				_global.lock()->MainCamera = cCameraFactory::Get()->GetThirdPersonCamera(_actor->GetTransform());
 			}
+
+			SendStartMessage();
 		}
 		ImGui::SameLine();
 		//씬 종료 버튼
@@ -70,7 +74,13 @@ void cActorManager::PostRender()
 			if (_actor)
 			{
 				_global.lock()->MainCamera = cCameraFactory::Get()->GetFreePointCamera(D3DXVECTOR3{ 0,0,-5 }, D3DXVECTOR2{ 0,0 });
+
+				//todo : 원래 위치로 되돌아오기
+				_actor->GetTransform().lock()->Position = { 0,0,0 };
+				_actor->Update();
 			}
+
+			SendStartMessage();
 		}
 	}
 	ImGui::End();
@@ -97,4 +107,13 @@ void cActorManager::HandleMessage(const sTelegram & msg)
 
 void cActorManager::FunctionInitialize()
 {
+}
+
+void cActorManager::SendStartMessage()
+{
+	vector<UINT> receivers;
+	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
+
+	//새 액터를 관여된 객체들에게 전달
+	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::CLICK_START, (void*)&_isStart);
 }

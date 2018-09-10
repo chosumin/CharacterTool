@@ -11,6 +11,8 @@ cInputHandler::cInputHandler()
 	mPlayerCommands[eCommand::MOVE_LEFT] = sPlayerKey("Move Left", 'A');
 	mPlayerCommands[eCommand::MOVE_RIGHT] = sPlayerKey("Move Right", 'D');
 
+	mPlayerCommands[eCommand::DASH] = sPlayerKey("Dash", VK_LSHIFT);
+
 	mPlayerCommands[eCommand::MELEE_ATTACK] = sPlayerKey("Melee Attack", VK_LBUTTON);
 }
 

@@ -118,6 +118,19 @@ bool cMath::IsVec3Equal(const D3DXVECTOR3 & value, const D3DXVECTOR3 & value2)
 	return true;
 }
 
+float cMath::Lerp(float minVal, float maxVal, float i)
+{
+	return (1 - i) * minVal + i * maxVal;
+}
+
+float cMath::AngleBetweenTwoVectors(const D3DXVECTOR3 & vec1,
+									const D3DXVECTOR3 & vec2)
+{
+	float dot = D3DXVec3Dot(&vec1, &vec2);
+	dot = acosf(dot);
+	return dot / RADIAN;
+}
+
 int cMath::Random(int r1, int r2)
 {
 	return (int)(rand() % (r2 - r1 + 1)) + r1;

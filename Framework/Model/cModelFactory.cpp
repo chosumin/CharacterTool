@@ -136,10 +136,10 @@ void cModelFactory::ReadModelBoneData(weak_ptr<cBinaryReader> r, weak_ptr<cModel
 	bonePtr->_index = readerPtr->Int();
 	bonePtr->_name = cString::Wstring(readerPtr->String());
 	bonePtr->_parentIndex = readerPtr->Int();
-	bonePtr->_transform->Matrix = readerPtr->Matrix();
+	
+	readerPtr->Matrix();
 	bonePtr->_absoluteTransform->Matrix = readerPtr->Matrix();
-
-	bonePtr->_transform->Decompose();
+	D3DXMatrixInverse(&bonePtr->_invAbsoluteMatrix, nullptr, &bonePtr->_absoluteTransform->Matrix);
 	bonePtr->_absoluteTransform->Decompose();
 
 	*bonePtr->_animatedTransform = *bonePtr->_absoluteTransform;

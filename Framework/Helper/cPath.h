@@ -71,6 +71,7 @@ public:
 	static const WCHAR* MeshFilter;
 	static const WCHAR* FbxFilter;
 	static const WCHAR* AnimFbxFilter;
+	static const WCHAR* BehaviorTreeFilter;
 	static const WCHAR* TOP_UPPER_FOLDERNAME;
 private:
 	static BOOL IsThereOneFile(LPWSTR lpstrFilesWithPath);

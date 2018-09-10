@@ -27,6 +27,7 @@ void cActor::Init()
 
 }
 
+//frame : 200프레임 소모
 void cActor::Update()
 {
 	if (_transform)
@@ -41,21 +42,20 @@ void cActor::Update()
 			_behaviorTree->Update();
 	}
 
-	if (_animator)
-		_animator->Update();
-
 	if (_model)
 		_model->Update(_transform);
+
+	//frame : 100프레임 소모
+	if (_animator)
+		_animator->Update();
 
 	if (_colliders)
 		_colliders->Update();
 }
 
+//=> 호출시 10프레임 소모
 void cActor::Render()
 {
-	if (_animator)
-		_animator->PostRender();
-
 	if (_transform)
 		_transform->SetVSBuffer(1);
 
@@ -73,6 +73,19 @@ void cActor::Render()
 	//툴 클래스에서 액터 콜라이더 렌더링 처리
 	/*if (_colliders)
 		_colliders->Render();*/
+}
+
+void cActor::TestUpdate()
+{
+	if (_transform)
+		_transform->Update();
+
+	if (_model)
+		_model->Update(_transform);
+
+	//frame : 100프레임 소모
+	if (_animator)
+		_animator->Update();
 }
 
 weak_ptr<cModel> cActor::GetModel() const
@@ -104,21 +117,6 @@ weak_ptr<cAnimator> cActor::GetAnimator() const
 weak_ptr<cBehaviorTree> cActor::GetBehaviorTree() const
 {
 	return _behaviorTree;
-}
-
-void cActor::GetAction(eAction actionType)
-{
-	if(_actions[actionType])
-		_actions[actionType]();
-}
-
-void cActor::SetAction(eAction actionType, function<void()> func)
-{
-}
-
-UINT cActor::GetCurrentAnim() const
-{
-	return 0;
 }
 
 void cActor::SetModel(weak_ptr<cModel> model)

@@ -28,12 +28,21 @@ void UI::cAnimTool::Update()
 {
 	auto actorPtr = _actor.lock();
 	if (actorPtr)
+	{
 		_animator = actorPtr->GetAnimator();
+		if (!_startGame)
+			actorPtr->TestUpdate();
+	}
 }
 
 void UI::cAnimTool::Render()
 {
-	//DO NOTHING
+	if (!_startGame)
+	{
+		auto actorPtr = _actor.lock();
+		if (actorPtr)
+			actorPtr->Render();
+	}
 }
 
 void UI::cAnimTool::ShowHierarchy(int i)
@@ -137,7 +146,8 @@ void UI::cAnimTool::CreateClip(const wstring & directory, const wstring & name)
 
 string UI::cAnimTool::GetClipName()
 {
-	auto clipPtr = _selectedClip.lock();
+	auto clipPtr = _animator.lock()->GetCurrentClip().lock();
+
 	if (clipPtr)
 		return cString::String(clipPtr->GetName());
 

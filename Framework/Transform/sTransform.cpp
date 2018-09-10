@@ -51,7 +51,8 @@ void sTransform::Update()
 	Rotate();
 	Translation();
 
-	Matrix = _scaleMatrix * _rotationMatrix * _positionMatrix;
+	Matrix = _scaleMatrix * _rotationMatrix;
+	Matrix._41 = _positionMatrix._41, Matrix._42 = _positionMatrix._42, Matrix._43 = _positionMatrix._43;
 
 	_worldBuffer->SetMatrix(Matrix);
 }
@@ -144,15 +145,17 @@ void sTransform::Translation()
 
 void sTransform::Move(float speed, const D3DXVECTOR3& direction)
 {
-	if (direction == D3DXVECTOR3{ 0,0,0 })
-	{
-		D3DXVECTOR3 dir;
-		GetDirection(dir);
+	Position += direction * speed * cFrame::Delta();
+}
 
-		Position += dir * speed * cFrame::Delta();
-	}
-	else
-		Position += direction * speed * cFrame::Delta();
+void sTransform::Move(float speed)
+{
+	D3DXVECTOR3 dir = { 
+		_rotationMatrix._31,
+		_rotationMatrix._32,
+		_rotationMatrix._33 };
+
+	Position += dir * speed * cFrame::Delta();
 }
 
 void sTransform::SetMatrix(const D3DXMATRIX & world)
@@ -180,6 +183,15 @@ void sTransform::GetDirection(OUT D3DXVECTOR3 & direction)
 	direction.x = _rotationMatrix._31;
 	direction.y = _rotationMatrix._32;
 	direction.z = _rotationMatrix._33;
+}
+
+void sTransform::SetDirection(IN const D3DXVECTOR3 & direction)
+{
+	_rotationMatrix._31 = direction.x;
+	_rotationMatrix._32 = direction.y;
+	_rotationMatrix._33 = direction.z;
+
+	D3DXQuaternionRotationMatrix(&Quaternion, &_rotationMatrix);
 }
 
 void sTransform::GetAxis(D3DXVECTOR3 * axis, const D3DXVECTOR3 & angle)

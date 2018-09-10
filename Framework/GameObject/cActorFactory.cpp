@@ -44,8 +44,7 @@ shared_ptr<cActor> cActorFactory::CreateActor(wstring jsonPath)
 	CreateModel(root);
 	CreateCollider(root);
 	CreateAnimator(root);
-
-	//todo : behaviortree
+	CreateBehaviorTree(root);
 	//todo : spec
 
 	auto actor = _actor;
@@ -121,7 +120,22 @@ void cActorFactory::CreateAnimator(Json::Value& root)
 
 void cActorFactory::CreateBehaviorTree(Json::Value& root)
 {
-	//todo : 행동트리 파싱
+	string filePath;
+	Json::GetValue(root, "Behavior Tree", filePath);
+
+	auto bTreePtr = _actor->GetBehaviorTree().lock();
+	if (!bTreePtr)
+		assert(false && "행동트리를 추가하세요!");
+
+	if (filePath == "")
+		return;
+
+	wstring wstrPath = cString::Wstring(filePath);
+	Json::Value treeValue;
+	Json::ReadData(wstrPath, &treeValue);
+
+	bTreePtr->SetName(wstrPath);
+	bTreePtr->LoadJson(treeValue);
 }
 
 void cActorFactory::CreateAction()

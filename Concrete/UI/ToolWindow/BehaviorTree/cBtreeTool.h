@@ -42,6 +42,8 @@ namespace UI
 		void DrawTextMenu();
 		//노드 생성 팝업
 		void DrawAddMenu();
+		//노드 위치 조정(부모 노드와 상대 위치만큼)
+		void SetNodePosition(weak_ptr<cTask> task, const ImVec2& parentPos);
 		//선택한 노드의 삭제, 복사 메뉴
 		void DrawNodeMenu();
 
@@ -65,6 +67,9 @@ namespace UI
 		void Scroll();
 
 		void EndBackground();
+
+		void LoadBehaviorTree();
+		void SaveBehaviorTree();
 	private:
 		//부모 점
 		ImVec2 GetNodeStart(shared_ptr<cTask> task);
@@ -82,13 +87,13 @@ namespace UI
 		const float NODE_GAP = 25.0f; //자식 노드 선 간격
 		ImVec2 _scrolling = ImVec2(0.0f, 0.0f); //스크린 위치
 		
+		weak_ptr<cBehaviorTree> _bTree;
+
 		ImDrawList* _drawList; //캔버스
 		ImVec2 _offset; //마우스와 스크린 위치 더한 값
 		bool _openContextMenu = false;
 		weak_ptr<cTask> _hoveredTask;
 		
-		weak_ptr<cBehaviorTree> _bTree;
-
 		weak_ptr<cTask> _selectedTask; //현재 선택된 노드
 
 		//트리에 추가되지 않은 노드
@@ -102,5 +107,7 @@ namespace UI
 		pair<weak_ptr<cTask>, UINT> _nodeToMove;
 		pair<weak_ptr<cTask>, UINT> _targetToMove;
 		bool _clickMoveNode = false; //이동할 노드가 클릭되었는지
+
+		shared_ptr<cTask> _copiedTask;
 	};
 }

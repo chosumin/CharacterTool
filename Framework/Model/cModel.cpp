@@ -47,11 +47,13 @@ std::unique_ptr<cModel> cModel::Clone() const
 
 void cModel::AnimateBone(UINT index, const D3DXMATRIX& pAnimated)
 {
-	auto rootTMPtr = _rootTransform.lock();
-
-	int parentIndex = _bones[index]->GetParentIndex();
-
-	_bones[index]->Animate(pAnimated, &rootTMPtr->Matrix);
+	if (index == 0)
+	{
+		auto rootTMPtr = _rootTransform.lock();
+		_bones[index]->Animate(pAnimated, &rootTMPtr->Matrix);
+	}
+	else
+		_bones[index]->Animate(pAnimated, nullptr);
 }
 
 void cModel::ResetBones()
@@ -60,14 +62,14 @@ void cModel::ResetBones()
 		*bone->_animatedTransform = *bone->_absoluteTransform * *_rootTransform.lock();
 }
 
-void cModel::Update(weak_ptr<sTransform> rootTransform)
+void cModel::Update(const weak_ptr<sTransform> & rootTransform)
 {
 	_rootTransform = rootTransform;
 
 	UINT size = _bones.size();
 	for (UINT i = 0; i < size; i++)
 	{
-		_skinnedTM[i] = _bones[i]->GetSkinnedTransform().lock()->Matrix;
+		memcpy(&_skinnedTM[i], &_bones[i]->GetSkinnedMatrix(), sizeof(D3DXMATRIX));
 	}
 
 	_buffer->SetBones(&_skinnedTM[0], _skinnedTM.size());
@@ -126,24 +128,4 @@ weak_ptr<cModelBone> cModel::GetBone(const wstring & name) const
 void cModel::SetPlayedBuffer(bool isPlayAnim)
 {
 	_buffer->SetIsPlayAnim(isPlayAnim);
-}
-
-void cModel::CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms)
-{
-	transforms.clear();
-	transforms.assign(_bones.size(), D3DXMATRIX());
-
-	for (size_t i = 0; i < _bones.size(); i++)
-	{
-		auto bone = _bones[i];
-
-		//부모 노드의 좌표를 더한다
-		if (bone->_parent.expired() == false)
-		{
-			int index = bone->_parent.lock()->_index;
-			transforms[i] = bone->_transform->Matrix * transforms[index];
-		}
-		else
-			transforms[i] = bone->_transform->Matrix;
-	}
 }

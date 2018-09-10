@@ -21,6 +21,8 @@ public:
 	virtual void HandleMessage(const sTelegram & msg) override;
 private:
 	virtual void FunctionInitialize() override;
+
+	void SendStartMessage();
 private:
 	weak_ptr<sGlobalVariable> _global;
 	shared_ptr<class cActor> _actor;

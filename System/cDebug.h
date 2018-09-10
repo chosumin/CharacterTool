@@ -20,6 +20,7 @@ public:
 	}
 
 	static void Log(const char* fmt, ...) IM_FMTARGS(2);
+	static void RenewalLog(const char* fmt, ...) IM_FMTARGS(2);
 
 	static bool GetDebugMode()
 	{
@@ -38,4 +39,5 @@ private:
 	static bool _isDebug;
 	static forward_list <function<void()>> _logList;
 	static ImVector<char*> Items;
+	static ImVector<char*> Items2;
 };

@@ -143,7 +143,8 @@ void cGizmo::Update()
 	SelectMode();
 
 	auto globalPtr = _global.lock();
-	auto dir = globalPtr->MainCamera.lock()->GetDirection(globalPtr->Viewport.get(), globalPtr->Perspective.get());
+	D3DXVECTOR3 dir;
+	globalPtr->MainCamera.lock()->GetMouseDirection(dir, globalPtr->Viewport.get(), globalPtr->Perspective.get());
 
 	D3DXVECTOR3 pos;
 	globalPtr->MainCamera.lock()->GetPosition(&pos);

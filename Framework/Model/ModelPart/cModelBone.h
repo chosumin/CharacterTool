@@ -21,7 +21,7 @@ public:
 
 	int GetParentIndex() { return _parentIndex; }
 
-	wstring GetName() { return _name; }
+	const wstring& GetName() { return _name; }
 
 	weak_ptr<cModelBone> GetParent() { return _parent; }
 
@@ -29,9 +29,10 @@ public:
 	weak_ptr<cModelBone> GetChild(UINT index) { return _children[index]; }
 	vector<weak_ptr<cModelBone>>& GetChildren();
 
-	weak_ptr<sTransform> GetAbsoluteTransform();
-	weak_ptr<sTransform> GetAnimatedTransform();
-	weak_ptr<sTransform> GetSkinnedTransform();
+	weak_ptr<sTransform> GetAbsoluteTransform() const;
+	const D3DXMATRIX& GetInvAbsoluteMatrix() const;
+	weak_ptr<sTransform> GetAnimatedTransform() const;
+	const D3DXMATRIX& GetSkinnedMatrix() const;
 
 	const vector<shared_ptr<cCollider>>& GetColliders() const;
 	void AddCollider(weak_ptr<cCollider> collider);
@@ -45,11 +46,10 @@ private:
 	int						_parentIndex;
 	weak_ptr<cModelBone>	_parent;
 
-	shared_ptr<sTransform> _transform;
-	shared_ptr<sTransform> _absoluteTransform;
-
-	shared_ptr<sTransform> _animatedTransform;
-	shared_ptr<sTransform> _skinnedTransform;
+	D3DXMATRIX				_invAbsoluteMatrix;
+	shared_ptr<sTransform>	_absoluteTransform;
+	shared_ptr<sTransform>	_animatedTransform;
+	shared_ptr<sTransform>	_skinnedTransform;
 
 	vector<weak_ptr<cModelBone>> _children;
 

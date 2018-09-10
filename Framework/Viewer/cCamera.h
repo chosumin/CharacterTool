@@ -12,7 +12,7 @@ public:
 	void GetPosition(OUT D3DXVECTOR3* pPosition);
 	void SetPosition(float x, float y, float z);
 
-	void GetRotation(OUT D3DXVECTOR2* pRotation) = delete;
+	void GetRotation(OUT D3DXVECTOR2* pRotation);
 	void SetRotation(float x, float y) = delete;
 
 	void GetRotationDegree(OUT D3DXVECTOR2* pAngle) = delete;
@@ -20,7 +20,11 @@ public:
 	
 	void GetMatrix(OUT D3DXMATRIX* pView);
 
-	D3DXVECTOR3 GetDirection(cViewport* pViewport, cPerspective* pPerspective);
+	void GetCameraDirection(OUT D3DXVECTOR3& camDir);
+
+	void GetMouseDirection(OUT D3DXVECTOR3& mouse, cViewport* pViewport, cPerspective* pPerspective);
+
+	void GetRotationMatrix(OUT D3DXMATRIX& rotationMat);
 
 	virtual void Move(float x, float y, float z, float moveSpeed);
 	virtual void Move(D3DXVECTOR3 vDirection, float moveSpeed);

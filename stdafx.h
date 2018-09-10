@@ -50,7 +50,7 @@ using namespace std;
 //ImGui 헤더 라이브러리
 #include <imgui.h>
 #include <imguiDx11.h>
-#pragma comment(lib, "ImGui.lib")
+#pragma comment(lib, "imgui.lib")
 
 //Fbx SDK 라이브러리
 #define FBXSDK_SHARED
@@ -86,6 +86,7 @@ const wstring Model = Content + L"Model/";
 #include "./Helper/cBinary.h"
 #include "./Helper/Json.h"
 
+#include "./Viewer/cCamera.h"
 #include "./Viewer/cPerspective.h"
 #include "./Viewer/cViewport.h"
 

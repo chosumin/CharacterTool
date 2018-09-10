@@ -14,6 +14,11 @@ namespace UI
 		virtual void HandleMessage(const sTelegram & msg) override;
 
 		virtual void SetActor(weak_ptr<cActor> actor);
+
+		void SetStart(bool isStart)
+		{
+			_startGame = isStart;
+		}
 	public:
 		virtual void Update() = 0;
 		virtual void Render() = 0;
@@ -30,5 +35,6 @@ namespace UI
 		virtual void FunctionInitialize() override;
 	protected:
 		weak_ptr<cActor> _actor;
+		bool _startGame;
 	};
 }

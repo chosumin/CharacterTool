@@ -17,15 +17,22 @@ public:
 	virtual std::unique_ptr<cTask> Clone() const override;
 	virtual eState Run() override;
 	virtual void RenderInfo() override;
+
+	// iFile 상속
+	virtual void LoadJson(Json::Value& root) override;
+	virtual void SaveJson(Json::Value& root) override;
+private:
+	void ComboBox(string& data);
 private:
 	weak_ptr<cBlackboard> _blackboard;
 
 	string _boolParam;
 	bool _boolean;
 
-	//todo : 퍼센티지 안에 속하는지
-	//todo : 단순 bool 비교
-	//todo : 값 비교, 큰지 작은지 같은지
+	int _compareType; //비교 대상 - 입력 값, 블랙보드 값
+	string _compareParam; //비교할 블랙보드 변수 이름
+
+	bool _isSame; //두 변수가 같으면 true, 아니면 false
 };
 
 /******************************************************************/
@@ -43,20 +50,25 @@ public:
 	virtual std::unique_ptr<cTask> Clone() const override;
 	virtual eState Run() override;
 	virtual void RenderInfo() override;
+
+	// iFile 상속
+	virtual void LoadJson(Json::Value& root) override;
+	virtual void SaveJson(Json::Value& root) override;
 private:
-	/*enum class eInequalitySign
-	{
-		GREATER_THAN_RIGHT, LESSER_THAN_RIGHT,
-		EQUAL,
-		EQUAL_GREATER_THAN_RIGHT, EQUAL_LESSER_THAN_RIGHT
-	};
-	eInequalitySign _sign;*/
-	
+	void ComboBox(string& data);
+private:
 	weak_ptr<cBlackboard> _blackboard;
 
-	string _valueParam;
+	string _valueParam; //데이터 이름
 
-	D3DXVECTOR3 _compare;
+	int _type; //데이터 타입 float, vector3, int
+	D3DXVECTOR3 _compareVec3;
+	float _compareFloat;
+	int _compareInt;
+	int _inequalitySign; //부등호 >, >=, ==, !=, <=, <
+
+	int _compareType; //비교 대상 - 입력 값, 블랙보드 값
+	string _compareParam; //비교할 블랙보드 변수 이름
 };
 
 /******************************************************************/

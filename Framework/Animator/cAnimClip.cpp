@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "cAnimClip.h"
 #include "AnimKeyFrames.h"
+#include "./Model/cModel.h"
 #include "./Model/ModelPart/cModelBone.h"
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
@@ -33,40 +34,64 @@ cAnimClip::~cAnimClip()
 	_keyFrames.clear();
 }
 
-D3DXMATRIX & cAnimClip::GetFrameTransform(wstring boneName, UINT count)
+void cAnimClip::GetKeyFrameSRT(const wstring & boneName, UINT index,
+							   OUT D3DXVECTOR3 & t,
+							   OUT D3DXQUATERNION & q,
+							   OUT D3DXVECTOR3 & s)
 {
-	return _keyFrames[boneName]->FrameData[count].Transform;
+	auto& keyFrame = _keyFrames[boneName]->FrameData[index];
+	t = keyFrame.Translation;
+	q = keyFrame.Rotation;
+	s = keyFrame.Scale;
 }
 
-void cAnimClip::Interpolate(OUT D3DXMATRIX * pSRT, const wstring& boneName, float keyFrameFactor, UINT current, UINT next)
+void cAnimClip::GetFrameTransform(OUT D3DXMATRIX& transformMatrix, const wstring& boneName, UINT count)
 {
-	D3DXMATRIX S, R, T;
+	auto& frames = _keyFrames[boneName]->FrameData;
+
+	if (count >= _totalFrame)
+	{
+		auto& frame = _keyFrames[boneName]->FrameData[_totalFrame - 1];
+		transformMatrix = frame.Transform;
+	}
+	else
+	{
+		auto& frame = _keyFrames[boneName]->FrameData[count];
+		transformMatrix = frame.Transform;
+	}
+}
+
+void cAnimClip::Interpolate(OUT D3DXMATRIX * pSRT, const wstring& boneName, float keyFrameFactor, UINT current)
+{
+	UINT next = (current + 1) % _totalFrame;
+
+	D3DXMATRIX S, R;
 
 	const auto& curFrame = _keyFrames[boneName]->FrameData[current];
 	const auto& nextFrame = _keyFrames[boneName]->FrameData[next];
 
-	D3DXVECTOR3 s1 = curFrame.Scale;
-	D3DXVECTOR3 s2 = nextFrame.Scale;
+	const D3DXVECTOR3& s1 = curFrame.Scale;
+	const D3DXVECTOR3& s2 = nextFrame.Scale;
 
 	D3DXVECTOR3 s;
 	D3DXVec3Lerp(&s, &s1, &s2, keyFrameFactor);
 	D3DXMatrixScaling(&S, s.x, s.y, s.z);
 
-	D3DXQUATERNION q1 = curFrame.Rotation;
-	D3DXQUATERNION q2 = nextFrame.Rotation;
+	const D3DXQUATERNION& q1 = curFrame.Rotation;
+	const D3DXQUATERNION& q2 = nextFrame.Rotation;
 
 	D3DXQUATERNION q;
 	D3DXQuaternionSlerp(&q, &q1, &q2, keyFrameFactor);
 	D3DXMatrixRotationQuaternion(&R, &q);
 
-	D3DXVECTOR3 t1 = curFrame.Translation;
-	D3DXVECTOR3 t2 = nextFrame.Translation;
+	const D3DXVECTOR3& t1 = curFrame.Translation;
+	const D3DXVECTOR3& t2 = nextFrame.Translation;
 
 	D3DXVECTOR3 t;
 	D3DXVec3Lerp(&t, &t1, &t2, keyFrameFactor);
-	D3DXMatrixTranslation(&T, t.x, t.y, t.z);
 
-	*pSRT = S * R * T;
+	*pSRT = S * R;
+	pSRT->_41 = t.x, pSRT->_42 = t.y, pSRT->_43 = t.z;
 }
 
 bool cAnimClip::IsCorrectBones(const vector<shared_ptr<cModelBone>>& bones)
@@ -93,7 +118,8 @@ bool cAnimClip::IsCorrectBones(const vector<shared_ptr<cModelBone>>& bones)
 
 bool cAnimClip::IsCorrectKeyFrame(const wstring & boneName)
 {
-	if (_keyFrames[boneName] == nullptr)
+	auto& keyFrame = _keyFrames[boneName];
+	if (keyFrame == nullptr)
 		return false;
 
 	return true;

@@ -31,12 +31,12 @@ void cCamera::SetPosition(float x, float y, float z)
 	m_vPosition = D3DXVECTOR3{ x,y,z };
 	UpdateView();
 }
-//
-//inline void cCamera::GetRotation(OUT D3DXVECTOR2 * pRotation)
-//{
-//	*pRotation = m_vRotation;
-//}
-//
+
+void cCamera::GetRotation(OUT D3DXVECTOR2 * pRotation)
+{
+	*pRotation = m_vRotation;
+}
+
 //inline void cCamera::SetRotation(float x, float y)
 //{
 //	m_vRotation = D3DXVECTOR2{ x,y };
@@ -58,8 +58,14 @@ void cCamera::GetMatrix(OUT D3DXMATRIX * pView)
 	*pView = m_matView;
 }
 
-D3DXVECTOR3 cCamera::GetDirection(cViewport * pViewport
-								  , cPerspective * pPerspective)
+void cCamera::GetCameraDirection(OUT D3DXVECTOR3 & camDir)
+{
+	camDir = m_vForward;
+}
+
+void cCamera::GetMouseDirection(OUT D3DXVECTOR3& mouse,
+								cViewport * pViewport,
+								cPerspective * pPerspective)
 {
 	D3DXVECTOR2 vScreenSize;
 	vScreenSize.x = pViewport->GetWidth();
@@ -68,7 +74,6 @@ D3DXVECTOR3 cCamera::GetDirection(cViewport * pViewport
 	auto vMouse = cMouse::Get()->GetPosition();
 	D3DXVECTOR2 vPoint;
 	D3DXMATRIX matProj;
-	D3DXVECTOR3 vDirection;
 
 	//Viewport
 	{
@@ -89,14 +94,17 @@ D3DXVECTOR3 cCamera::GetDirection(cViewport * pViewport
 		D3DXMATRIX invView;
 		D3DXMatrixInverse(&invView, NULL, &m_matView);
 
-		vDirection.x = (vPoint.x * invView._11) + (vPoint.y * invView._21) + invView._31;
-		vDirection.y = (vPoint.x * invView._12) + (vPoint.y * invView._22) + invView._32;
-		vDirection.z = (vPoint.x * invView._13) + (vPoint.y * invView._23) + invView._33;
+		mouse.x = (vPoint.x * invView._11) + (vPoint.y * invView._21) + invView._31;
+		mouse.y = (vPoint.x * invView._12) + (vPoint.y * invView._22) + invView._32;
+		mouse.z = (vPoint.x * invView._13) + (vPoint.y * invView._23) + invView._33;
 
-		D3DXVec3Normalize(&vDirection, &vDirection);
+		D3DXVec3Normalize(&mouse, &mouse);
 	}
+}
 
-	return vDirection;
+void cCamera::GetRotationMatrix(OUT D3DXMATRIX & rotationMat)
+{
+	rotationMat = m_matRotation;
 }
 
 void cCamera::Move(float x, float y, float z, float moveSpeed)

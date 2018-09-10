@@ -4,9 +4,11 @@
 bool cDebug::_isDebug = true;
 forward_list <function<void()>> cDebug::_logList;
 ImVector<char*> cDebug::Items;
+ImVector<char*> cDebug::Items2;
 
 void cDebug::PrintLogs()
 {
+	static int tab = 0;
 	for (auto& log : _logList)
 	{
 		log();
@@ -16,11 +18,26 @@ void cDebug::PrintLogs()
 
 	ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 	{
-		//todo : 클리어 버튼, 로그 식별자 만들기
+		ImGui::RadioButton("Stack", &tab, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Renew", &tab, 1);
 
-		int size = Items.size();
-		for (int i = size - 1; i >= 0; i--)
-			ImGui::TextUnformatted(Items[i]);
+		ImGui::Separator();
+
+		if (tab == 0)
+		{
+			//todo : 클리어 버튼, 로그 식별자 만들기
+			int size = Items.size();
+			for (int i = size - 1; i >= 0; i--)
+				ImGui::TextUnformatted(Items[i]);
+		}
+		else if (tab == 1)
+		{
+			int size = Items2.size();
+			for (int i = size - 1; i >= 0; i--)
+				ImGui::TextUnformatted(Items2[i]);
+			Items2.clear();
+		}
 	}
 	ImGui::End();
 }
@@ -41,4 +58,15 @@ void cDebug::Log(const char* fmt, ...) IM_FMTARGS(2)
 	buf[IM_ARRAYSIZE(buf) - 1] = 0;
 	va_end(args);
 	Items.push_back(Strdup(buf));
+}
+
+void cDebug::RenewalLog(const char* fmt, ...) IM_FMTARGS(2)
+{
+	char buf[1024];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+	buf[IM_ARRAYSIZE(buf) - 1] = 0;
+	va_end(args);
+	Items2.push_back(Strdup(buf));
 }

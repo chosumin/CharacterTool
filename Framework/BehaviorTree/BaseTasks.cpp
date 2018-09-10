@@ -10,6 +10,7 @@ cTask::cTask(weak_ptr<cBehaviorTree> tree, string name,
 	, _tree(tree)
 	, _state(eState::NONE)
 	, _parent(parent)
+	, _hide(false)
 {
 }
 
@@ -28,38 +29,20 @@ void cTask::SetInitState(const bool& includeRunning)
 
 bool cTask::RenderMenu()
 {
+	unique_ptr<cTask> task = nullptr;
 	//노드 삭제 메뉴
 	if (ImGui::MenuItem("Delete All", nullptr, false, true))
-	{
 		_delete = eTaskState::DELETE_ALL;
-		return true;
-	}
 
 	if (ImGui::MenuItem("Delete Only Me", nullptr, false, true))
-	{
 		_delete = eTaskState::DELETE_ONLY_ME;
-		return true;
-	}
 	
 	if (ImGui::MenuItem("Delete Only SubNodes", nullptr, false, true))
-	{
 		_delete = eTaskState::DELETE_ONLY_SUBNODES;
-		return true;
-	}
-
-	//노드 복사 메뉴
-	if (ImGui::MenuItem("Copy Only Me", nullptr, false, true))
-	{
-		auto task = Clone();
-		return true;
-	}
 
 	//노드 복사 메뉴
 	if (ImGui::MenuItem("Copy With SubNodes", nullptr, false, true))
-	{
-		auto task = Clone();
 		return true;
-	}
 
 	return false;
 }
@@ -74,6 +57,26 @@ weak_ptr<cTask> cTask::GetParent() const
 	return _parent;
 }
 
+void cTask::LoadDefaultInfo(Json::Value & task)
+{
+	Json::GetValue(task, "Task Name", _taskName);
+
+	D3DXVECTOR2 vec2;
+
+	Json::GetValue(task, "Position", vec2);
+	_pos.x = vec2.x, _pos.y = vec2.y;
+
+	Json::GetValue(task, "Size", vec2);
+	_size.x = vec2.x, _size.y = vec2.y;
+}
+
+void cTask::SaveDefaultInfo(Json::Value & task)
+{
+	Json::SetValue(task, "Task Name", _taskName);
+	Json::SetValue(task, "Position", D3DXVECTOR2{ _pos.x, _pos.y });
+	Json::SetValue(task, "Size", D3DXVECTOR2{ _size.x, _size.y });
+}
+
 /**********************************************************/
 
 const char* cCompositeTask::ITEMS[3] = { "Selector", "Sequence", "Parallel" };
@@ -83,6 +86,7 @@ cCompositeTask::cCompositeTask(weak_ptr<cBehaviorTree> tree,
 							   weak_ptr<cTask> parent)
 	: cTask(tree, "Composite Task", position, parent)
 	, _type(0)
+	, _summury("")
 {
 }
 
@@ -93,14 +97,14 @@ cCompositeTask::~cCompositeTask()
 cTask::eState cCompositeTask::Run()
 {
 	UINT i = 0;
-	if (_state == eState::RUNNING)
+	/*if (_state == eState::RUNNING)
 	{
 		for (; i < _children.size(); ++i)
 		{
 			if (_children[i]->GetRunningState() == eState::RUNNING)
 				break;
 		}
-	}
+	}*/
 
 	switch (_type)
 	{
@@ -159,11 +163,29 @@ cCompositeTask::TaskList * cCompositeTask::GetChildren()
 
 void cCompositeTask::RenderInfo()
 {
-	ImGui::Text("%s", GetName().c_str());
+	if (_hide)
+		ImGui::TextColored(ImVec4(0, 255, 255, 255), "%s", _summury);
+	else
+	{
+		if (GetName() == "ROOT")
+			ImGui::TextColored(ImVec4(0, 0, 0, 255), "%s", GetName().c_str());
+		else
+			ImGui::TextColored(ImVec4(0, 255, 255, 255), "%s", GetName().c_str());
+	}
 
 	ImGui::NewLine();
 
+	ImGui::PushID(0);
 	ImGui::Combo("", &_type, ITEMS, 3);
+	ImGui::PopID();
+
+	ImGui::Checkbox("Hide sub-nodes", &_hide);
+	ImGui::PushID(1);
+	{
+		if (_hide)
+			ImGui::InputText("", _summury, IM_ARRAYSIZE(_summury));
+	}
+	ImGui::PopID();
 }
 
 void cCompositeTask::AddChild(std::shared_ptr<cTask> child)
@@ -173,8 +195,55 @@ void cCompositeTask::AddChild(std::shared_ptr<cTask> child)
 
 std::unique_ptr<cTask> cCompositeTask::Clone() const
 {
-	//todo : 복사
-	return nullptr;
+	auto clone = make_unique<cCompositeTask>(_tree, _pos, _parent);
+	
+	clone->_type = _type;
+	clone->_hide = _hide;
+	strcpy(clone->_summury, _summury);
+
+	//자식이 있다면 자식 복사 뒤 자식의 부모를 자신으로 세팅
+	for (auto&& child : _children)
+	{
+		auto childClone = child->Clone();
+		clone->AddChild(move(childClone));
+	}
+
+	return move(clone);
+}
+
+void cCompositeTask::LoadJson(Json::Value & root)
+{
+	LoadDefaultInfo(root);
+	
+	Json::GetValue(root, "Type", _type);
+	Json::GetValue(root, "Hide", _hide);
+
+	string summury;
+	Json::GetValue(root, "Summury", summury);
+	strcpy(_summury, summury.c_str());
+}
+
+void cCompositeTask::SaveJson(Json::Value & root)
+{
+	Json::Value task;
+
+	SaveDefaultInfo(task);
+
+	Json::SetValue(task, "Type", _type);
+	Json::SetValue(task, "Hide", _hide);
+
+	string summury = _summury;
+	Json::SetValue(task, "Summury", summury);
+
+	Json::Value childValue;
+
+	UINT size = _children.size();
+	for (auto&& child : _children)
+		child->SaveJson(childValue);
+
+	task["Children"] = childValue;
+
+	root.append(task);
 }
 
 /**********************************************************/

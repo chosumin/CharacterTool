@@ -23,7 +23,20 @@ public:
 	//전체 프레임 수
 	int GetTotalFrame() const { return _totalFrame; }
 
-	D3DXMATRIX& GetFrameTransform(wstring boneName, UINT count);
+	//@brief : 해당 본 키프레임의 SRT 전달
+	//@param : 찾을 본 이름
+	//@param : 키 프레임 번호
+	//@param : 전달 받을 t, q, s
+	void GetKeyFrameSRT(const wstring& boneName, UINT index,
+						OUT D3DXVECTOR3& t,
+						OUT D3DXQUATERNION& q,
+						OUT D3DXVECTOR3& s);
+
+	//@brief : 본, 프레임 번호에 맞는 행렬 반환
+	//@param : 반환 받을 행렬
+	//@param : 본 이름
+	//@param : 프레임 번호
+	void GetFrameTransform(OUT D3DXMATRIX& transformMatrix, const wstring& boneName, UINT count);
 
 	//보간한 행렬 내보냄
 	//@param : 저장할 행렬
@@ -32,7 +45,7 @@ public:
 	//@param : 현재 프레임 번호
 	//@param : 다음 프레임 번호
 	void Interpolate(OUT D3DXMATRIX *pSRT, const wstring& boneName,
-					 float keyFrameFactor, UINT current, UINT next);
+					 float keyFrameFactor, UINT current);
 
 	//본과 키프레임이 일치하는지 비교
 	//@param : 비교할 본 컨테이너
@@ -49,11 +62,13 @@ private:
 	wstring _filePath;
 	wstring _name;
 
-	int _totalFrame; //전체 프레임 수
+	UINT _totalFrame; //전체 프레임 수
 	float _frameRate; //시간 당 프레임
 	float _defaultFrameRate; //프레임 비율, 되돌리기용
 
 	//@first : Bone 이름
 	//@second : KeyFrameData 컨테이너
-	map<wstring, unique_ptr<sAnimKeyFrame>> _keyFrames;
+	unordered_map<wstring, unique_ptr<sAnimKeyFrame>> _keyFrames;
+
+	//todo : 모델명, 본 이름, 매트릭스 저장하는 버퍼
 };

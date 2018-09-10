@@ -1,9 +1,12 @@
 #pragma once
 #include "BaseTasks.h"
+#include "./Interface/iFile.h"
 
 class cActor;
 class cBlackboard;
-class cBehaviorTree : public enable_shared_from_this<cBehaviorTree>
+class cBehaviorTree :
+	public enable_shared_from_this<cBehaviorTree>,
+	public iFile
 {
 public:
 	cBehaviorTree(weak_ptr<cActor> actor);
@@ -21,13 +24,18 @@ public:
 
 	weak_ptr<cRootTask> GetRoot() const;
 
-	bool IsSameCurrentTask(const weak_ptr<cTask>& task)
-	{
-		return _currentTask.owner_before(task);
-	}
-
 	void SetCurrentTask(const weak_ptr<cTask>& task);
+
+	const wstring& GetDefaultName() const { return _defaultName; }
+	const wstring& GetName() const { return _name; }
+	void SetName(const wstring& name) { _name = name; }
+
+	//iFile »ó¼Ó
+	virtual void LoadJson(Json::Value& root) override;
+	virtual void SaveJson(Json::Value& root) override;
 private:
+	wstring _defaultName;
+	wstring _name;
 	shared_ptr<cRootTask> _root;
 	weak_ptr<cActor> _actor;
 

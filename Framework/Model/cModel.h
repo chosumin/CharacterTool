@@ -14,7 +14,7 @@ private:
 public:
 	~cModel();
 
-	void Update(weak_ptr<sTransform> rootTransform);
+	void Update(const weak_ptr<sTransform> & rootTransform);
 	void Render();
 
 	//iCloneable을(를) 통해 상속됨
@@ -50,8 +50,6 @@ public:
 	weak_ptr<cModelBone> GetRoot() const { return _rootBone; }
 
 	void SetPlayedBuffer(bool isPlayAnim);
-public:
-	void CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms);
 protected:
 	/************
 		생성자

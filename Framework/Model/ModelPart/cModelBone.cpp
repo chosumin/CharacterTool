@@ -6,8 +6,6 @@
 
 cModelBone::cModelBone()
 {
-	//D3DXMatrixIdentity(&_transform);
-	_transform = make_shared<sTransform>();
 	_absoluteTransform = make_shared<sTransform>();
 
 	_animatedTransform = make_unique<sTransform>();
@@ -27,9 +25,7 @@ void cModelBone::Animate(const D3DXMATRIX & animated, const D3DXMATRIX* root)
 	else
 		_animatedTransform->Matrix = animated * _parent.lock()->_animatedTransform->Matrix;
 
-	D3DXMATRIX invMat;
-	D3DXMatrixInverse(&invMat, nullptr, &_absoluteTransform->Matrix);
-	_skinnedTransform->Matrix = invMat * _animatedTransform->Matrix;
+	_skinnedTransform->Matrix = _invAbsoluteMatrix * _animatedTransform->Matrix;
 }
 
 vector<weak_ptr<cModelBone>>& cModelBone::GetChildren()
@@ -37,19 +33,24 @@ vector<weak_ptr<cModelBone>>& cModelBone::GetChildren()
 	return _children;
 }
 
-weak_ptr<sTransform> cModelBone::GetAbsoluteTransform()
+weak_ptr<sTransform> cModelBone::GetAbsoluteTransform() const
 {
 	return _absoluteTransform;
 }
 
-weak_ptr<sTransform> cModelBone::GetAnimatedTransform()
+const D3DXMATRIX & cModelBone::GetInvAbsoluteMatrix() const
+{
+	return _invAbsoluteMatrix;
+}
+
+weak_ptr<sTransform> cModelBone::GetAnimatedTransform() const
 {
 	return _animatedTransform;
 }
 
-weak_ptr<sTransform> cModelBone::GetSkinnedTransform()
+const D3DXMATRIX & cModelBone::GetSkinnedMatrix() const
 {
-	return _skinnedTransform;
+	return _skinnedTransform->Matrix;
 }
 
 const vector<shared_ptr<cCollider>>& cModelBone::GetColliders() const

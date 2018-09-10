@@ -4,6 +4,7 @@
 #include "./Message/cMessageDispatcher.h"
 
 UI::cTool::cTool()
+	: _startGame(false)
 {
 }
 

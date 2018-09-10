@@ -23,11 +23,16 @@ public:
 	const D3DXMATRIX& GetScaleMatrix() const;
 
 	void GetDirection(OUT D3DXVECTOR3& direction);
+	void SetDirection(IN const D3DXVECTOR3& direction);
 
-	//이동
+	//@brief : 지정 방향으로 이동
 	//@param : 속도
-	//@param : 방향(인수 없을시 현재 방향으로 이동)
-	void Move(float speed, const D3DXVECTOR3& direction = D3DXVECTOR3{ 0,0,0 });
+	//@param : 방향
+	void Move(float speed, const D3DXVECTOR3& direction);
+
+	//@brief : 현재 방향으로 이동
+	//@param : 속도
+	void Move(float speed);
 
 	void SetMatrix(const D3DXMATRIX& world);
 	void SetVSBuffer(UINT slot);

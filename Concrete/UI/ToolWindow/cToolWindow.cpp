@@ -106,4 +106,14 @@ void UI::cToolWindow::FunctionInitialize()
 		for (auto&& tool : _tools)
 			tool->LoadJson();
 	};
+
+	msgMap[eMessageType::CLICK_START] = [this](const sTelegram& msg)
+	{
+		bool start = *(static_cast<bool*>(msg.extraInfo));
+
+		for (auto&& tool : _tools)
+		{
+			tool->SetStart(start);
+		}
+	};
 }
