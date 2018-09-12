@@ -10,7 +10,8 @@
 #include "./Helper/cPath.h"
 
 UI::cAnimTool::cAnimTool(weak_ptr<cModelTool> modelTool)
-	:_modelTool(modelTool)
+	: _modelTool(modelTool)
+	, _eventName("")
 {
 }
 
@@ -30,19 +31,11 @@ void UI::cAnimTool::Update()
 	if (actorPtr)
 	{
 		_animator = actorPtr->GetAnimator();
-		if (!_startGame)
-			actorPtr->TestUpdate();
 	}
 }
 
 void UI::cAnimTool::Render()
 {
-	if (!_startGame)
-	{
-		auto actorPtr = _actor.lock();
-		if (actorPtr)
-			actorPtr->Render();
-	}
 }
 
 void UI::cAnimTool::ShowHierarchy(int i)
@@ -69,30 +62,52 @@ void UI::cAnimTool::SelectAnimator()
 void UI::cAnimTool::ShowInspector()
 {
 	//Animation
+	UINT index = 0;
 	if (ImGui::CollapsingHeader("Animator"))
-		ShowAnimatorInspector();
+		ShowAnimatorInspector(index);
 	
 	//Animation List
 	if (ImGui::CollapsingHeader("Animation List"))
 		ShowAnimationList();
 }
 
-void UI::cAnimTool::ShowAnimatorInspector()
+void UI::cAnimTool::ShowAnimatorInspector(UINT& index)
 {
-	if (ImGui::Button("Add"))
-	{
-		if (Alert())
-			return;
-
-		//클립 추가
-		OpenAnimationClip();
-	}
+	//애니메이션 속도 조절
+	SetAnimationSpeed(index);
 
 	ImGui::Text("Clip : ");
 	ImGui::SameLine();
 	ImGui::Text(GetClipName().c_str());
 	
 	ShowProgressInspector();
+
+	ImGui::Separator();
+
+	ShowEventFrameList(index);
+
+	ImGui::Separator();
+}
+
+void UI::cAnimTool::SetAnimationSpeed(UINT& index)
+{
+	ImGui::PushID(index++);
+	ImGui::Text("Animation Speed :");
+	ImGui::SameLine();
+
+	float speed = 0.0f;
+
+	auto animPtr = _animator.lock();
+	if (animPtr)
+	{
+		speed = animPtr->GetAnimSpeed();
+		ImGui::InputFloat("", &speed);
+		animPtr->SetAnimSpeed(speed);
+	}
+	else
+		ImGui::InputFloat("", &speed);
+
+	ImGui::PopID();
 }
 
 void UI::cAnimTool::OpenAnimationClip()
@@ -146,11 +161,13 @@ void UI::cAnimTool::CreateClip(const wstring & directory, const wstring & name)
 
 string UI::cAnimTool::GetClipName()
 {
-	auto clipPtr = _animator.lock()->GetCurrentClip().lock();
+	if (!_animator.expired())
+	{
+		auto clipPtr = _animator.lock()->GetCurrentClip().lock();
 
-	if (clipPtr)
-		return cString::String(clipPtr->GetName());
-
+		if (clipPtr)
+			return cString::String(clipPtr->GetName());
+	}
 	return "None";
 }
 
@@ -181,8 +198,61 @@ void UI::cAnimTool::ShowProgressInspector()
 		animPtr->SetMode(cAnimator::Mode::STOP);
 }
 
+void UI::cAnimTool::ShowEventFrameList(UINT& index)
+{
+	ImGui::Text("Event Frame List :");
+
+	auto clipPtr = _selectedClip.lock();
+	if (!clipPtr)
+		return;
+
+	//이벤트 리스트 추가
+	ImGui::PushID(index++);
+	ImGui::InputText("", _eventName, IM_ARRAYSIZE(_eventName));
+	ImGui::SameLine();
+	ImGui::PopID();
+
+	if (ImGui::Button("Add"))
+	{
+		auto clipPtr = _selectedClip.lock();
+		auto animPtr = _animator.lock();
+		wstring eventName = cString::Wstring(_eventName);
+		clipPtr->AddEventFrame(eventName, animPtr->GetCurrentFrameCount());
+	}
+
+	//이벤트 리스트 보여주기
+	auto& eventFrames = clipPtr->GetEventFrames();
+	for (auto iter = eventFrames.begin(); iter != eventFrames.end();)
+	{
+		ImGui::PushID(index);
+		string name = cString::String(iter->first);
+		string title = to_string(iter->second) + " " + name;
+
+		//클릭시 삭제
+		if (ImGui::Selectable(title.c_str(), true))
+			iter = eventFrames.erase(iter);
+		else
+		{
+			iter++;
+			index++;
+		}
+		ImGui::PopID();
+	}
+}
+
 void UI::cAnimTool::ShowAnimationList()
 {
+	if (ImGui::Button("Clip Add"))
+	{
+		if (Alert())
+			return;
+
+		//클립 추가
+		OpenAnimationClip();
+	}
+
+	ImGui::Separator();
+
 	auto animPtr = _animator.lock();
 	if (!animPtr)
 		return;
@@ -191,17 +261,18 @@ void UI::cAnimTool::ShowAnimationList()
 	auto iter = animPtr->GetClips().begin();
 	for (; iter != animPtr->GetClips().end(); index++)
 	{
+		ImGui::PushID(index);
+
 		//클립 선택
-		if (ImGui::Selectable(cString::String((*iter)->GetName()).c_str(), true, 0, ImVec2(150, 20)))
+		if (ImGui::Selectable(cString::String((*iter)->GetName()).c_str(), false, 0, ImVec2(185, 20)))
 		{
 			_selectedClip = *iter;
 			animPtr->SetCurrentClip(*iter);
-			cDebug::Log((cString::String((*iter)->GetName()) + " Selected!").c_str());
 		}
 
 		ImGui::SameLine();
 
-		if (ImGui::Button(("Delete " + to_string(index)).c_str()))
+		if (ImGui::Button("Del"))
 		{
 			//hack : clip 순회 중인데 중간에 clip 삭제함
 			iter = animPtr->DeleteClip(*iter);
@@ -210,6 +281,7 @@ void UI::cAnimTool::ShowAnimationList()
 			iter++;
 
 		ImGui::Separator();
+		ImGui::PopID();
 	}
 }
 
@@ -219,13 +291,37 @@ void UI::cAnimTool::SaveJson(Json::Value& root)
 
 	auto animPtr = _animator.lock();
 
+	//애니메이터에서 animSpeed 저장
+	float speed = animPtr->GetAnimSpeed();
+	Json::SetValue(animations, "Animation Speed", speed);
+
+	Json::Value clips;
 	for (auto&& clip : animPtr->GetClips())
 	{
+		Json::Value animation;
+
 		string path = cString::String(clip->GetFilePath());
 		string name = cString::String(clip->GetName());
-		animations.append(path + name);
-	}
 
+		//경로 저장
+		Json::SetValue(animation, "Path", path + name);
+		
+		Json::Value eventFrames;
+		for (auto&& frame : clip->GetEventFrames())
+		{
+			Json::Value eventFrame;
+			string name = cString::String(frame.first);
+			Json::SetValue(eventFrame, "Event Name", name);
+			Json::SetValue(eventFrame, "Frame", frame.second);
+
+			eventFrames.append(eventFrame);
+		}
+		animation["Event Frames"] = eventFrames;
+
+		clips.append(animation);
+	}
+	animations["Clips"] = clips;
+	
 	root["Animations"] = animations;
 }
 

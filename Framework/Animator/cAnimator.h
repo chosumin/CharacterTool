@@ -39,13 +39,13 @@ public:
 	const vector<shared_ptr<cAnimClip>>& GetClips() const;
 
 	//현재 프레임 번호
-	int GetCurrentFrameCount();
+	UINT GetCurrentFrameCount();
 
 	//프레임 번호 세팅
-	void SetCurrentFrameCount(int count);
+	void SetCurrentFrameCount(UINT count);
 
 	//클립의 마지막 프레임 번호(크기 - 1)
-	int GetLastFrameCount();
+	UINT GetLastFrameCount();
 
 	Mode GetMode();
 	void SetMode(Mode mode);
@@ -53,11 +53,16 @@ public:
 	void SetModel(weak_ptr<cModel> model);
 
 	const weak_ptr<cAnimClip> & GetCurrentClip() const;
+
+	//애니메이션 속도
+	float GetAnimSpeed() const;
+	void SetAnimSpeed(float speed);
+	void MultiplyAnimSpeed(float multiplied);
 private:
 	void UpdateTime();
 
 	//현재 키프레임 카운트 증가시킴
-	void IncreaseKeyFrame(OUT int& curFrame, int totalFrame, bool isLoop);
+	void IncreaseKeyFrame(OUT UINT& curFrame, UINT totalFrame, bool isLoop);
 
 	//블렌드 시간 계산
 	void CalculateBlendTime();
@@ -66,8 +71,8 @@ private:
 
 	//현재, 다음 클립 블렌드
 	void Blend(UINT size, shared_ptr<cModel>& modelPtr,
-			   shared_ptr<cAnimClip>& curClipPtr,
-			   shared_ptr<cAnimClip>& nextClipPtr);
+			   shared_ptr<cAnimClip>& front,
+			   shared_ptr<cAnimClip>& back);
 
 	//현재 클립의 변환 행렬을 그대로 전달
 	void GetCurrentClipMatrix(UINT size,
@@ -77,8 +82,11 @@ private:
 	//블렌드 시간 관련 멤버 변수 초기화
 	void InitTime();
 
-	//다음 클립을 현재 클립으로 교체
+	//현재 클립을 이전 클립으로 교체
 	void ShiftClip();
+
+	//이전 클립 삭제
+	void DeletePrevClip();
 private:
 	Mode _mode;
 	weak_ptr<cModel> _model;
@@ -86,11 +94,12 @@ private:
 	float _frameTime; //프레임율에 맞춘 시간
 	float _invFrameRate;
 
+	float _animSpeed;
 private:
 	struct ClipStruct
 	{
 		weak_ptr<cAnimClip> Clip;
-		int CurrentKeyFrame;
+		UINT CurrentKeyFrame;
 		bool IsLoop; //애니메이션 루프 여부
 
 		void Init()
@@ -99,7 +108,7 @@ private:
 		}
 	};
 	ClipStruct _current;
-	ClipStruct _next;
+	ClipStruct _prev;
 
 	float _blendTime; //블렌딩될 시간
 	float _elapsedTime; //블렌딩 경과 시간

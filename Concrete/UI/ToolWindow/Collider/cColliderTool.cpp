@@ -34,7 +34,12 @@ void UI::cColliderTool::Update()
 	if(actorPtr)
 		_colliders = actorPtr->GetColliders();
 
-	//todo : 만료된 충돌체 삭제
+	//만료된 충돌체 삭제
+	auto collidersPtr = _colliders.lock();
+	if (collidersPtr)
+	{
+		collidersPtr->DeleteCollider();
+	}
 }
 
 void UI::cColliderTool::Render()
@@ -113,7 +118,7 @@ void UI::cColliderTool::AddCollider()
 {
 	eColliderShape shape = static_cast<eColliderShape>(_shapeNumber);
 
-	auto colliders = _actor.lock()->GetColliders().lock();
+	auto colliders = _colliders.lock();
 
 	auto type = _selectAttack ? eColliderType::ATTACK : eColliderType::DAMAGE;
 

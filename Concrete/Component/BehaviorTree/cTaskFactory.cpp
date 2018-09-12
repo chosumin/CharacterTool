@@ -1,12 +1,17 @@
 #include "stdafx.h"
 #include "cTaskFactory.h"
 #include "Conditions.h"
-#include "Animations.h"
-#include "Actions.h"
+#include "Decorators.h"
+#include "./Action/Animations.h"
+#include "./Action/cAttackAction.h"
+#include "./Action/cDataSetter.h"
+#include "./Action/cMovingAction.h"
+#include "./Action/cRotatingAction.h"
 #include "./GameObject/cActor.h"
 
-map<cTaskFactory::eActionType, unique_ptr<cTask>> cTaskFactory::_actions;
-map<cTaskFactory::eConditionType, unique_ptr<cTask>> cTaskFactory::_conditions;
+unordered_map<cTaskFactory::eActionType, unique_ptr<cTask>> cTaskFactory::_actions;
+unordered_map<cTaskFactory::eConditionType, unique_ptr<cTask>> cTaskFactory::_conditions;
+unordered_map<cTaskFactory::eDecoratorType, unique_ptr<cTask>> cTaskFactory::_decorators;
 bool cTaskFactory::_init = false;
 
 cTaskFactory::cTaskFactory()
@@ -15,6 +20,7 @@ cTaskFactory::cTaskFactory()
 	{
 		InitActions();
 		InitConditions();
+		InitDecorators();
 		_init = true;
 	}
 }
@@ -60,6 +66,21 @@ unique_ptr<cTask> cTaskFactory::CreateCondition(cTaskFactory::eConditionType typ
 unique_ptr<cTask> cTaskFactory::CreateComposition(weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
 {
 	return make_unique<cCompositeTask>(tree, position);
+}
+
+unique_ptr<cTask> cTaskFactory::CreateDecorator(
+	eDecoratorType type,
+	weak_ptr<cBehaviorTree> tree,
+	const ImVec2& position)
+{
+	switch (type)
+	{
+		case eDecoratorType::INVERTER:
+			return make_unique<cInverter>(tree, position);
+		case eDecoratorType::SUCCEEDER:
+			return make_unique<cSucceeder>(tree, position);
+	}
+	return nullptr;
 }
 
 shared_ptr<cTask> cTaskFactory::CopyTask(const weak_ptr<cTask> & copiedTarget)
@@ -113,6 +134,19 @@ void cTaskFactory::CreateTask(weak_ptr<cTask> parent,
 				if (action.second->GetName() == taskName)
 				{
 					task = CreateAction(action.first, actor, bTree, ImVec2{ 0,0 });
+					create = true;
+				}
+			}
+		}
+
+		//장식자 태스크 생성
+		if (!create)
+		{
+			for (auto&& decorator : _decorators)
+			{
+				if (decorator.second->GetName() == taskName)
+				{
+					task = CreateDecorator(decorator.first, bTree, ImVec2{ 0,0 });
 					create = true;
 				}
 			}
@@ -202,6 +236,25 @@ unique_ptr<cTask> cTaskFactory::ShowConditionMenu(weak_ptr<cBlackboard> blackboa
 	return task;
 }
 
+unique_ptr<cTask> cTaskFactory::ShowDecoratorMenu(weak_ptr<cBehaviorTree> tree, const ImVec2 & position)
+{
+	unique_ptr<cTask> task;
+	int i = 0;
+	for (auto&& decorator : _decorators)
+	{
+		ImGui::PushID(i++);
+
+		if (ImGui::MenuItem(decorator.second->GetName().c_str(), nullptr, false))
+		{
+			task = CreateDecorator(decorator.first, tree, position);
+		}
+
+		ImGui::PopID();
+	}
+
+	return task;
+}
+
 void cTaskFactory::InitActions()
 {
 	_actions[eActionType::SET_DATA] = make_unique<cDataSetter>(weak_ptr<cActor>(), weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
@@ -221,4 +274,10 @@ void cTaskFactory::InitConditions()
 {
 	_conditions[eConditionType::BOOL_COMPARE] = make_unique<cBoolCondition>(weak_ptr<cBlackboard>(),weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
 	_conditions[eConditionType::VALUE_COMPARE] = make_unique<cValueCompareCondition>(weak_ptr<cBlackboard>(),weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
+}
+
+void cTaskFactory::InitDecorators()
+{
+	_decorators[eDecoratorType::INVERTER] = make_unique<cInverter>(weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
+	_decorators[eDecoratorType::SUCCEEDER] = make_unique<cSucceeder>(weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
 }

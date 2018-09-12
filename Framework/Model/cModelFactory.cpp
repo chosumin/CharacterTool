@@ -6,7 +6,6 @@
 #include "./ModelPart/cModelMesh.h"
 #include "./ModelPart/cModelMeshPart.h"
 #include "./Graphic/cMaterial.h"
-#include "./Helper/Json.h"
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
 #include "./Helper/cBinary.h"

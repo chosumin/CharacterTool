@@ -13,9 +13,10 @@ cAnimator::cAnimator(weak_ptr<cModel> model)
 	, _interpolationTime(0.0f)
 	, _elapsedTime(0.0f)
 	, _frameTime(0.0f)
+	, _animSpeed(1.0f)
 {
 	_current.Init();
-	_next.Init();
+	_prev.Init();
 }
 
 cAnimator::~cAnimator()
@@ -43,30 +44,25 @@ void cAnimator::SetCurrentClip(const weak_ptr<cAnimClip> & clip, bool overwrite,
 		_current.IsLoop = isLoop;
 		_blendTime = blendTime;
 	}
-	else
+	else //현재 클립이 있음
 	{
 		_interpolationTime = 0.0f;
 
 		UINT curCount = _current.CurrentKeyFrame;
 
-		//다음 클립 있으면 앞으로 밀어넣음
-		if (!_next.Clip.expired())
-			ShiftClip();
+		//클립 이동
+		ShiftClip();
 
-		_next.Clip = clip;
-		_next.Init();
-		_next.IsLoop = isLoop;
+		_current.Clip = clip;
+		_current.Init();
+		_current.IsLoop = isLoop;
 
 		//덮어쓰기일 때
-		if (!overwrite && _current.Clip.lock() == clip.lock())
+		if (!overwrite && _prev.Clip.lock() == clip.lock())
 		{
-			_next.CurrentKeyFrame = curCount;
+			_current.CurrentKeyFrame = curCount;
 			_elapsedTime = _blendTime;
 		}
-
-		//현재 애니메이션 종료시 바로 교체
-		if (IsEndAnimation())
-			ShiftClip();
 	}
 }
 
@@ -105,7 +101,7 @@ bool cAnimator::IsEndAnimation()
 	auto curClipPtr = _current.Clip.lock();
 	if (curClipPtr)
 	{
-		return _current.CurrentKeyFrame >= curClipPtr->GetTotalFrame() - 1;// -_blendTime * curClipPtr->GetFrameRate();
+		return _current.CurrentKeyFrame >= curClipPtr->GetTotalFrame() - 1 -_blendTime * curClipPtr->GetFrameRate();
 	}
 
 	return false;
@@ -116,19 +112,19 @@ const vector<shared_ptr<cAnimClip>>& cAnimator::GetClips() const
 	return _clips;
 }
 
-int cAnimator::GetCurrentFrameCount()
+UINT cAnimator::GetCurrentFrameCount()
 {
-	int lastFrame = GetLastFrameCount();
+	UINT lastFrame = GetLastFrameCount();
 
 	return min(_current.CurrentKeyFrame, lastFrame);
 }
 
-void cAnimator::SetCurrentFrameCount(int count)
+void cAnimator::SetCurrentFrameCount(UINT count)
 {
 	_current.CurrentKeyFrame = count;
 }
 
-int cAnimator::GetLastFrameCount()
+UINT cAnimator::GetLastFrameCount()
 {
 	auto clipPtr = _current.Clip.lock();
 
@@ -151,8 +147,8 @@ void cAnimator::SetMode(Mode mode)
 	if (mode == Mode::STOP)
 	{
 		_current.Init();
-		_next.Init();
-		_next.Clip.reset();
+		_prev.Init();
+		_prev.Clip.reset();
 
 		_model.lock()->ResetBones();
 	}
@@ -170,6 +166,21 @@ const weak_ptr<cAnimClip>& cAnimator::GetCurrentClip() const
 	return _current.Clip;
 }
 
+float cAnimator::GetAnimSpeed() const
+{
+	return _animSpeed;
+}
+
+void cAnimator::SetAnimSpeed(float speed)
+{
+	_animSpeed = speed;
+}
+
+void cAnimator::MultiplyAnimSpeed(float multiplied)
+{
+	_animSpeed = _animSpeed * multiplied;
+}
+
 void cAnimator::UpdateTime()
 {
 	if (_mode == Mode::PAUSE)
@@ -181,7 +192,7 @@ void cAnimator::UpdateTime()
 		return;
 
 	_frameTime += cFrame::Delta();
-	_invFrameRate = 1 / curClipPtr->GetFrameRate(); //한 프레임당 시간
+	_invFrameRate = 1 / (curClipPtr->GetFrameRate() * _animSpeed); //한 프레임당 시간
 
 	if (_frameTime > _invFrameRate)
 	{
@@ -192,9 +203,9 @@ void cAnimator::UpdateTime()
 		_frameTime = 0.0f;
 	}
 
-	//다음 클립 포인터
-	auto nextClipPtr = _next.Clip.lock();
-	if (!nextClipPtr)
+	//이전 클립 포인터
+	auto prevClipPtr = _prev.Clip.lock();
+	if (!prevClipPtr)
 		return;
 
 	CalculateBlendTime();
@@ -202,13 +213,13 @@ void cAnimator::UpdateTime()
 	//다음 프레임 증가
 	if (_frameTime <= 0.0f)
 	{
-		IncreaseKeyFrame(_next.CurrentKeyFrame,
-						 nextClipPtr->GetTotalFrame(),
-						 _next.IsLoop);
+		IncreaseKeyFrame(_prev.CurrentKeyFrame,
+						 prevClipPtr->GetTotalFrame(),
+						 _prev.IsLoop);
 	}
 }
 
-void cAnimator::IncreaseKeyFrame(OUT int & curFrame, int totalFrame,
+void cAnimator::IncreaseKeyFrame(OUT UINT& curFrame, UINT totalFrame,
 								 bool isLoop)
 {
 	if(isLoop)
@@ -226,8 +237,8 @@ void cAnimator::CalculateBlendTime()
 	_interpolationTime = _elapsedTime / _blendTime;
 	if (_interpolationTime > 1.0f)
 	{
-		//블렌드 시간 다됐으면 다음을 현재로 교체
-		ShiftClip();
+		//블렌드 시간 다됐으면 이전 클립 삭제
+		DeletePrevClip();
 		InitTime();
 		return;
 	}
@@ -246,17 +257,17 @@ void cAnimator::UpdateBones()
 	UINT size = modelPtr->GetBoneCount();
 	D3DXMATRIX localAnim;
 
-	//다음 클립 있으면 블렌딩, 아니면 현재 클립 그대로 전달
-	auto& nextClipPtr = _next.Clip.lock();
-	if (nextClipPtr)
-		Blend(size, modelPtr, curClipPtr, nextClipPtr);
+	//이전 클립 있으면 블렌딩, 아니면 현재 클립 그대로 전달
+	auto& prevClipPtr = _prev.Clip.lock();
+	if (prevClipPtr)
+		Blend(size, modelPtr, prevClipPtr, curClipPtr);
 	else
 		GetCurrentClipMatrix(size, modelPtr, curClipPtr);
 }
 
 void cAnimator::Blend(UINT size, shared_ptr<cModel>& modelPtr,
-					  shared_ptr<cAnimClip>& curClipPtr,
-					  shared_ptr<cAnimClip>& nextClipPtr)
+					  shared_ptr<cAnimClip>& front,
+					  shared_ptr<cAnimClip>& back)
 {
 	D3DXMATRIX localAnim;
 
@@ -268,16 +279,16 @@ void cAnimator::Blend(UINT size, shared_ptr<cModel>& modelPtr,
 	{
 		auto& bone = modelPtr->GetBone(i).lock();
 
-		if (curClipPtr->IsCorrectKeyFrame(bone->GetName()) == false)
+		if (front->IsCorrectKeyFrame(bone->GetName()) == false)
 			return;
 
-		curClipPtr->GetKeyFrameSRT(bone->GetName(),
-								   _current.CurrentKeyFrame,
-								   t[0], q[0], s[0]);
+		front->GetKeyFrameSRT(bone->GetName(),
+							  _prev.CurrentKeyFrame,
+							  t[0], q[0], s[0]);
 
-		nextClipPtr->GetKeyFrameSRT(bone->GetName(),
-									_next.CurrentKeyFrame,
-									t[1], q[1], s[1]);
+		back->GetKeyFrameSRT(bone->GetName(),
+							 _current.CurrentKeyFrame,
+							 t[1], q[1], s[1]);
 
 		D3DXVec3Lerp(&s[0], &s[0], &s[1], _interpolationTime);
 		D3DXVec3Lerp(&t[0], &t[0], &t[1], _interpolationTime);
@@ -341,8 +352,14 @@ void cAnimator::InitTime()
 
 void cAnimator::ShiftClip()
 {
-	_current.Clip = _next.Clip;
-	_current.CurrentKeyFrame = _next.CurrentKeyFrame;
-	_current.IsLoop = _next.IsLoop;
-	_next.Clip.reset();
+	_prev.Clip = _current.Clip;
+	_prev.CurrentKeyFrame = _current.CurrentKeyFrame;
+	_prev.IsLoop = _current.IsLoop;
+	_current.Clip.reset();
+}
+
+void cAnimator::DeletePrevClip()
+{
+	_prev.Clip.reset();
+	_prev.CurrentKeyFrame = 0;
 }

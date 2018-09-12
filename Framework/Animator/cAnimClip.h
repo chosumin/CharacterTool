@@ -21,7 +21,7 @@ public:
 	float GetFrameRate() const { return _frameRate; }
 
 	//전체 프레임 수
-	int GetTotalFrame() const { return _totalFrame; }
+	UINT GetTotalFrame() const { return _totalFrame; }
 
 	//@brief : 해당 본 키프레임의 SRT 전달
 	//@param : 찾을 본 이름
@@ -37,6 +37,10 @@ public:
 	//@param : 본 이름
 	//@param : 프레임 번호
 	void GetFrameTransform(OUT D3DXMATRIX& transformMatrix, const wstring& boneName, UINT count);
+
+	unordered_map<wstring, UINT> & GetEventFrames();
+	UINT GetEventFrame(const wstring& name);
+	void AddEventFrame(const wstring& name, UINT frameNumber);
 
 	//보간한 행렬 내보냄
 	//@param : 저장할 행렬
@@ -70,5 +74,7 @@ private:
 	//@second : KeyFrameData 컨테이너
 	unordered_map<wstring, unique_ptr<sAnimKeyFrame>> _keyFrames;
 
-	//todo : 모델명, 본 이름, 매트릭스 저장하는 버퍼
+	//@first : 이벤트 프레임 명
+	//@second : 이벤트 프레임 번호
+	unordered_map<wstring, UINT> _eventFrames;
 };

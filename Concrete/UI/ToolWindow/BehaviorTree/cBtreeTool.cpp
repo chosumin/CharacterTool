@@ -2,7 +2,6 @@
 #include "cBtreeTool.h"
 #include "./GameObject/cActor.h"
 #include "./BehaviorTree/cBehaviorTree.h"
-#include "./Component/BehaviorTree/Actions.h"
 #include "./Component/BehaviorTree/cTaskFactory.h"
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
@@ -398,7 +397,10 @@ void UI::cBtreeTool::DrawAddMenu()
 
 	if (ImGui::BeginMenu("Actions", true))
 	{
-		task = taskFactory.ShowActionMenu(_actor, _bTree, _newTaskPos);
+		if (!_actor.expired())
+		{
+			task = taskFactory.ShowActionMenu(_actor, _bTree, _newTaskPos);
+		}
 		ImGui::EndMenu();
 	}
 
@@ -412,9 +414,16 @@ void UI::cBtreeTool::DrawAddMenu()
 		ImGui::EndMenu();
 	}
 
+	if (ImGui::BeginMenu("Decorators", true))
+	{
+		task = taskFactory.ShowDecoratorMenu(_bTree, _newTaskPos);
+
+		ImGui::EndMenu();
+	}
+
 	if (ImGui::MenuItem("Composite Task", nullptr, false, true))
 		task = taskFactory.CreateComposition(_bTree, _newTaskPos);
-
+	
 	//붙여넣기
 	if (ImGui::MenuItem("Paste Node", nullptr, false, true))
 	{

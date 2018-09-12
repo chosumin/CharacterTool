@@ -95,7 +95,7 @@ bool cCylinderCollider::IntersectsWithDot(D3DXVECTOR3 point)
 
 bool cCylinderCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
 {
-	return false;
+	return true;
 }
 
 bool cCylinderCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)

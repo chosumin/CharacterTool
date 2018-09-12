@@ -14,10 +14,7 @@
 
 cActorFactory::cActorFactory()
 {
-	//트릭 구조체
-	struct make_shared_enabler : public cActor {};
-	_actor = make_shared<make_shared_enabler>();
-	_actor->Init();
+	InitActor();
 }
 
 cActorFactory::~cActorFactory()
@@ -26,13 +23,16 @@ cActorFactory::~cActorFactory()
 
 shared_ptr<cActor> cActorFactory::CreateActor()
 {
-	auto actor = _actor;
-	_actor.reset();
-	return actor;
+	if (_actor)
+		return move(_actor);
+
+	return nullptr;
 }
 
 shared_ptr<cActor> cActorFactory::CreateActor(wstring jsonPath)
 {
+	InitActor();
+
 	Json::Value root;
 	Json::ReadData(jsonPath, &root);
 
@@ -47,9 +47,16 @@ shared_ptr<cActor> cActorFactory::CreateActor(wstring jsonPath)
 	CreateBehaviorTree(root);
 	//todo : spec
 
-	auto actor = _actor;
+	return move(_actor);
+}
+
+void cActorFactory::InitActor()
+{
 	_actor.reset();
-	return actor;
+	//트릭 구조체
+	struct make_shared_enabler : public cActor {};
+	_actor = make_shared<make_shared_enabler>();
+	_actor->Init();
 }
 
 void cActorFactory::CreateTransform(Json::Value & root)
@@ -104,9 +111,16 @@ void cActorFactory::CreateAnimator(Json::Value& root)
 	auto bones = _actor->GetModel().lock()->GetBones();
 	auto animator = _actor->GetAnimator().lock();
 
-	for (auto&& animation : root["Animations"])
+	float speed;
+	Json::GetValue(root["Animations"], "Animation Speed", speed);
+	animator->SetAnimSpeed(speed);
+
+	for (auto&& clipJson : root["Animations"]["Clips"])
 	{
-		string fullPath = animation.asString();
+		//경로 가져오기
+		string fullPath;
+		Json::GetValue(clipJson, "Path", fullPath);
+
 		wstring path = cString::Wstring(cPath::GetDirectoryName(fullPath));
 
 		wstring name = cString::Wstring(cPath::GetFileName(fullPath));
@@ -115,7 +129,12 @@ void cActorFactory::CreateAnimator(Json::Value& root)
 
 		if (clip->IsCorrectBones(bones))
 			animator->AddClip(clip);
+
+		//이벤트 프레임 가져오기
+		CreateEventFrames(clipJson, clip);
 	}
+
+	animator->SetModel(_actor->GetModel());
 }
 
 void cActorFactory::CreateBehaviorTree(Json::Value& root)
@@ -140,4 +159,19 @@ void cActorFactory::CreateBehaviorTree(Json::Value& root)
 
 void cActorFactory::CreateAction()
 {
+}
+
+void cActorFactory::CreateEventFrames(Json::Value & clipJson,
+									  shared_ptr<cAnimClip>& clip)
+{
+	for (auto&& eventFrame : clipJson["Event Frames"])
+	{
+		string name;
+		Json::GetValue(eventFrame, "Event Name", name);
+
+		UINT index;
+		Json::GetValue(eventFrame, "Frame", index);
+
+		clip->AddEventFrame(cString::Wstring(name), index);
+	}
 }

@@ -24,5 +24,7 @@ namespace UI
 		weak_ptr<cActor> _actor;
 		vector<shared_ptr<cTool>> _tools;
 		weak_ptr<cTool> _selectedTool;
+
+		bool _isStart;
 	};
 }

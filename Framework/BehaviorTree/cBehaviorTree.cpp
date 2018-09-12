@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "cBehaviorTree.h"
 #include "./Blackboard/cBlackboard.h"
-#include "./Concrete/Component/BehaviorTree/Conditions.h"
-#include "./Concrete/Component/BehaviorTree/Actions.h"
 #include "./Concrete/Component/BehaviorTree/cTaskFactory.h"
 
 cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor)

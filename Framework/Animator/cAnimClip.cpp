@@ -61,6 +61,22 @@ void cAnimClip::GetFrameTransform(OUT D3DXMATRIX& transformMatrix, const wstring
 	}
 }
 
+unordered_map<wstring, UINT>& cAnimClip::GetEventFrames()
+{
+	return _eventFrames;
+}
+
+UINT cAnimClip::GetEventFrame(const wstring & name)
+{
+	auto& frame = _eventFrames.at(name);
+	return frame;
+}
+
+void cAnimClip::AddEventFrame(const wstring & name, UINT frameNumber)
+{
+	_eventFrames[name] = frameNumber;
+}
+
 void cAnimClip::Interpolate(OUT D3DXMATRIX * pSRT, const wstring& boneName, float keyFrameFactor, UINT current)
 {
 	UINT next = (current + 1) % _totalFrame;

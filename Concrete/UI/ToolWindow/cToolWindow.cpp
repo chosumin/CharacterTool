@@ -33,6 +33,8 @@ void UI::cToolWindow::Init()
 
 	for (auto&& tool : _tools)
 		tool->Init();
+
+	_isStart = false;
 }
 
 void UI::cToolWindow::Update()
@@ -40,12 +42,26 @@ void UI::cToolWindow::Update()
 	//fixme : 툴을 모두 업데이트 렌더할지, 아니면 선택된 툴만 업데이트 렌더할지
 	for (auto&& tool : _tools)
 		tool->Update();
+
+	if (!_isStart)
+	{
+		auto actorPtr = _actor.lock();
+		if(actorPtr)
+			actorPtr->TestUpdate();
+	}
 }
 
 void UI::cToolWindow::Render()
 {
 	for (auto&& tool : _tools)
 		tool->Render();
+
+	if (!_isStart)
+	{
+		auto actorPtr = _actor.lock();
+		if (actorPtr)
+			actorPtr->Render();
+	}
 }
 
 void UI::cToolWindow::PostRender()
@@ -111,6 +127,7 @@ void UI::cToolWindow::FunctionInitialize()
 	{
 		bool start = *(static_cast<bool*>(msg.extraInfo));
 
+		_isStart = start;
 		for (auto&& tool : _tools)
 		{
 			tool->SetStart(start);

@@ -45,22 +45,6 @@ public:
 	bool RenderMenu();
 
 	virtual void AddChild(std::shared_ptr<cTask> child) {}
-
-	//test : 행동트리 테스트
-	void RenderName()
-	{
-		if (_state == eState::SUCCESS || _state == eState::RUNNING)
-		{
-			cDebug::Log("%s", _taskName.c_str());
-			if (GetChildren())
-			{
-				for (auto&& child : *GetChildren())
-				{
-					child->RenderName();
-				}
-			}
-		}
-	}
 public:
 	/*******************
 		Getter Setter

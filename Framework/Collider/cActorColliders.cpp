@@ -16,31 +16,41 @@ cActorColliders::~cActorColliders()
 
 void cActorColliders::Update()
 {
-	//fixme : 콜라이더 툴로 이동
-	for (auto iter = _colliders.begin(); iter != _colliders.end();)
+	for (auto&& collider : _attackColliders)
 	{
-		auto colPtr = iter->lock();
-		if (!colPtr)
-			iter = _colliders.erase(iter);
-		else
-		{
+		auto colPtr = collider.lock();
+		if (colPtr)
 			colPtr->Update();
-			iter++;
-		}
+	}
+
+	for (auto&& collider : _damageColliders)
+	{
+		auto colPtr = collider.lock();
+		if (colPtr)
+			colPtr->Update();
 	}
 }
 
 void cActorColliders::Render()
 {
-	for (auto iter = _colliders.begin(); iter != _colliders.end();iter++)
+	for (auto&& collider : _attackColliders)
 	{
-		auto colPtr = iter->lock();
-		colPtr->Render();
+		auto colPtr = collider.lock();
+		if (colPtr)
+			colPtr->Render();
+	}
+	
+	for (auto&& collider : _damageColliders)
+	{
+		auto colPtr = collider.lock();
+		if (colPtr)
+			colPtr->Render();
 	}
 }
 
 void cActorColliders::AddCollider(eColliderType type,
- eColliderShape shape, weak_ptr<cModelBone> bone,
+								  eColliderShape shape,
+								  weak_ptr<cModelBone>& bone,
 								  const D3DXMATRIX & matrix)
 {
 	auto bonePtr = bone.lock();
@@ -50,15 +60,46 @@ void cActorColliders::AddCollider(eColliderType type,
 
 	bonePtr->AddCollider(col);
 
-	AddCollider(col);
+	if (type == eColliderType::ATTACK)
+		_attackColliders.emplace_back(col);
+	else if (type == eColliderType::DAMAGE)
+		_damageColliders.emplace_back(col);
 }
 
-void cActorColliders::AddCollider(weak_ptr<cCollider> collider)
+void cActorColliders::DeleteCollider()
 {
-	_colliders.emplace_back(collider);
+	for (auto iter = _attackColliders.begin(); iter != _attackColliders.end();)
+	{
+		if (iter->expired())
+			iter = _attackColliders.erase(iter);
+		else
+			iter++;
+	}
+
+	for (auto iter = _damageColliders.begin(); iter != _damageColliders.end();)
+	{
+		if (iter->expired())
+			iter = _damageColliders.erase(iter);
+		else
+			iter++;
+	}
 }
 
-vector<weak_ptr<cCollider>>& cActorColliders::GetColliders()
+bool cActorColliders::Attack(weak_ptr<cActorColliders> colliders)
 {
-	return _colliders;
+	auto opColPtr = colliders.lock();
+	if (!opColPtr)
+		return false;
+
+	auto& damageCols = opColPtr->GetDamageColliders();
+	for (auto&& damageCol : damageCols)
+	{
+		for (auto attackCol : _attackColliders)
+		{
+			if (attackCol.lock()->IntersectsWith(damageCol.lock()))
+				return true;
+		}
+	}
+
+	return false;
 }

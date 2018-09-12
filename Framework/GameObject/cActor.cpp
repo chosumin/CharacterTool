@@ -86,6 +86,9 @@ void cActor::TestUpdate()
 	//frame : 100프레임 소모
 	if (_animator)
 		_animator->Update();
+
+	if (_colliders)
+		_colliders->Update();
 }
 
 weak_ptr<cModel> cActor::GetModel() const

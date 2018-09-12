@@ -14,13 +14,25 @@ public:
 	void Update();
 	void Render();
 
-	void AddCollider(eColliderType type,
- eColliderShape shape, weak_ptr<cModelBone> bone,
+	void AddCollider(eColliderType type, eColliderShape shape,
+					 weak_ptr<cModelBone>& bone,
 					 const D3DXMATRIX& matrix);
-	void AddCollider(weak_ptr<cCollider> collider);
+	void DeleteCollider();
 
-	vector<weak_ptr<cCollider>>& GetColliders();
+	vector<weak_ptr<cCollider>>& GetAttackColliders()
+	{
+		return _attackColliders;
+	}
+	vector<weak_ptr<cCollider>>& GetDamageColliders()
+	{
+		return _damageColliders;
+	}
+	
+	//test : 충돌 테스트, 상대에게 공격함
+	bool Attack(weak_ptr<cActorColliders> colliders);
 private:
 	weak_ptr<cActor> _actor;
-	vector<weak_ptr<cCollider>> _colliders;
+
+	vector<weak_ptr<cCollider>> _attackColliders;
+	vector<weak_ptr<cCollider>> _damageColliders;
 };

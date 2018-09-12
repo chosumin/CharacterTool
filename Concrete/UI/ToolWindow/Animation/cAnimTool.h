@@ -44,7 +44,10 @@ namespace UI
 		*******************/
 
 		//애니메이터 정보 띄움
-		void ShowAnimatorInspector();
+		void ShowAnimatorInspector(UINT& index);
+
+		//애니메이션 속도 조절
+		void SetAnimationSpeed(UINT& index);
 
 		//클립 추가 버튼 클릭
 		void OpenAnimationClip();
@@ -64,6 +67,8 @@ namespace UI
 		//시작, 정지, 일시정지, 프로그레스바 띄움
 		void ShowProgressInspector();
 
+		void ShowEventFrameList(UINT& index);
+
 		//애니메이션 리스트 띄움
 		void ShowAnimationList();
 
@@ -73,5 +78,7 @@ namespace UI
 		weak_ptr<cModelTool> _modelTool;
 		weak_ptr<cAnimClip> _selectedClip;
 		weak_ptr<cAnimator> _animator;
+
+		char _eventName[255];
 	};
 }

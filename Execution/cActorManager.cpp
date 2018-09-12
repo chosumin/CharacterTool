@@ -7,10 +7,16 @@
 #include "./Viewer/cCameraFactory.h"
 #include "./Transform/sTransform.h"
 
+//test : 충돌 테스트
+#include "./GameObject/cActorFactory.h"
+#include "./Collider/cActorColliders.h"
+
 cActorManager::cActorManager(weak_ptr<sGlobalVariable> global)
 	: _global(global)
 	, _isStart(false)
 {
+	cActorFactory factory;
+	_enemy = factory.CreateActor(Content + L"Actor/THUG.actor");
 }
 
 cActorManager::~cActorManager()
@@ -28,14 +34,25 @@ void cActorManager::Update()
 	if (_isStart)
 	{
 		if (_actor)
+		{
 			_actor->Update();
+
+			//test : 충돌 테스트
+			_actor->GetColliders().lock()->Attack(_enemy->GetColliders());
+		}
 	}
+
+	_enemy->GetBehaviorTree().lock()->Run();
+	_enemy->Update();
 }
 
 void cActorManager::Render()
 {
 	if (_actor)
 		_actor->Render();
+
+	_enemy->Render();
+	_enemy->GetColliders().lock()->Render();
 }
 
 void cActorManager::PostRender()
@@ -53,12 +70,10 @@ void cActorManager::PostRender()
 	ImGui::SetNextWindowPos(pos);
 	ImGui::Begin("ActorManager",&open, flag);
 	{
-		//씬 시작 버튼
-		if (ImGui::Button("Start"))
+		if (ImGui::Button("Start"))	//씬 시작 버튼
 		{
 			_isStart = true;
 			//플레이어 3인칭 시점 카메라 전환
-
 			if (_actor)
 			{
 				_global.lock()->MainCamera = cCameraFactory::Get()->GetThirdPersonCamera(_actor->GetTransform());
@@ -67,13 +82,13 @@ void cActorManager::PostRender()
 			SendStartMessage();
 		}
 		ImGui::SameLine();
-		//씬 종료 버튼
-		if (ImGui::Button("Stop"))
+	
+		if (ImGui::Button("Stop")) //씬 종료 버튼
 		{
 			_isStart = false;
 			if (_actor)
 			{
-				_global.lock()->MainCamera = cCameraFactory::Get()->GetFreePointCamera(D3DXVECTOR3{ 0,0,-5 }, D3DXVECTOR2{ 0,0 });
+				_global.lock()->MainCamera = cCameraFactory::Get()->GetFreePointCamera(D3DXVECTOR3{ 0,30,20 }, D3DXVECTOR2{ 0,0 });
 
 				//todo : 원래 위치로 되돌아오기
 				_actor->GetTransform().lock()->Position = { 0,0,0 };
@@ -114,6 +129,6 @@ void cActorManager::SendStartMessage()
 	vector<UINT> receivers;
 	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
 
-	//새 액터를 관여된 객체들에게 전달
+	//시작 메시지 전달
 	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::CLICK_START, (void*)&_isStart);
 }
