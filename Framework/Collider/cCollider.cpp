@@ -14,7 +14,7 @@ cCollider::cCollider(weak_ptr<sTransform> parentTransform)
 
 	_worldTransform = make_shared<sTransform>();
 	
-	Update();
+	//Update();
 }
 
 cCollider::~cCollider()

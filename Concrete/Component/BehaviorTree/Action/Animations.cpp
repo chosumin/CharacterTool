@@ -49,7 +49,7 @@ cTask::eState cSingleAnimation::Run()
 	auto animatorPtr = actorPtr->GetAnimator().lock();
 	auto blackboardPtr = actorPtr->GetBlackboard().lock();
 
-	bool str = _selectedClip == "Attack_Close_Forward_06.anim";
+	bool str = _selectedClip == "Thug_Walk_Forward.anim";
 	if (_state == eState::NONE)
 	{
 		animatorPtr->SetCurrentClip(_clip, _overwrite, _blendTime, _isLoop);

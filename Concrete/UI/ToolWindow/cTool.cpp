@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "cTool.h"
-#include "./Message/cEntityManager.h"
-#include "./Message/cMessageDispatcher.h"
+#include "./Concrete/Message/eIdGroup.h"
+#include "./Concrete/Message/eMessageType.h"
 
 UI::cTool::cTool()
 	: _startGame(false)
@@ -15,7 +15,7 @@ UI::cTool::~cTool()
 
 void UI::cTool::Init()
 {
-	cEntityManager::Get()->RegisterEntity(eIdGroup::CharacterTool, cBaseGameEntity::downcasted_shared_from_this<cTool>());
+	cEntityManager::Get()->RegisterEntity(eIdGroup::CHARACTER_TOOL, cBaseGameEntity::downcasted_shared_from_this<cTool>());
 }
 
 void UI::cTool::HandleMessage(const sTelegram & msg)
@@ -43,7 +43,7 @@ bool UI::cTool::AlertActor()
 void UI::cTool::SendMe()
 {
 	vector<UINT> receivers;
-	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
+	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CHARACTER_TOOL, receivers);
 
 	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::RECIEVE_TOOL, (void*)&shared_from_this());
 }

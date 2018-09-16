@@ -1,6 +1,5 @@
 #pragma once
-#include <functional>
-#include "sTelegram.h"
+#include "stdafx.h"
 
 //최상위 클래스
 class cBaseGameEntity

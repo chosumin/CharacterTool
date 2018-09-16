@@ -9,13 +9,15 @@ class cTaskFactory
 public:
 	enum class eConditionType
 	{
-		BOOL_COMPARE, VALUE_COMPARE
+		BOOL_COMPARE, VALUE_COMPARE,
+		IS_NEAR,
 	};
 
 	enum class eActionType
 	{
 		SET_DATA, ANIMATE_ONE, ANIMATE_MULTI, MOVE, ROTATE,
-		ATTACK,
+		COMBO_ATTACK, SINGLE_ATTACK,
+		TREE_RUNNER
 	};
 
 	enum class eDecoratorType

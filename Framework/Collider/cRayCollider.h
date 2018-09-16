@@ -11,19 +11,15 @@ public:
 	/********************************
 		cCollider을(를) 통해 상속됨
 	*********************************/
-	virtual bool IntersectsWith(weak_ptr<iCollidable> other) override;
-	virtual ContainmentType ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) override;
-	virtual ContainmentType ContainsPlane(D3DXVECTOR3 normal, float d) override;
-	virtual ContainmentType ContainsDot(D3DXVECTOR3 point) override;
-	virtual ContainmentType ContainsSphere(D3DXVECTOR3 center, float radius) override;
-	virtual ContainmentType ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min) override;
-	virtual bool IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction) override;
-	virtual PlaneIntersectionType IntersectsWithPlane(D3DXVECTOR3 normal, float d) override;
-	virtual bool IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints) override;
-	virtual bool IntersectsWithDot(D3DXVECTOR3 point) override;
-	virtual bool IntersectsWithSphere(D3DXVECTOR3 center, float radius) override;
-	virtual bool IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max) override;
-	virtual bool IntersectsWithCylinder(sLine line, float radius) override;
+	virtual eContainmentType Contains(const weak_ptr<iCollidable>& other) override;
+
+	virtual eContainmentType ContainsRay(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction) override;
+	virtual eContainmentType ContainsQuad(const vector<D3DXVECTOR3>& fourPoints) override;
+	virtual eContainmentType ContainsDot(const D3DXVECTOR3 & point) override;
+	virtual eContainmentType ContainsSphere(const D3DXVECTOR3 & center, float radius) override;
+	virtual eContainmentType ContainsBox(const D3DXVECTOR3 & max, const D3DXVECTOR3 & min) override;
+	virtual eContainmentType ContainsCylinder(const sLine & line, float radius) override;
+	virtual ePlaneIntersectionType ContainsPlane(const D3DXVECTOR3 & normal, float d) override;
 private:
 	D3DXVECTOR3 GetTransformedOrigin();
 	D3DXVECTOR3 GetTransformedDirection();

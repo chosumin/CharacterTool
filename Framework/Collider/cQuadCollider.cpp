@@ -24,11 +24,11 @@ void cQuadCollider::Render()
 	_rect->Render();
 }
 
-bool cQuadCollider::IntersectsWith(weak_ptr<iCollidable> other)
+eContainmentType cQuadCollider::Contains(const weak_ptr<iCollidable> & other)
 {
 	auto colPtr = other.lock();
 	if (!colPtr)
-		return false;
+		return eContainmentType::Disjoint;
 
 	_cbuffer->Data.Intersect = 0;
 
@@ -37,38 +37,14 @@ bool cQuadCollider::IntersectsWith(weak_ptr<iCollidable> other)
 
 	Transformed(vertices);
 
-	bool intersect = colPtr->IntersectsWithQuad(vertices);
-	if(intersect)
+	auto type = colPtr->ContainsQuad(vertices);
+	if(type == eContainmentType::Intersects)
 		_cbuffer->Data.Intersect = 1;
-	return intersect;
+
+	return type;
 }
 
-ContainmentType cQuadCollider::ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
-{
-	return ContainmentType();
-}
-
-ContainmentType cQuadCollider::ContainsPlane(D3DXVECTOR3 normal, float d)
-{
-	return ContainmentType();
-}
-
-ContainmentType cQuadCollider::ContainsDot(D3DXVECTOR3 point)
-{
-	return ContainmentType();
-}
-
-ContainmentType cQuadCollider::ContainsSphere(D3DXVECTOR3 center, float radius)
-{
-	return ContainmentType();
-}
-
-ContainmentType cQuadCollider::ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min)
-{
-	return ContainmentType();
-}
-
-bool cQuadCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
+eContainmentType cQuadCollider::ContainsRay(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction)
 {
 	bool intersect = _rect->IntersectWithRay(position, direction);
 
@@ -77,37 +53,37 @@ bool cQuadCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 directio
 	else
 		_cbuffer->Data.Intersect = 0;
 
-	return intersect;
+	return intersect ? eContainmentType::Intersects : eContainmentType::Disjoint;
 }
 
-PlaneIntersectionType cQuadCollider::IntersectsWithPlane(D3DXVECTOR3 normal, float d)
+eContainmentType cQuadCollider::ContainsQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
-	return PlaneIntersectionType();
+	return eContainmentType();
 }
 
-bool cQuadCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
+eContainmentType cQuadCollider::ContainsDot(const D3DXVECTOR3 & point)
 {
-	return false;
+	return eContainmentType();
 }
 
-bool cQuadCollider::IntersectsWithDot(D3DXVECTOR3 point)
+eContainmentType cQuadCollider::ContainsSphere(const D3DXVECTOR3 & center, float radius)
 {
-	return false;
+	return eContainmentType();
 }
 
-bool cQuadCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
+eContainmentType cQuadCollider::ContainsBox(const D3DXVECTOR3 & max, const D3DXVECTOR3 & min)
 {
-	return false;
+	return eContainmentType();
 }
 
-bool cQuadCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)
+eContainmentType cQuadCollider::ContainsCylinder(const sLine & line, float radius)
 {
-	return false;
+	return eContainmentType();
 }
 
-bool cQuadCollider::IntersectsWithCylinder(sLine line, float radius)
+ePlaneIntersectionType cQuadCollider::ContainsPlane(const D3DXVECTOR3 & normal, float d)
 {
-	return false;
+	return ePlaneIntersectionType();
 }
 
 void cQuadCollider::Transformed(OUT vector<D3DXVECTOR3>& vertices)

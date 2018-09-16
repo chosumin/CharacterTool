@@ -20,8 +20,6 @@ public:
 	//Running 상태의 태스크 매 틱마다 처리
 	void Update();
 
-	void ReadBinary(wstring file);
-
 	weak_ptr<cRootTask> GetRoot() const;
 
 	void SetCurrentTask(const weak_ptr<cTask>& task);
@@ -34,8 +32,10 @@ public:
 	virtual void LoadJson(Json::Value& root) override;
 	virtual void SaveJson(Json::Value& root) override;
 private:
-	wstring _defaultName;
+	void UpdateParent(const weak_ptr<cTask> & parent);
+private:
 	wstring _name;
+	wstring _defaultName;
 	shared_ptr<cRootTask> _root;
 	weak_ptr<cActor> _actor;
 

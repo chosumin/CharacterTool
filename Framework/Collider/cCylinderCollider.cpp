@@ -30,87 +30,73 @@ void cCylinderCollider::Render()
 	_capsule->Render();
 }
 
-bool cCylinderCollider::IntersectsWith(weak_ptr<iCollidable> other)
+eContainmentType cCylinderCollider::Contains(const weak_ptr<iCollidable>& other)
 {
 	if (other.expired())
-		return false;
+		return eContainmentType::Disjoint;
 
 	_cbuffer->Data.Intersect = 0;
 	
-	bool intersect = other.lock()->IntersectsWithCylinder
+	auto type = other.lock()->ContainsCylinder
 	(
 		GetTransformedLine(), GetTransformedRadius()
 	);
 
-	if(intersect)
+	if(type == eContainmentType::Intersects)
 		_cbuffer->Data.Intersect = 1;
 
-	return intersect;
+	return type;
 }
 
-ContainmentType cCylinderCollider::ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
+eContainmentType cCylinderCollider::ContainsRay(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction)
 {
-	return ContainmentType();
+	return eContainmentType();
 }
 
-ContainmentType cCylinderCollider::ContainsPlane(D3DXVECTOR3 normal, float d)
+eContainmentType cCylinderCollider::ContainsQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
-	return ContainmentType();
+	return eContainmentType();
 }
 
-ContainmentType cCylinderCollider::ContainsDot(D3DXVECTOR3 point)
+eContainmentType cCylinderCollider::ContainsDot(const D3DXVECTOR3 & point)
 {
-	return ContainmentType();
+	return eContainmentType();
 }
 
-ContainmentType cCylinderCollider::ContainsSphere(D3DXVECTOR3 center, float radius)
+eContainmentType cCylinderCollider::ContainsSphere(const D3DXVECTOR3 & center, float radius)
 {
-	return ContainmentType();
+	auto type = cColliderUtility::CylinderAndSphere(
+		GetTransformedLine(),
+		GetTransformedRadius(),
+		center, radius);
+
+	_cbuffer->Data.Intersect = type == eContainmentType::Disjoint ? 0 : 1;
+
+	return type;
 }
 
-ContainmentType cCylinderCollider::ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min)
+eContainmentType cCylinderCollider::ContainsBox(const D3DXVECTOR3 & max, const D3DXVECTOR3 & min)
 {
-	return ContainmentType();
+	return eContainmentType();
 }
 
-bool cCylinderCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
-{
-	return false;
-}
-
-PlaneIntersectionType cCylinderCollider::IntersectsWithPlane(D3DXVECTOR3 normal, float d)
-{
-	return PlaneIntersectionType();
-}
-
-bool cCylinderCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
-{
-	return false;
-}
-
-bool cCylinderCollider::IntersectsWithDot(D3DXVECTOR3 point)
-{
-	return false;
-}
-
-bool cCylinderCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
-{
-	return true;
-}
-
-bool cCylinderCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)
-{
-	return false;
-}
-
-bool cCylinderCollider::IntersectsWithCylinder(sLine line, float radius)
+eContainmentType cCylinderCollider::ContainsCylinder(const sLine & line, float radius)
 {
 	float dist2 = ClosestPtSegmentSegment(line);
 
 	float radius2 = GetTransformedRadius() +
 		radius;
 
-	return dist2 <= radius2 * radius2;
+	bool intersect = dist2 <= radius2 * radius2;
+	
+	_cbuffer->Data.Intersect = intersect ? 1 : 0;
+
+	return intersect ? eContainmentType::Intersects : eContainmentType::Disjoint;
+}
+
+ePlaneIntersectionType cCylinderCollider::ContainsPlane(const D3DXVECTOR3 & normal, float d)
+{
+	return ePlaneIntersectionType();
 }
 
 sLine cCylinderCollider::GetTransformedLine() const

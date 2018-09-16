@@ -221,7 +221,7 @@ void cRotatingAction::RotateAngle()
 	}
 }
 
-void cRotatingAction::Rotate(OUT shared_ptr<sTransform> transformPtr,
+void cRotatingAction::Rotate(OUT shared_ptr<sTransform> & transformPtr,
 							 const D3DXVECTOR3& actorDirection,
 							 const D3DXVECTOR3& targetDirection)
 {

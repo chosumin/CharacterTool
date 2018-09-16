@@ -15,7 +15,6 @@ cMaterial::cMaterial(wstring shaderFile)
 	Initialize();
 
 	_shader = cShader::Create(shaderFile);
-	_hasShader = true;
 }
 
 cMaterial::~cMaterial()
@@ -28,7 +27,6 @@ unique_ptr<cMaterial> cMaterial::Clone() const
 
 	material->_name = _name;
 	material->_cbuffer = make_shared<cMaterialBuffer>(*_cbuffer);
-	material->_hasShader = _hasShader;
 	material->_shader = cShader::Create(_shader->GetFileName());
 
 	for (auto&& texture : _textureMap)

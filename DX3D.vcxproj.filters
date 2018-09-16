@@ -66,26 +66,20 @@
     <ClInclude Include="Framework\Graphic\cMaterial.h">
       <Filter>Framework\Graphic</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Interface\iClonable.h">
-      <Filter>Framework\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Helper\Json.h">
       <Filter>Framework\Helper</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\FbxExporter\Exporter.h">
-      <Filter>Framework\Model\FbxExporter</Filter>
+      <Filter>Framework\Component\Model\FbxExporter</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\FbxExporter\FbxType.h">
-      <Filter>Framework\Model\FbxExporter</Filter>
+      <Filter>Framework\Component\Model\FbxExporter</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\FbxExporter\FbxUtility.h">
-      <Filter>Framework\Model\FbxExporter</Filter>
+      <Filter>Framework\Component\Model\FbxExporter</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\cModel.h">
-      <Filter>Framework\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Interface\iCollidable.h">
-      <Filter>Framework\Interface</Filter>
+      <Filter>Framework\Component\Model</Filter>
     </ClInclude>
     <ClInclude Include="Common\iExecutable.h">
       <Filter>Common</Filter>
@@ -97,37 +91,19 @@
       <Filter>Framework\Helper</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\ModelPart\cModelBone.h">
-      <Filter>Framework\Model\ModelPart</Filter>
+      <Filter>Framework\Component\Model\ModelPart</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\ModelPart\cModelMesh.h">
-      <Filter>Framework\Model\ModelPart</Filter>
+      <Filter>Framework\Component\Model\ModelPart</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\ModelPart\cModelMeshPart.h">
-      <Filter>Framework\Model\ModelPart</Filter>
+      <Filter>Framework\Component\Model\ModelPart</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Model\cModelFactory.h">
-      <Filter>Framework\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Polygon\cRectangle.h">
-      <Filter>Framework\Polygon</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Polygon\cArrow.h">
-      <Filter>Framework\Polygon</Filter>
+      <Filter>Framework\Component\Model</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Interface\iTransformable.h">
       <Filter>Framework\Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Polygon\PolygonUtility.h">
-      <Filter>Framework\Polygon</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Polygon\cLine.h">
-      <Filter>Framework\Polygon</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Polygon\cBox.h">
-      <Filter>Framework\Polygon</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Polygon\cSphere.h">
-      <Filter>Framework\Polygon</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Graphic\ConstBuffer\cColliderBuffer.h">
       <Filter>Framework\Graphic\ConstBuffer</Filter>
@@ -147,44 +123,8 @@
     <ClInclude Include="System\D3D.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Collider\cArrowCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Collider\cBoxCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Collider\cBoxLineCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Collider\cLineCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Collider\cQuadCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Collider\cSphereCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Collider\cSphereLineCollider.h">
-      <Filter>Framework\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Transform\cBasicGizmo.h">
-      <Filter>Framework\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Transform\cGizmo.h">
-      <Filter>Framework\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Transform\cMovingGizmo.h">
-      <Filter>Framework\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Transform\cRotatingGizmo.h">
-      <Filter>Framework\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Transform\cScalingGizmo.h">
-      <Filter>Framework\Transform</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Transform\sTransform.h">
-      <Filter>Framework\Transform</Filter>
+      <Filter>Framework\Component\Transform</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Environment\cWorldGrid.h">
       <Filter>Framework\Environment</Filter>
@@ -192,11 +132,245 @@
     <ClInclude Include="Framework\Environment\cSky.h">
       <Filter>Framework\Environment</Filter>
     </ClInclude>
-    <ClInclude Include="Execution\cEnvironmentExecuter.h">
+    <ClInclude Include="Framework\Model\FbxExporter\FbxBoneWeights.h">
+      <Filter>Framework\Component\Model\FbxExporter</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Interface\iCloneable.h">
+      <Filter>Framework\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphic\ConstBuffer\cModelBoneBuffer.h">
+      <Filter>Framework\Graphic\ConstBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Execution\cMenuBar.h">
       <Filter>Execution</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Model\FbxExporter\FbxBoneWeights.h">
-      <Filter>Framework\Model\FbxExporter</Filter>
+    <ClInclude Include="Execution\cEnvironment.h">
+      <Filter>Execution</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\GameObject\cGameObject.h">
+      <Filter>Framework\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Execution\cUI.h">
+      <Filter>Execution</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\cArrow.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\cBox.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\cLine.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\cRectangle.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\cSphere.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\MeshUtility.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Message\cBaseGameEntity.h">
+      <Filter>Framework\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Message\sTelegram.h">
+      <Filter>Framework\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Message\cMessageDispatcher.h">
+      <Filter>Framework\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Message\cEntityManager.h">
+      <Filter>Framework\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Environment\cWorldMap.h">
+      <Filter>Framework\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Environment\cBasicMap.h">
+      <Filter>Framework\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Environment\cHeightMap.h">
+      <Filter>Framework\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Interface\iState.h">
+      <Filter>Framework\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\GameObject\cActor.h">
+      <Filter>Framework\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\BehaviorTree\BaseTasks.h">
+      <Filter>Framework\Component\BehaviorTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\BehaviorTree\cBehaviorTree.h">
+      <Filter>Framework\Component\BehaviorTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cCollider.h">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cColliderFactory.h">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Interface\iCollidable.h">
+      <Filter>Framework\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Mesh\cCapsule.h">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cColliderUtility.h">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Execution\cActorManager.h">
+      <Filter>Execution</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\MenuBar\cActorMenu.h">
+      <Filter>Concrete\UI\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\cTool.h">
+      <Filter>Concrete\UI\ToolWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\cToolWindow.h">
+      <Filter>Concrete\UI\ToolWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\Gizmo\cBasicGizmo.h">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\Gizmo\cGizmo.h">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\Gizmo\cMovingGizmo.h">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\Gizmo\cRotatingGizmo.h">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\Gizmo\cScalingGizmo.h">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\Gizmo\GizmoMeshes.h">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\Model\cModelTool.h">
+      <Filter>Concrete\UI\ToolWindow\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\Transform\cTransformTool.h">
+      <Filter>Concrete\UI\ToolWindow\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\Collider\cColliderTool.h">
+      <Filter>Concrete\UI\ToolWindow\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\Model\iObserver.h">
+      <Filter>Concrete\UI\ToolWindow\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\inheritable_enable_shared_from_this.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cBoxCollider.h">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cCylinderCollider.h">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cLineCollider.h">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cQuadCollider.h">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cRayCollider.h">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cSphereCollider.h">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Collider\cActorColliders.h">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Animator\AnimKeyFrames.h">
+      <Filter>Framework\Component\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Animator\cAnimClip.h">
+      <Filter>Framework\Component\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Animator\cAnimator.h">
+      <Filter>Framework\Component\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\Animation\cAnimTool.h">
+      <Filter>Concrete\UI\ToolWindow\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\GameObject\cActorFactory.h">
+      <Filter>Framework\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\BehaviorTree\cBtreeTool.h">
+      <Filter>Concrete\UI\ToolWindow\BehaviorTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\cTaskFactory.h">
+      <Filter>Concrete\Component\BehaviorTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Blackboard\cBlackboard.h">
+      <Filter>Framework\Component\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Viewer\cThirdPersonCamera.h">
+      <Filter>Framework\Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Viewer\cCameraFactory.h">
+      <Filter>Framework\Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Interface\iFile.h">
+      <Filter>Framework\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Decorators.h">
+      <Filter>Concrete\Component\BehaviorTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Interaction\cCollisionManager.h">
+      <Filter>Framework\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\cDataSetter.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\cMovingAction.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\cRotatingAction.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\Animations.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Blackboard\cUserInspector.h">
+      <Filter>Framework\Component\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Blackboard\cAiInspector.h">
+      <Filter>Framework\Component\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\ToolWindow\BehaviorTree\cBlackboardTool.h">
+      <Filter>Concrete\UI\ToolWindow\BehaviorTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\GameObject\cActorGroup.h">
+      <Filter>Framework\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Message\eMessageType.h">
+      <Filter>Concrete\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Message\eIdGroup.h">
+      <Filter>Concrete\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Condition\ValueCompares.h">
+      <Filter>Concrete\Component\BehaviorTree\Condition</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Condition\cIsNearCondition.h">
+      <Filter>Concrete\Component\BehaviorTree\Condition</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\cBTreeRunner.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\cComboAttackAction.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\Component\BehaviorTree\Action\cSingleAttackAction.h">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Concrete\UI\MenuBar\cCameraMenu.h">
+      <Filter>Concrete\UI\MenuBar</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -254,13 +428,13 @@
       <Filter>Framework\Helper</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\FbxExporter\Exporter.cpp">
-      <Filter>Framework\Model\FbxExporter</Filter>
+      <Filter>Framework\Component\Model\FbxExporter</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\FbxExporter\FbxUtility.cpp">
-      <Filter>Framework\Model\FbxExporter</Filter>
+      <Filter>Framework\Component\Model\FbxExporter</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\cModel.cpp">
-      <Filter>Framework\Model</Filter>
+      <Filter>Framework\Component\Model</Filter>
     </ClCompile>
     <ClCompile Include="Execution\cModels.cpp">
       <Filter>Execution</Filter>
@@ -269,31 +443,16 @@
       <Filter>Framework\Helper</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\ModelPart\cModelBone.cpp">
-      <Filter>Framework\Model\ModelPart</Filter>
+      <Filter>Framework\Component\Model\ModelPart</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\ModelPart\cModelMesh.cpp">
-      <Filter>Framework\Model\ModelPart</Filter>
+      <Filter>Framework\Component\Model\ModelPart</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\ModelPart\cModelMeshPart.cpp">
-      <Filter>Framework\Model\ModelPart</Filter>
+      <Filter>Framework\Component\Model\ModelPart</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Model\cModelFactory.cpp">
-      <Filter>Framework\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Polygon\cRectangle.cpp">
-      <Filter>Framework\Polygon</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Polygon\cArrow.cpp">
-      <Filter>Framework\Polygon</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Polygon\cLine.cpp">
-      <Filter>Framework\Polygon</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Polygon\cBox.cpp">
-      <Filter>Framework\Polygon</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Polygon\cSphere.cpp">
-      <Filter>Framework\Polygon</Filter>
+      <Filter>Framework\Component\Model</Filter>
     </ClCompile>
     <ClCompile Include="System\cDebug.cpp">
       <Filter>System</Filter>
@@ -307,44 +466,8 @@
     <ClCompile Include="System\D3D.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Collider\cArrowCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Collider\cBoxCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Collider\cBoxLineCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Collider\cLineCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Collider\cQuadCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Collider\cSphereCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Collider\cSphereLineCollider.cpp">
-      <Filter>Framework\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Transform\cBasicGizmo.cpp">
-      <Filter>Framework\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Transform\cGizmo.cpp">
-      <Filter>Framework\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Transform\cMovingGizmo.cpp">
-      <Filter>Framework\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Transform\cRotatingGizmo.cpp">
-      <Filter>Framework\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Transform\cScalingGizmo.cpp">
-      <Filter>Framework\Transform</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Transform\sTransform.cpp">
-      <Filter>Framework\Transform</Filter>
+      <Filter>Framework\Component\Transform</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Environment\cWorldGrid.cpp">
       <Filter>Framework\Environment</Filter>
@@ -352,8 +475,212 @@
     <ClCompile Include="Framework\Environment\cSky.cpp">
       <Filter>Framework\Environment</Filter>
     </ClCompile>
-    <ClCompile Include="Execution\cEnvironmentExecuter.cpp">
+    <ClCompile Include="Execution\cEnvironment.cpp">
       <Filter>Execution</Filter>
+    </ClCompile>
+    <ClCompile Include="Execution\cMenuBar.cpp">
+      <Filter>Execution</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\GameObject\cGameObject.cpp">
+      <Filter>Framework\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Execution\cUI.cpp">
+      <Filter>Execution</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Mesh\cArrow.cpp">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Mesh\cBox.cpp">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Mesh\cLine.cpp">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Mesh\cRectangle.cpp">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Mesh\cSphere.cpp">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Message\cMessageDispatcher.cpp">
+      <Filter>Framework\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Message\cEntityManager.cpp">
+      <Filter>Framework\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Environment\cWorldMap.cpp">
+      <Filter>Framework\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Environment\cBasicMap.cpp">
+      <Filter>Framework\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Environment\cHeightMap.cpp">
+      <Filter>Framework\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\GameObject\cActor.cpp">
+      <Filter>Framework\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\BehaviorTree\cBehaviorTree.cpp">
+      <Filter>Framework\Component\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\BehaviorTree\BaseTasks.cpp">
+      <Filter>Framework\Component\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cCollider.cpp">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cColliderFactory.cpp">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Mesh\cCapsule.cpp">
+      <Filter>Framework\Component\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cColliderUtility.cpp">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Execution\cActorManager.cpp">
+      <Filter>Execution</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\MenuBar\cActorMenu.cpp">
+      <Filter>Concrete\UI\MenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\cTool.cpp">
+      <Filter>Concrete\UI\ToolWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\cToolWindow.cpp">
+      <Filter>Concrete\UI\ToolWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\Gizmo\cBasicGizmo.cpp">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\Gizmo\cGizmo.cpp">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\Gizmo\cMovingGizmo.cpp">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\Gizmo\cRotatingGizmo.cpp">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\Gizmo\cScalingGizmo.cpp">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\Gizmo\GizmoMeshes.cpp">
+      <Filter>Concrete\UI\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\Model\cModelTool.cpp">
+      <Filter>Concrete\UI\ToolWindow\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\Transform\cTransformTool.cpp">
+      <Filter>Concrete\UI\ToolWindow\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\Collider\cColliderTool.cpp">
+      <Filter>Concrete\UI\ToolWindow\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\inheritable_enable_shared_from_this.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cBoxCollider.cpp">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cCylinderCollider.cpp">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cLineCollider.cpp">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cQuadCollider.cpp">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cRayCollider.cpp">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cSphereCollider.cpp">
+      <Filter>Framework\Component\Collider\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Collider\cActorColliders.cpp">
+      <Filter>Framework\Component\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Animator\cAnimClip.cpp">
+      <Filter>Framework\Component\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Animator\cAnimator.cpp">
+      <Filter>Framework\Component\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\Animation\cAnimTool.cpp">
+      <Filter>Concrete\UI\ToolWindow\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\GameObject\cActorFactory.cpp">
+      <Filter>Framework\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\BehaviorTree\cBtreeTool.cpp">
+      <Filter>Concrete\UI\ToolWindow\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\cTaskFactory.cpp">
+      <Filter>Concrete\Component\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Blackboard\cBlackboard.cpp">
+      <Filter>Framework\Component\Blackboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Viewer\cThirdPersonCamera.cpp">
+      <Filter>Framework\Viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Viewer\cCameraFactory.cpp">
+      <Filter>Framework\Viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\GlobalData.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Decorators.cpp">
+      <Filter>Concrete\Component\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Interaction\cCollisionManager.cpp">
+      <Filter>Framework\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\cDataSetter.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\cMovingAction.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\cRotatingAction.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\Animations.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Blackboard\cUserInspector.cpp">
+      <Filter>Framework\Component\Blackboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Blackboard\cAiInspector.cpp">
+      <Filter>Framework\Component\Blackboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\ToolWindow\BehaviorTree\cBlackboardTool.cpp">
+      <Filter>Concrete\UI\ToolWindow\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\GameObject\cActorGroup.cpp">
+      <Filter>Framework\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Message\sTelegram.cpp">
+      <Filter>Framework\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Condition\ValueCompares.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Condition</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Condition\cIsNearCondition.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Condition</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\cBTreeRunner.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\cComboAttackAction.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\Component\BehaviorTree\Action\cSingleAttackAction.cpp">
+      <Filter>Concrete\Component\BehaviorTree\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Concrete\UI\MenuBar\cCameraMenu.cpp">
+      <Filter>Concrete\UI\MenuBar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -387,20 +714,8 @@
     <Filter Include="Framework\Interface">
       <UniqueIdentifier>{c91a4588-ca4b-46dc-be92-ca2cc150472d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework\Model">
-      <UniqueIdentifier>{dddcaf8a-3aa2-4d6f-be64-27f10245c376}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\Model\FbxExporter">
-      <UniqueIdentifier>{b4f34038-e7b7-4ae5-9424-1dc145d707ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Execution">
       <UniqueIdentifier>{885d243f-ec60-44fc-bbce-c0a073bb3cca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\Model\ModelPart">
-      <UniqueIdentifier>{3831071e-d7c8-488c-a756-0a4d18fbcbcb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\Polygon">
-      <UniqueIdentifier>{9b3f1173-21b3-4860-abd9-93f7c9fc493a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Framework\Graphic\ConstBuffer">
       <UniqueIdentifier>{ce7b249b-2d42-46ff-8646-f4ae00730ef4}</UniqueIdentifier>
@@ -411,11 +726,92 @@
     <Filter Include="System">
       <UniqueIdentifier>{e90d15cb-bf9a-421b-8106-a12b7acb638b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework\Collider">
+    <Filter Include="Framework\GameObject">
+      <UniqueIdentifier>{99356311-2dfb-4c38-9de2-acbc5f7c08cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI">
+      <UniqueIdentifier>{9a1ea10d-1487-41de-92ab-b785d0272605}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component">
+      <UniqueIdentifier>{cb1e5c98-423f-439f-96fb-5eb17648f61b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Transform">
+      <UniqueIdentifier>{c121c787-a4ae-4744-a562-f2513eee4aee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Mesh">
+      <UniqueIdentifier>{9b3f1173-21b3-4860-abd9-93f7c9fc493a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Collider">
       <UniqueIdentifier>{db328899-2bae-4bfc-b735-1b5363d99d0d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework\Transform">
-      <UniqueIdentifier>{c121c787-a4ae-4744-a562-f2513eee4aee}</UniqueIdentifier>
+    <Filter Include="Framework\Component\Model">
+      <UniqueIdentifier>{dddcaf8a-3aa2-4d6f-be64-27f10245c376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Model\FbxExporter">
+      <UniqueIdentifier>{b4f34038-e7b7-4ae5-9424-1dc145d707ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Model\ModelPart">
+      <UniqueIdentifier>{3831071e-d7c8-488c-a756-0a4d18fbcbcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Message">
+      <UniqueIdentifier>{ddbae9a3-cac0-4682-a28c-ef3f3d208c2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\Component">
+      <UniqueIdentifier>{2fba5485-beaa-421f-b151-2c15dc7112e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\Component\Action">
+      <UniqueIdentifier>{1b7021ba-c509-4f23-a419-2761368280d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\BehaviorTree">
+      <UniqueIdentifier>{afb9f3b4-d136-4a6b-9602-7d1796289b5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\Component\BehaviorTree">
+      <UniqueIdentifier>{8ac91d6a-a596-42a5-9a30-45c40bc8782f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\ToolWindow">
+      <UniqueIdentifier>{c3733a97-6b8f-485b-8436-3a34e3b3bfa4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\ToolWindow\Transform">
+      <UniqueIdentifier>{b4d360fb-9b4d-4b66-893a-48b89b967661}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\MenuBar">
+      <UniqueIdentifier>{d115b128-3c09-4ea6-8db5-2129c5f7381f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\Gizmo">
+      <UniqueIdentifier>{fcc5b9f6-4df1-418f-8298-1b040b3a208e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\ToolWindow\Model">
+      <UniqueIdentifier>{bc9fe9f9-7eb8-4892-99e0-fbfb352f0c34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\ToolWindow\Collider">
+      <UniqueIdentifier>{3705bf25-1281-4e62-a0d7-7c5dc7ec33c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Collider\Colliders">
+      <UniqueIdentifier>{5d6f56a8-8ad7-4b9b-9512-51564f37b08e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Animator">
+      <UniqueIdentifier>{df081701-5b97-4335-826a-bf1f6112a557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\ToolWindow\Animation">
+      <UniqueIdentifier>{819f23c8-1408-48fe-be73-fb325031a33c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\UI\ToolWindow\BehaviorTree">
+      <UniqueIdentifier>{71cd6494-87f7-4328-9053-42ae167ffe9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Component\Blackboard">
+      <UniqueIdentifier>{b1d93d5c-8c85-4414-93b5-7adfbb64fcb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Interaction">
+      <UniqueIdentifier>{401b93ec-3a31-4aa9-a279-40cc9835db4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\Component\BehaviorTree\Action">
+      <UniqueIdentifier>{6daf00fd-4ef7-40dc-9b64-0c2be8401e4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\Message">
+      <UniqueIdentifier>{ccb6297d-cf60-4bca-8abf-c7653438cc9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Concrete\Component\BehaviorTree\Condition">
+      <UniqueIdentifier>{0f9ec9a9-8a0c-44ec-88b7-887e02693a5c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

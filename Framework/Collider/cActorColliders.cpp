@@ -1,13 +1,19 @@
 #include "stdafx.h"
 #include "cActorColliders.h"
+#include "./GameObject/cActor.h"
 #include "./Collider/cColliderFactory.h"
 #include "./Collider/cCollider.h"
+#include "./Collider/cRayCollider.h"
 #include "./Model/ModelPart/cModelMesh.h"
 #include "./Model/ModelPart/cModelBone.h"
+#include "./Command/cInputHandler.h"
 
 cActorColliders::cActorColliders(weak_ptr<cActor> actor)
 	:_actor(actor)
 {
+	D3DXMATRIX matrix;
+	D3DXMatrixScaling(&matrix, 100, 100, 100);
+	_pickChecker = cColliderFactory::Create(eColliderType::NONE, eColliderShape::SPHERE, _actor.lock()->GetTransform(), matrix);
 }
 
 cActorColliders::~cActorColliders()
@@ -60,7 +66,7 @@ void cActorColliders::AddCollider(eColliderType type,
 
 	bonePtr->AddCollider(col);
 
-	if (type == eColliderType::ATTACK)
+	if (type == eColliderType::COMBO_ATTACK)
 		_attackColliders.emplace_back(col);
 	else if (type == eColliderType::DAMAGE)
 		_damageColliders.emplace_back(col);
@@ -96,9 +102,29 @@ bool cActorColliders::Attack(weak_ptr<cActorColliders> colliders)
 	{
 		for (auto attackCol : _attackColliders)
 		{
-			if (attackCol.lock()->IntersectsWith(damageCol.lock()))
+			if (attackCol.lock()->Contains(damageCol.lock()) == eContainmentType::Intersects)
 				return true;
 		}
+	}
+
+	return false;
+}
+
+bool cActorColliders::Collide(const weak_ptr<cCollider>& collider)
+{
+	auto colPtr = collider.lock();
+	if (!colPtr)
+		return false;
+
+	for (auto&& dmgCol : _damageColliders)
+	{
+		auto dmgColPtr = dmgCol.lock();
+		if (!dmgColPtr)
+			continue;
+
+		//Ãæµ¹
+		if (dmgColPtr->Contains(colPtr) != eContainmentType::Disjoint)
+			return true;
 	}
 
 	return false;

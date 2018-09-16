@@ -63,13 +63,13 @@ void cCamera::GetCameraDirection(OUT D3DXVECTOR3 & camDir)
 	camDir = m_vForward;
 }
 
-void cCamera::GetMouseDirection(OUT D3DXVECTOR3& mouse,
-								cViewport * pViewport,
-								cPerspective * pPerspective)
+void cCamera::GetMouseDirection(OUT D3DXVECTOR3& mouse)
 {
 	D3DXVECTOR2 vScreenSize;
-	vScreenSize.x = pViewport->GetWidth();
-	vScreenSize.y = pViewport->GetHeight();
+	//vScreenSize.x = pViewport->GetWidth();
+	//vScreenSize.y = pViewport->GetHeight();
+	vScreenSize.x = sGlobalVariable::Viewport->GetWidth();
+	vScreenSize.y = sGlobalVariable::Viewport->GetHeight();
 
 	auto vMouse = cMouse::Get()->GetPosition();
 	D3DXVECTOR2 vPoint;
@@ -83,8 +83,8 @@ void cCamera::GetMouseDirection(OUT D3DXVECTOR3& mouse,
 
 	//Projection
 	{
-		pPerspective->GetMatrix(&matProj);
-
+		sGlobalVariable::Perspective->GetMatrix(&matProj);
+		//pPerspective->GetMatrix(&matProj);
 		vPoint.x = vPoint.x / matProj._11;
 		vPoint.y = vPoint.y / matProj._22;
 	}

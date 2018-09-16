@@ -1,20 +1,6 @@
 #pragma once
-#include "../../stdafx.h"
 
-enum class eMessageType
-{
-	NONE,
-
-	/*************
-		UI 관련
-	**************/
-	RECIEVE_ACTOR,
-	RECIEVE_TOOL,
-	SAVE_ACTOR,
-	LOAD_ACTOR,
-	CLICK_START,
-};
-
+enum class eMessageType;
 struct sTelegram
 {
 	UINT sender; //송신자 id
@@ -23,19 +9,9 @@ struct sTelegram
 	DWORD dispatchTime; //지연시간, 지연시간 경과 후 메시지 이벤트 호출
 	void* extraInfo; //추가 정보
 
-	sTelegram()
-	{
-		message = eMessageType::NONE;
-		extraInfo = NULL;
-	}
+	sTelegram();
 
-	sTelegram(DWORD dispatchTime, UINT sender, vector<UINT> receivers, eMessageType type, void* extraInfo)
-		:dispatchTime(dispatchTime), sender(sender), receivers(receivers), message(type), extraInfo(extraInfo)
-	{
-	}
+	sTelegram(DWORD dispatchTime, UINT sender, vector<UINT> receivers, eMessageType type, void* extraInfo);
 
-	bool operator<(const sTelegram& ref) const
-	{
-		return dispatchTime < ref.dispatchTime;
-	}
+	bool operator<(const sTelegram& ref) const;
 };

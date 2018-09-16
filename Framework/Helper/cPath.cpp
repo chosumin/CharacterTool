@@ -10,7 +10,8 @@ const WCHAR* cPath::MeshFilter = L"Model\0*.mesh";
 const WCHAR* cPath::FbxFilter = L"Model\0*.fbx";
 const WCHAR* cPath::AnimFbxFilter = L"Animation\0*.anim;*.fbx";
 const WCHAR* cPath::BehaviorTreeFilter= L"BehaviorTree\0*.bt";
-const WCHAR* cPath::TOP_UPPER_FOLDERNAME = L"DX11_3D";
+const WCHAR* cPath::TOP_FOLDERNAME_WCHAR = L"/DX11_3D";
+const CHAR* cPath::TOP_FOLDERNAME_CHAR = "/DX11_3D";
 
 void cPath::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func)
 {
@@ -182,6 +183,27 @@ wstring cPath::GetDirectoryName(wstring path)
 	size_t index = path.find_last_of('/');
 
 	return path.substr(0, index + 1);
+}
+
+string cPath::GetRelativePath(string path, string startString)
+{
+	return cString::String(GetRelativePath(cString::Wstring(path), cString::Wstring(startString)));
+}
+
+wstring cPath::GetRelativePath(wstring path, wstring startString)
+{
+	size_t index = path.find(startString);
+
+	size_t maxVal = -1;
+	if (index == maxVal)
+		return path;
+
+	size_t startStrSize = startString.size();
+	path = path.substr(index);
+	path.erase(0, startStrSize);
+	path.insert(0, L"..");
+
+	return path;
 }
 
 string cPath::GetExtension(string path)

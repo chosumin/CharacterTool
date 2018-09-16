@@ -19,9 +19,17 @@ void cCollisionManager::Update()
 
 	if (playerPtr && enemyPtr)
 	{
-		auto playerColPtr = playerPtr->GetColliders().lock();
-		auto enemyColPtr = enemyPtr->GetColliders().lock();
+		auto&& enemyVec = enemyPtr->GetColliders().lock()->GetDamageColliders();
+		for (auto&& enemyCol : enemyVec)
+		{
+			playerPtr->Collide(enemyCol);
+		}
 
+		auto&& playerVec = playerPtr->GetColliders().lock()->GetDamageColliders();
+		for (auto&& playerCol : playerVec)
+		{
+			enemyPtr->Collide(playerCol);
+		}
 	}
 }
 

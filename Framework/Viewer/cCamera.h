@@ -22,7 +22,7 @@ public:
 
 	void GetCameraDirection(OUT D3DXVECTOR3& camDir);
 
-	void GetMouseDirection(OUT D3DXVECTOR3& mouse, cViewport* pViewport, cPerspective* pPerspective);
+	void GetMouseDirection(OUT D3DXVECTOR3& mouse);
 
 	void GetRotationMatrix(OUT D3DXMATRIX& rotationMat);
 

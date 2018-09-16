@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "cActorMenu.h"
 #include "./GameObject/cActor.h"
-#include "./Message/cEntityManager.h"
-#include "./Message/cMessageDispatcher.h"
 #include "./GameObject/cActorFactory.h"
 #include "./Helper/cPath.h"
 #include "./Helper/cString.h"
+#include "./Concrete/Message/eIdGroup.h"
+#include "./Concrete/Message/eMessageType.h"
+#include "./Model/cModel.h"
 
 UI::cActorMenu::cActorMenu()
 	:_actorName("None Actor")
@@ -19,7 +20,7 @@ UI::cActorMenu::~cActorMenu()
 
 void UI::cActorMenu::Init()
 {
-	cEntityManager::Get()->RegisterEntity(eIdGroup::CharacterTool, shared_from_this());
+	cEntityManager::Get()->RegisterEntity(eIdGroup::CHARACTER_TOOL, shared_from_this());
 
 	FunctionInitialize();
 }
@@ -37,15 +38,20 @@ void UI::cActorMenu::PostRender()
 			if (ImGui::MenuItem("New Actor", ""))
 			{
 				AlertActor();
-				NewActor();
+				NewEditedActor();
 			}
 			if (ImGui::MenuItem("Load Actor", ""))
 			{
 				AlertActor();
-				LoadActor();
+				LoadEditedActor();
 			}
 			if (ImGui::MenuItem("Save Actor", ""))
-				SaveActor();
+				SaveEditedActor();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Load Enemy", ""))
+				LoadEnemy();
 
 			ImGui::EndMenu();
 		}
@@ -79,7 +85,7 @@ void UI::cActorMenu::FunctionInitialize()
 	};
 }
 
-void UI::cActorMenu::NewActor()
+void UI::cActorMenu::NewEditedActor()
 {
 	cActorFactory factory;
 	auto actor = factory.CreateActor();
@@ -87,7 +93,7 @@ void UI::cActorMenu::NewActor()
 	CreateActor(actor, eMessageType::RECIEVE_ACTOR);
 }
 
-void UI::cActorMenu::LoadActor()
+void UI::cActorMenu::LoadEditedActor()
 {
 	cPath::OpenFileDialog(L"Open Actor", L"Actor\0*.actor", Content, [this](wstring path)
 	{
@@ -95,23 +101,22 @@ void UI::cActorMenu::LoadActor()
 		auto actor = factory.CreateActor(path);
 
 		CreateActor(actor, eMessageType::LOAD_ACTOR);
+
+		_actorName = cString::String(_actor.lock()->GetName());
+		cDebug::Log((_actorName + " has been created!").c_str());
 	});
 }
 
 void UI::cActorMenu::CreateActor(weak_ptr<cActor> actor, eMessageType type)
 {
 	vector<UINT> receivers;
-	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
+	cEntityManager::Get()->GetIdentityGroup(eIdGroup::CHARACTER_TOOL, receivers);
 
 	//새 액터를 관여된 객체들에게 전달
 	cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, type, (void*)&actor);
-
-	_actorName = cString::String(_actor.lock()->GetName());
-
-	cDebug::Log((_actorName + " has been created!").c_str());
 }
 
-void UI::cActorMenu::SaveActor()
+void UI::cActorMenu::SaveEditedActor()
 {
 	if (_actor.expired())
 	{
@@ -126,7 +131,7 @@ void UI::cActorMenu::SaveActor()
 
 		//툴에게 저장 메시지 보냄
 		vector<UINT> receivers;
-		cEntityManager::Get()->GetIdentityGroup(eIdGroup::CharacterTool, receivers);
+		cEntityManager::Get()->GetIdentityGroup(eIdGroup::CHARACTER_TOOL, receivers);
 
 		cMessageDispatcher::Get()->DispatchMessages(0, GetID(), receivers, eMessageType::SAVE_ACTOR, &root);
 
@@ -146,6 +151,17 @@ void UI::cActorMenu::SaveActor()
 
 	//todo : 메시지 박스 띄우기
 	cDebug::Log(("Save Success! : " + _actorName).c_str());
+}
+
+void UI::cActorMenu::LoadEnemy()
+{
+	cPath::OpenFileDialog(L"Open Enemy", L"Actor\0*.actor", Content, [this](wstring path)
+	{
+		cActorFactory factory;
+		auto actor = factory.CreateActor(path);
+
+		CreateActor(actor, eMessageType::LOAD_ENEMY);
+	});
 }
 
 bool UI::cActorMenu::AlertActor()

@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "cToolWindow.h"
+#include "./Concrete/Message/eIdGroup.h"
+#include "./Concrete/Message/eMessageType.h"
 #include "./GameObject/cActor.h"
-#include "./Message/cEntityManager.h"
-#include "./Message/cMessageDispatcher.h"
 #include "./UI/Gizmo/cGizmo.h"
-
 #include "./Transform/cTransformTool.h"
 #include "./Model/cModelTool.h"
 #include "./Collider/cColliderTool.h"
@@ -24,30 +23,41 @@ UI::cToolWindow::cToolWindow()
 UI::cToolWindow::~cToolWindow()
 {
 	cEntityManager::Get()->RemoveEntity(GetID());
+
+	_endThread = true;
+	_process.join();
 }
 
 void UI::cToolWindow::Init()
 {
 	FunctionInitialize();
-	cEntityManager::Get()->RegisterEntity(eIdGroup::CharacterTool, shared_from_this());
+	cEntityManager::Get()->RegisterEntity(eIdGroup::CHARACTER_TOOL, shared_from_this());
 
 	for (auto&& tool : _tools)
 		tool->Init();
 
 	_isStart = false;
+
+	//스레드 시작
+	_process = thread(&cToolWindow::Update, this);
 }
 
 void UI::cToolWindow::Update()
 {
-	//fixme : 툴을 모두 업데이트 렌더할지, 아니면 선택된 툴만 업데이트 렌더할지
-	for (auto&& tool : _tools)
-		tool->Update();
-
-	if (!_isStart)
+	while (_endThread == false)
 	{
-		auto actorPtr = _actor.lock();
-		if(actorPtr)
-			actorPtr->TestUpdate();
+		//fixme : 툴을 모두 업데이트 렌더할지, 아니면 선택된 툴만 업데이트 렌더할지
+		for (auto&& tool : _tools)
+			tool->Update();
+
+		if (!_isStart)
+		{
+			auto actorPtr = _actor.lock();
+			if (actorPtr)
+				actorPtr->TestUpdate();
+		}
+
+		this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 
@@ -74,7 +84,7 @@ void UI::cToolWindow::PostRender()
 	ImGui::End();
 
 	bool flag2 = true;
-	ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+	ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 	{
 		if (_selectedTool.expired() == false)
 			_selectedTool.lock()->ShowInspector();

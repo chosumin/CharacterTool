@@ -15,7 +15,7 @@ public:
 	void Render();
 
 	weak_ptr<struct sTransform> GetParentTransform() const;
-	wstring	GetName() const { return _name; }
+	const wstring & GetName() const { return _name; }
 
 	int	GetParentBoneIndex() const { return _parentBoneIndex; }
 private:

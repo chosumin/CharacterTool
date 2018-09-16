@@ -1,10 +1,13 @@
 #pragma once
 #include "../cTool.h"
 
+enum class TextureType;
 struct sTransform;
 class cModel;
 class cModelMesh;
 class cModelBone;
+class cMaterial;
+class cTexture;
 namespace UI
 {
 	class iObserver;
@@ -52,9 +55,9 @@ namespace UI
 		//@param : 선택된 메쉬
 		void NotifySelectedMesh(weak_ptr<cModelMesh> mesh);
 	private:
-		/******************
-			인스펙터 관련
-		*******************/
+		/***********************
+			모델 인스펙터 관련
+		************************/
 
 		//본 선택시 본 트랜스폼을 띄운다
 		void ShowTransformInspector();
@@ -77,14 +80,33 @@ namespace UI
 		//@param : 파일 경로
 		//@param : 파일명
 		void OpenModel(wstring path, wstring name);
+	private:
+		/**************************
+			머티리얼 인스펙터 관련
+		***************************/
+		
+		//현재 머티리얼 정보 저장
+		void SaveMaterial();
 
-		//모델 인스펙터에 메쉬 정보를 띄운다
-		void ShowMeshInfo();
+		//머티리얼에 존재하는 텍스쳐명 저장
+		void SaveTextureFile(Json::Value& root, const string & jsonName, const shared_ptr<cMaterial>& material, TextureType type);
+
+		//머티리얼 정보 보여줌
+		void ShowMaterials();
+
+		void OpenShaderFile(shared_ptr<cMaterial> material);
+
+		//Ambient, Diffuse, Specular, Shineness 보여주기
+		void ShowTextureColors(int& index, shared_ptr<cMaterial> material);
+
+		//텍스쳐 파일 보여주기
+		void ShowTexture(shared_ptr<cTexture> texturePtr);
 	private:
 		/**********
 			공통
 		***********/
-
+		
+		void ShowText(string name, string text);
 		//모델 파일이 현재 없다면 경고문을 출력한다
 		bool AlertModel();
 	private:

@@ -3,7 +3,7 @@
 class cEnvironment : public iExecutable
 {
 public:
-	cEnvironment();
+	cEnvironment(weak_ptr<sGlobalVariable> global);
 	~cEnvironment();
 public:
 	/**********************************
@@ -16,7 +16,8 @@ public:
 	virtual void PostRender() override;
 	virtual void ResizeScreen() override;
 private:
-
+	weak_ptr<sGlobalVariable> _global;
 	unique_ptr<class cWorldGrid> _grid;
 	unique_ptr<class cBasicMap> _map;
+	unique_ptr<class cSky> _sky;
 };

@@ -11,21 +11,17 @@ public:
 	void SetTransformToFollow(const weak_ptr<sTransform>& transform);
 	void SetRotationSpeed(float speed);
 	void SetDistToObject(float dstToObejct);
-	void SetAngleX(float angleX);
 
 	// cCamera을(를) 통해 상속됨
 	virtual void Update() override;
 	virtual void PostRender() override;
 private:
 	weak_ptr<sTransform> _transformToFollow;
+	float _originRotationSpeed;
 	float _rotationSpeed;
 	float _dstToObject;
-	float _angleX;
+	float _interpolate;
 
-	float _nextDstToObject;
-
-	float _curDeltaX;
-	float _nextDeltaX;
-
-	float _interpolation;
+	D3DXVECTOR3 _nextPos;
+	D3DXVECTOR3 _currentPos;
 };

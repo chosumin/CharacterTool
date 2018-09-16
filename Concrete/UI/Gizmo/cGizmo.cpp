@@ -144,7 +144,7 @@ void cGizmo::Update()
 
 	auto globalPtr = _global.lock();
 	D3DXVECTOR3 dir;
-	globalPtr->MainCamera.lock()->GetMouseDirection(dir, globalPtr->Viewport.get(), globalPtr->Perspective.get());
+	globalPtr->MainCamera.lock()->GetMouseDirection(dir);
 
 	D3DXVECTOR3 pos;
 	globalPtr->MainCamera.lock()->GetPosition(&pos);

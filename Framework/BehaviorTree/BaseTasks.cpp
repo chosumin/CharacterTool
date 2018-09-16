@@ -27,6 +27,29 @@ void cTask::SetInitState(const bool& includeRunning)
 	}
 }
 
+void cTask::RenderAllInfo()
+{
+	RenderInfo();
+
+	ImGui::NewLine();
+	
+	switch (_state)
+	{
+		case eState::NONE:
+			ImGui::Text("NONE");
+			break;
+		case eState::FAILURE:
+			ImGui::Text("FAILURE");
+			break;
+		case eState::SUCCESS:
+			ImGui::Text("SUCCESS");
+			break;
+		case eState::RUNNING:
+			ImGui::Text("RUNNING");
+			break;
+	}
+}
+
 bool cTask::RenderMenu()
 {
 	unique_ptr<cTask> task = nullptr;
@@ -97,19 +120,21 @@ cCompositeTask::~cCompositeTask()
 cTask::eState cCompositeTask::Run()
 {
 	UINT i = 0;
-	/*if (_state == eState::RUNNING)
-	{
-		for (; i < _children.size(); ++i)
-		{
-			if (_children[i]->GetRunningState() == eState::RUNNING)
-				break;
-		}
-	}*/
-
 	switch (_type)
 	{
 		case 0: //Selector
 		{
+			if (_state == eState::RUNNING)
+			{
+				//러닝 상태는 중간에 하나가 러닝 중임
+				//앞의 것은 결과가 나왔으므로 생략한다.
+				for (; i < _children.size(); ++i)
+				{
+					if (_children[i]->GetRunningState() == eState::RUNNING)
+						break;
+				}
+			}
+
 			for (; i < _children.size(); ++i)
 			{
 				_state = _children[i]->Run();
@@ -121,6 +146,17 @@ cTask::eState cCompositeTask::Run()
 		}
 		case 1: //Sequence
 		{
+			if (_state == eState::RUNNING)
+			{
+				//러닝 상태는 중간에 하나가 러닝 중임
+				//앞의 것은 결과가 나왔으므로 생략한다.
+				for (; i < _children.size(); ++i)
+				{
+					if (_children[i]->GetRunningState() == eState::RUNNING)
+						break;;
+				}
+			}
+
 			for (; i < _children.size(); ++i)
 			{
 				_state = _children[i]->Run();
@@ -133,6 +169,19 @@ cTask::eState cCompositeTask::Run()
 		case 2: //Parallel
 		{
 			UINT successCount = 0;
+			if (_state == eState::RUNNING)
+			{
+				//러닝 중인것을 찾고 중간에 성공 태스크는 카운트에 추가
+				for (; i < _children.size(); ++i)
+				{
+					auto state = _children[i]->GetRunningState();
+					if (state == eState::RUNNING)
+						break;
+					else if (state == eState::SUCCESS)
+						successCount++;
+				}
+			}
+
 			for (; i < _children.size(); ++i)
 			{
 				_state = _children[i]->Run();

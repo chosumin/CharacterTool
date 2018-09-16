@@ -1,6 +1,6 @@
 #include "../../stdafx.h"
 #include "cEntityManager.h"
-#include "cBaseGameEntity.h"
+#include "./Concrete/Message/eIdGroup.h"
 
 const UINT cEntityManager::idBits = 20;
 

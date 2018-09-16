@@ -4,6 +4,7 @@ namespace UI
 {
 	class cToolWindow;
 	class cActorMenu;
+	class cCameraMenu;
 }
 
 class cUI : public iExecutable
@@ -24,4 +25,5 @@ private:
 
 	shared_ptr<UI::cToolWindow> _toolWindow;
 	shared_ptr<UI::cActorMenu> _actorMenu;
+	shared_ptr<UI::cCameraMenu> _cameraMenu;
 };

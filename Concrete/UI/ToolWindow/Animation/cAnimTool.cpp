@@ -303,8 +303,10 @@ void UI::cAnimTool::SaveJson(Json::Value& root)
 		string path = cString::String(clip->GetFilePath());
 		string name = cString::String(clip->GetName());
 
+		string relative = cPath::GetRelativePath(path + name, cPath::TOP_FOLDERNAME_CHAR);
+
 		//경로 저장
-		Json::SetValue(animation, "Path", path + name);
+		Json::SetValue(animation, "Path", relative);
 		
 		Json::Value eventFrames;
 		for (auto&& frame : clip->GetEventFrames())

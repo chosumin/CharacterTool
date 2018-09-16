@@ -2,6 +2,7 @@
 #include "cInputHandler.h"
 #include "./Command/cCommand.h"
 #include "./Actor/ActorMoveCommand.h"
+#include "./Collider/cRayCollider.h"
 
 cInputHandler::cInputHandler()
 {

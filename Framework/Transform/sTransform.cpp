@@ -6,6 +6,7 @@ sTransform::sTransform()
 	: Position(0, 0, 0)
 	, Scaling(1, 1, 1)
 	, Rotation(0, 0, 0)
+	, Velocity(0.0f)
 {
 	D3DXQuaternionIdentity(&Quaternion);
 
@@ -109,6 +110,7 @@ void sTransform::Rotate(const D3DXVECTOR3& deltaAngle)
 	//회전 축 구하기(x,y,z)
 	D3DXVECTOR3 axis;
 	GetAxis(&axis, deltaAngle);
+	D3DXVec3Normalize(&axis, &axis);
 
 	D3DXVECTOR3 radian;
 	GetRadian(&radian, deltaAngle);
@@ -140,16 +142,21 @@ void sTransform::RotateToFixedMatrix(const D3DXMATRIX& fixedMat, const D3DXVECTO
 
 void sTransform::Translation()
 {
-	D3DXMatrixTranslation(&_positionMatrix, Position.x, Position.y, Position.z);
+	_positionMatrix._41 = Position.x;
+	_positionMatrix._42 = Position.y;
+	_positionMatrix._43 = Position.z;
 }
 
 void sTransform::Move(float speed, const D3DXVECTOR3& direction)
 {
+	Velocity = speed;
 	Position += direction * speed * cFrame::Delta();
 }
 
 void sTransform::Move(float speed)
 {
+	Velocity = speed;
+
 	D3DXVECTOR3 dir = { 
 		_rotationMatrix._31,
 		_rotationMatrix._32,
@@ -187,9 +194,12 @@ void sTransform::GetDirection(OUT D3DXVECTOR3 & direction)
 
 void sTransform::SetDirection(IN const D3DXVECTOR3 & direction)
 {
-	_rotationMatrix._31 = direction.x;
-	_rotationMatrix._32 = direction.y;
-	_rotationMatrix._33 = direction.z;
+	D3DXVECTOR3 dir = direction;
+	D3DXVec3Normalize(&dir, &dir);
+
+	_rotationMatrix._31 = dir.x;
+	_rotationMatrix._32 = dir.y;
+	_rotationMatrix._33 = dir.z;
 
 	D3DXQuaternionRotationMatrix(&Quaternion, &_rotationMatrix);
 }

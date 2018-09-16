@@ -3,11 +3,13 @@
 
 enum class ColorType
 {
-	AMBIENT, DIFFUSE, SPECULAR, EMISSIVE, SHININESS, DETAILFACTOR
+	AMBIENT, DIFFUSE, SPECULAR, EMISSIVE, SHININESS, DETAILFACTOR,
+	COUNT
 };
 enum class TextureType
 {
-	DIFFUSE = 0, SPECULAR = 1, EMISSIVE = 2, NORMAL = 3, DETAIL = 4
+	DIFFUSE = 0, SPECULAR = 1, EMISSIVE = 2, NORMAL = 3, DETAIL = 4,
+	COUNT
 };
 
 class cMaterialBuffer;
@@ -29,12 +31,18 @@ public:
 		Getter Setter
 	*********************/
 
-	//머티리얼얼 파일명
+	//머티리얼 파일명
 	wstring GetName() const { return _name; }
-	//머티리얼얼 파일명 변경
+	//머티리얼 파일명 변경
 	void SetName(wstring name) { _name = name; }
 
-	//머티리얼얼 쉐이더 변경
+	//쉐이더 이름 가져옴
+	wstring GetShaderName() const 
+	{ 
+		return _shader->GetFileName(); 
+	}
+
+	//머티리얼 쉐이더 변경
 	void SetShader(string file);
 	void SetShader(wstring file);
 	void SetShader(shared_ptr<cShader> shader);
@@ -72,15 +80,13 @@ private:
 	shared_ptr<cMaterialBuffer> _cbuffer = nullptr;
 
 	//쉐이더
-	bool _hasShader = false;
 	shared_ptr<cShader> _shader = nullptr;
 
 	//텍스쳐 맵
 	unordered_map<TextureType, shared_ptr<cTexture>> _textureMap;
 };
 
-/**************************************************
-***************************************************/
+/******************************************************************/
 
 class cMaterialBuffer : public cCBuffer
 {

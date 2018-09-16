@@ -26,5 +26,8 @@ namespace UI
 		weak_ptr<cTool> _selectedTool;
 
 		bool _isStart;
+
+		bool _endThread = false;;
+		thread _process;
 	};
 }

@@ -25,7 +25,7 @@ private:
 	void RotateAngle();
 
 	//@brief : 현재 방향을 다음 방향으로 틱 회전
-	void Rotate(OUT shared_ptr<sTransform> transformPtr,
+	void Rotate(OUT shared_ptr<sTransform> & transformPtr,
 				const D3DXVECTOR3& actorDirection,
 				const D3DXVECTOR3& targetDirection);
 private:

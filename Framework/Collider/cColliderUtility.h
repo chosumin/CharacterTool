@@ -1,11 +1,16 @@
 #pragma once
+#include "./Interface/iCollidable.h"
 
 class cColliderUtility
 {
 public:
-	static bool BoxAndRay(const D3DXVECTOR3 & boxMax, const D3DXVECTOR3 & boxMin, const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction);
+	static eContainmentType BoxAndRay(const D3DXVECTOR3 & boxMax, const D3DXVECTOR3 & boxMin, const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction);
 
-	static bool RayAndQuad(const vector<D3DXVECTOR3>& fourPoints, const D3DXVECTOR3& position, const D3DXVECTOR3& direction);
+	static eContainmentType RayAndQuad(const vector<D3DXVECTOR3>& fourPoints, const D3DXVECTOR3& position, const D3DXVECTOR3& direction);
+
+	static eContainmentType CylinderAndSphere(const sLine& cylLine, float cylRadius, const D3DXVECTOR3& sphCenter, float sphRadius);
+
+	static eContainmentType RayAndSphere(const D3DXVECTOR3& rayPos, const D3DXVECTOR3& rayDir, const D3DXVECTOR3& sphCenter, float sphRadius);
 private:
 	struct sBox
 	{

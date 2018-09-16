@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "cBtreeTool.h"
+#include "cBlackboardTool.h"
+#include "./Concrete/Message/eIdGroup.h"
 #include "./GameObject/cActor.h"
 #include "./BehaviorTree/cBehaviorTree.h"
 #include "./Component/BehaviorTree/cTaskFactory.h"
@@ -12,10 +14,19 @@ static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return Im
 UI::cBtreeTool::cBtreeTool()
 {
 	_parentOfNewTasks = make_shared<cRootTask>();
+
+	_blackboardTool = make_shared<UI::cBlackboardTool>();
 }
 
 UI::cBtreeTool::~cBtreeTool()
 {
+}
+
+void UI::cBtreeTool::Init()
+{
+	__super::Init();
+
+	cEntityManager::Get()->RegisterEntity(eIdGroup::CHARACTER_TOOL, _blackboardTool);
 }
 
 void UI::cBtreeTool::Update()
@@ -35,10 +46,14 @@ void UI::cBtreeTool::Update()
 
 	_openContextMenu = false;
 	_hoveredTask.reset();
+
+	_blackboardTool->SetActor(_actor);
+	_blackboardTool->Update();
 }
 
 void UI::cBtreeTool::Render()
 {
+	_blackboardTool->Render();
 }
 
 void UI::cBtreeTool::ShowHierarchy(int i)
@@ -60,6 +75,7 @@ void UI::cBtreeTool::ShowInspector()
 		auto treePtr = _bTree.lock();
 		if (treePtr)
 		{
+			ImGui::Text("Name :"); ImGui::SameLine();
 			auto& name = cString::String(treePtr->GetName());
 			name = cPath::GetFileName(name);
 			ImGui::Text(name.c_str());
@@ -68,27 +84,18 @@ void UI::cBtreeTool::ShowInspector()
 			if (ImGui::Button("Load"))
 				LoadBehaviorTree();
 
+			ImGui::SameLine();
+
 			if (ImGui::Button("Save"))
 				SaveBehaviorTree();
 		}
 	}
 
+	_blackboardTool->ShowInspector();
+
 	ImGui::Begin("Behavior Tree Tool");
 	{
-		ImGui::BeginGroup();
-		DrawBackground();
-
-		DrawLinks();
-		DrawNodes();
-		DrawTextMenu();
-
-		ConnectNode();
-		MoveNode();
-
-		Scroll();
-
-		EndBackground();
-		ImGui::EndGroup();
+		ShowBehaviorTreeTool();
 	}
 	ImGui::End();
 }
@@ -108,11 +115,13 @@ void UI::cBtreeTool::SaveJson(Json::Value& root)
 	}
 
 	root["Behavior Tree"] = behaviorTree;
+
+	_blackboardTool->SaveJson(root);
 }
 
 void UI::cBtreeTool::LoadJson()
 {
-	//DO NOTHING
+	_blackboardTool->LoadJson();
 }
 
 void UI::cBtreeTool::SelectBTree()
@@ -128,6 +137,24 @@ void UI::cBtreeTool::SelectBTree()
 	}
 }
 
+void UI::cBtreeTool::ShowBehaviorTreeTool()
+{
+	ImGui::BeginGroup();
+	DrawBackground();
+
+	DrawLinks();
+	DrawNodes();
+	DrawTextMenu();
+
+	ConnectNode();
+	MoveNode();
+
+	Scroll();
+
+	EndBackground();
+	ImGui::EndGroup();
+}
+
 void UI::cBtreeTool::DrawBackground()
 {
 	// Create our child canvas
@@ -138,7 +165,8 @@ void UI::cBtreeTool::DrawBackground()
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 	ImGui::PushItemWidth(120.0f);
 
-	_offset = ImGui::GetCursorScreenPos() + _scrolling;
+	_offset = ImGui::GetCursorScreenPos() + _scrolling - ImGui::GetWindowPos() + NODE_WINDOW_PADDING;
+	
 	_drawList = ImGui::GetWindowDrawList();
 
 	//그리드 생성
@@ -273,7 +301,7 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 
 	//노드 정보 출력
 	ImGui::BeginGroup();
-	taskPtr->RenderInfo();
+	taskPtr->RenderAllInfo();
 	ImGui::EndGroup();
 
 	bool node_widgets_active = (!old_any_active && ImGui::IsAnyItemActive());

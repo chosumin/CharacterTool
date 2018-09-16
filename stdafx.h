@@ -18,6 +18,7 @@
 #include <fstream>
 #include <thread>
 #include <typeinfo.h>
+#include <chrono>
 using namespace std;
 
 #pragma comment(lib, "winmm.lib")
@@ -66,6 +67,7 @@ using namespace fbxsdk;
 #define SAFE_DELETE(p){ if(p){ delete (p); (p) = NULL; } }
 #define SAFE_DELETE_ARRAY(p){ if(p){ delete [] (p); (p) = NULL; } }
 
+#define ENUM2STR(x) #x
 const wstring Shader = L"../Shader/";
 const wstring Asset = L"../Asset/";
 const wstring Content = L"../Content/";
@@ -82,6 +84,11 @@ const wstring Model = Content + L"Model/";
 #include "./System/cDebug.h"
 #include "./System/D3D.h"
 #include "./System/cFrame.h"
+
+#include "./Message/sTelegram.h"
+#include "./Message/cBaseGameEntity.h"
+#include "./Message/cEntityManager.h"
+#include "./Message/cMessageDispatcher.h"
 
 #include "./Helper/cBinary.h"
 #include "./Helper/Json.h"

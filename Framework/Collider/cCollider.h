@@ -5,7 +5,7 @@
 
 enum class eColliderType
 {
-	NONE, ATTACK, DAMAGE
+	NONE, COMBO_ATTACK, DAMAGE
 };
 
 enum class eColliderShape : int

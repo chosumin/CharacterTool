@@ -5,7 +5,7 @@
 
 cBehaviorTree::cBehaviorTree(weak_ptr<cActor> actor)
 	: _defaultName(L"New Behavior Tree")
-	, _name(_defaultName)
+	, _name(L"New Behavior Tree")
 	, _actor(actor)
 {
 	_root = make_shared<cRootTask>();
@@ -24,9 +24,6 @@ void cBehaviorTree::Run()
 {
 	_root->SetInitState(true);
 	_root->Run();
-
-	//test : 행동트리 테스트
-	//_root->RenderName();
 }
 
 void cBehaviorTree::Update()
@@ -37,15 +34,12 @@ void cBehaviorTree::Update()
 		auto state = curTaskPtr->Run();
 		if (state != cTask::eState::RUNNING)
 		{
-			auto parent = curTaskPtr->GetParent().lock();
-			if(parent)
-				parent->Run();
+			/*auto parentPtr = curTaskPtr->GetParent().lock();
+			if (parentPtr)
+				parentPtr->Run();*/
+			UpdateParent(curTaskPtr->GetParent());
 		}
 	}
-}
-
-void cBehaviorTree::ReadBinary(wstring file)
-{
 }
 
 weak_ptr<cRootTask> cBehaviorTree::GetRoot() const
@@ -72,4 +66,17 @@ void cBehaviorTree::LoadJson(Json::Value & root)
 void cBehaviorTree::SaveJson(Json::Value & root)
 {
 	_root->SaveJson(root);
+}
+
+void cBehaviorTree::UpdateParent(const weak_ptr<cTask>& parent)
+{
+	auto parentPtr = parent.lock();
+	if (parentPtr)
+	{
+		auto state = parentPtr->Run();
+		if (state != cTask::eState::RUNNING)
+		{
+			UpdateParent(parentPtr->GetParent());
+		}
+	}
 }

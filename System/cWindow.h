@@ -16,6 +16,8 @@ private:
 	void CreateWndEx(OUT D3DDesc& desc);
 	void SetDisplay(const OUT D3DDesc& desc);
 	void DeleteSingletone();
+
+	void SetImGuiColors();
 public:
 	static UINT			m_uSingletoneCount;
 private:

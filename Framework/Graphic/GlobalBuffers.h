@@ -34,7 +34,8 @@ public:
 
 	void SetView(D3DXMATRIX& matrix)
 	{
-		Data.View = matrix;
+		Data.ViewPosition = { matrix._41, matrix._42, matrix._43 };
+ 		Data.View = matrix;
 		D3DXMatrixInverse(&Data.ViewInverse, nullptr, &Data.View);
 		D3DXMatrixTranspose(&Data.View, &Data.View);
 		D3DXMatrixTranspose(&Data.ViewInverse, &Data.ViewInverse);
@@ -51,6 +52,8 @@ private:
 		D3DXMATRIX View;
 		D3DXMATRIX Projection;
 		D3DXMATRIX ViewInverse;
+		D3DXVECTOR3 ViewPosition;
+		float Padding;
 	};
 
 	Struct Data;

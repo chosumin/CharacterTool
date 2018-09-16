@@ -1,13 +1,6 @@
 #pragma once
 
-class cBaseGameEntity;
-enum class eIdGroup
-{
-	Character = 0x001,
-	Map = 0x002,
-	CharacterTool = 0x003,
-};
-
+enum class eIdGroup;
 class cEntityManager : public cSingletone<cEntityManager>
 {
 private:

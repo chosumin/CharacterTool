@@ -4,10 +4,6 @@ class cMath
 public:
 	static const float PI;
 	static const D3DXMATRIX MATRIX_IDENTITY;
-	static const int IntMinValue;
-	static const int IntMaxValue;
-	static const float FloatMinValue;
-	static const float FloatMaxValue;
 
 	static float ToRadian(float degree);
 	static float ToDegree(float radian);
@@ -40,4 +36,11 @@ public:
 	//@brief : twoPi = true면 360도 각 반환, false면 180도 각 반환
 	static float AngleBetweenTwoVectors(const D3DXVECTOR3& vec1,
 										const D3DXVECTOR3& vec2);
+
+	//@brief : 두 점으로 생성된 선분과 한 점 사이간 거리
+	//@param 1, 2 : 선분의 양 끝점
+	//@param 3 : 비교할 점
+	static float DistancePointFromLine(const D3DXVECTOR3& linePoint1,
+									   const D3DXVECTOR3& linePoint2,
+									   const D3DXVECTOR3& dotPoint);
 };

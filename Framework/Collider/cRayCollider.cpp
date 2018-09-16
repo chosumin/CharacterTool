@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "cRayCollider.h"
 #include "cQuadCollider.h"
+#include "./Graphic/ConstBuffer/cColliderBuffer.h"
 #include "./Mesh/cRectangle.h"
 
 cRayCollider::cRayCollider(weak_ptr<sTransform> parent, D3DXVECTOR3 origin, D3DXVECTOR3 direction)
@@ -14,81 +15,62 @@ cRayCollider::~cRayCollider()
 {
 }
 
-bool cRayCollider::IntersectsWith(weak_ptr<iCollidable> other)
+eContainmentType cRayCollider::Contains(const weak_ptr<iCollidable>& other)
 {
 	if (other.expired())
-		return false;
+		return eContainmentType::Disjoint;
 
-	return other.lock()->IntersectsWithRay
+	return other.lock()->ContainsRay
 	(
 		GetTransformedOrigin(),			   
 		GetTransformedDirection()
 	);
 }
 
-ContainmentType cRayCollider::ContainsRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
+eContainmentType cRayCollider::ContainsRay(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction)
 {
-	return ContainmentType();
+	return eContainmentType();
 }
 
-ContainmentType cRayCollider::ContainsPlane(D3DXVECTOR3 normal, float d)
-{
-	return ContainmentType();
-}
-
-ContainmentType cRayCollider::ContainsDot(D3DXVECTOR3 point)
-{
-	return ContainmentType();
-}
-
-ContainmentType cRayCollider::ContainsSphere(D3DXVECTOR3 center, float radius)
-{
-	return ContainmentType();
-}
-
-ContainmentType cRayCollider::ContainsBox(D3DXVECTOR3 max, D3DXVECTOR3 min)
-{
-	return ContainmentType();
-}
-
-bool cRayCollider::IntersectsWithRay(D3DXVECTOR3 position, D3DXVECTOR3 direction)
-{
-	return false;
-}
-
-PlaneIntersectionType cRayCollider::IntersectsWithPlane(D3DXVECTOR3 normal, float d)
-{
-	return PlaneIntersectionType();
-}
-
-bool cRayCollider::IntersectsWithQuad(const vector<D3DXVECTOR3>& fourPoints)
+eContainmentType cRayCollider::ContainsQuad(const vector<D3DXVECTOR3>& fourPoints)
 {
 	return cColliderUtility::RayAndQuad(fourPoints,
 										GetTransformedOrigin(),
 										GetTransformedDirection());
 }
 
-bool cRayCollider::IntersectsWithDot(D3DXVECTOR3 point)
+eContainmentType cRayCollider::ContainsDot(const D3DXVECTOR3 & point)
 {
-	return false;
+	return eContainmentType();
 }
 
-bool cRayCollider::IntersectsWithSphere(D3DXVECTOR3 center, float radius)
+eContainmentType cRayCollider::ContainsSphere(const D3DXVECTOR3 & center, float radius)
 {
-	return false;
+	auto type = cColliderUtility::RayAndSphere(GetTransformedOrigin(), GetTransformedDirection(),
+											   center,
+											   radius);
+
+	_cbuffer->Data.Intersect =
+		type == eContainmentType::Disjoint ? 0 : 1;
+
+	return type;
 }
 
-bool cRayCollider::IntersectsWithBox(D3DXVECTOR3 min, D3DXVECTOR3 max)
+eContainmentType cRayCollider::ContainsBox(const D3DXVECTOR3 & max, const D3DXVECTOR3 & min)
 {
-	if (cColliderUtility::BoxAndRay(max, min, GetTransformedOrigin(), GetTransformedDirection()))
-		return true;
-
-	return false;
+	return cColliderUtility::BoxAndRay(max, min,
+									   GetTransformedOrigin(),
+									   GetTransformedDirection());
 }
 
-bool cRayCollider::IntersectsWithCylinder(sLine line, float radius)
+eContainmentType cRayCollider::ContainsCylinder(const sLine & line, float radius)
 {
-	return false;
+	return eContainmentType();
+}
+
+ePlaneIntersectionType cRayCollider::ContainsPlane(const D3DXVECTOR3 & normal, float d)
+{
+	return ePlaneIntersectionType();
 }
 
 D3DXVECTOR3 cRayCollider::GetTransformedOrigin()

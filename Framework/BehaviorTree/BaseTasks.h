@@ -37,6 +37,8 @@ public:
 	//순회하며 실행되는 함수
 	virtual eState Run() = 0;
 
+	void RenderAllInfo();
+
 	//노드 정보창 출력
 	virtual void RenderInfo() = 0;
 

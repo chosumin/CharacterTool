@@ -1,8 +1,7 @@
 #include "stdafx.h"
-#include "Conditions.h"
+#include "ValueCompares.h"
 #include "./Command/cInputHandler.h"
 #include "./GameObject/cActor.h"
-#include "./Interface/iAction.h"
 #include "./Blackboard/cBlackboard.h"
 #include "./Helper/cMath.h"
 

@@ -84,7 +84,7 @@ void UI::cColliderTool::ShowInspector()
 
 	int index = 1;
 	if (ImGui::CollapsingHeader("Attack Colliders"))
-		ShowColliderInspector(eColliderType::ATTACK, index);
+		ShowColliderInspector(eColliderType::COMBO_ATTACK, index);
 
 	if (ImGui::CollapsingHeader("Damage Colliders"))
 		ShowColliderInspector(eColliderType::DAMAGE, index);
@@ -120,7 +120,7 @@ void UI::cColliderTool::AddCollider()
 
 	auto colliders = _colliders.lock();
 
-	auto type = _selectAttack ? eColliderType::ATTACK : eColliderType::DAMAGE;
+	auto type = _selectAttack ? eColliderType::COMBO_ATTACK : eColliderType::DAMAGE;
 
 	colliders->AddCollider(type, shape, _selectedBone,
 						   cMath::MATRIX_IDENTITY);

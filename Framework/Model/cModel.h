@@ -69,4 +69,7 @@ private:
 	vector<D3DXMATRIX> _skinnedTM;
 
 	shared_ptr<class cModelBoneBuffer> _buffer;
+
+	static ID3D11RasterizerState* _rasterizer[2];
+	static bool _init;
 };

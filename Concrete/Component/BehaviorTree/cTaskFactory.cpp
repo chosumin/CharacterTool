@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "cTaskFactory.h"
-#include "Conditions.h"
 #include "Decorators.h"
+#include "./Condition/ValueCompares.h"
+#include "./Condition/cIsNearCondition.h"
 #include "./Action/Animations.h"
-#include "./Action/cAttackAction.h"
+#include "./Action/cSingleAttackAction.h"
+#include "./Action/cComboAttackAction.h"
 #include "./Action/cDataSetter.h"
 #include "./Action/cMovingAction.h"
 #include "./Action/cRotatingAction.h"
+#include "./Action/cBTreeRunner.h"
 #include "./GameObject/cActor.h"
 
 unordered_map<cTaskFactory::eActionType, unique_ptr<cTask>> cTaskFactory::_actions;
@@ -43,8 +46,12 @@ unique_ptr<cTask> cTaskFactory::CreateAction(cTaskFactory::eActionType type, con
 			return make_unique<cMovingAction>(actor, tree, position);
 		case cTaskFactory::eActionType::ROTATE:
 			return make_unique<cRotatingAction>(actor, tree, position);
-		case cTaskFactory::eActionType::ATTACK:
-			return make_unique<cAttackAction>(actor, tree, position);
+		case cTaskFactory::eActionType::COMBO_ATTACK:
+			return make_unique<cComboAttackAction>(actor, tree, position);
+		case cTaskFactory::eActionType::SINGLE_ATTACK:
+			return make_unique<cSingleAttackAction>(actor, tree, position);
+		case cTaskFactory::eActionType::TREE_RUNNER:
+			return make_unique<cBTreeRunner>(tree, position);
 	}
 	return nullptr;
 }
@@ -54,11 +61,11 @@ unique_ptr<cTask> cTaskFactory::CreateCondition(cTaskFactory::eConditionType typ
 	switch (type)
 	{
 		case cTaskFactory::eConditionType::BOOL_COMPARE:
-		{	
 			return make_unique<cBoolCondition>(blackboard, tree, position);
-		}
 		case cTaskFactory::eConditionType::VALUE_COMPARE:
 			return make_unique<cValueCompareCondition>(blackboard, tree, position);
+		case cTaskFactory::eConditionType::IS_NEAR:
+			return make_unique<cIsNearCondition>(blackboard, tree, position);
 	}
 	return nullptr;
 }
@@ -267,13 +274,18 @@ void cTaskFactory::InitActions()
 
 	_actions[eActionType::ROTATE] = make_unique<cRotatingAction>(weak_ptr<cActor>(), weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
 
-	_actions[eActionType::ATTACK] = make_unique<cAttackAction>(weak_ptr<cActor>(), weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
+	_actions[eActionType::COMBO_ATTACK] = make_unique<cComboAttackAction>(weak_ptr<cActor>(), weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
+
+	_actions[eActionType::SINGLE_ATTACK] = make_unique<cSingleAttackAction>(weak_ptr<cActor>(), weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
+
+	_actions[eActionType::TREE_RUNNER] = make_unique<cBTreeRunner>(weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
 }
 
 void cTaskFactory::InitConditions()
 {
 	_conditions[eConditionType::BOOL_COMPARE] = make_unique<cBoolCondition>(weak_ptr<cBlackboard>(),weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
 	_conditions[eConditionType::VALUE_COMPARE] = make_unique<cValueCompareCondition>(weak_ptr<cBlackboard>(),weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
+	_conditions[eConditionType::IS_NEAR] = make_unique<cIsNearCondition>(weak_ptr<cBlackboard>(), weak_ptr<cBehaviorTree>(), ImVec2{ 0,0 });
 }
 
 void cTaskFactory::InitDecorators()

@@ -27,12 +27,15 @@ public:
 	{
 		return _damageColliders;
 	}
-	
+
 	//test : 충돌 테스트, 상대에게 공격함
 	bool Attack(weak_ptr<cActorColliders> colliders);
+	bool Collide(const weak_ptr<cCollider> & collider);
 private:
 	weak_ptr<cActor> _actor;
 
 	vector<weak_ptr<cCollider>> _attackColliders;
 	vector<weak_ptr<cCollider>> _damageColliders;
+
+	shared_ptr<cCollider> _pickChecker;
 };

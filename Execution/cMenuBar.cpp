@@ -69,11 +69,9 @@ void cMenuBar::ShowMenuBar()
 		ImGui::EndMainMenuBar();
 	}
 
-	auto pos = ImVec2(0, ImGui::GetIO().DisplaySize.y - 60);
-	ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
-	ImGui::SetNextWindowBgAlpha(0.3f); // Transparent background
+	ImGui::SetNextWindowBgAlpha(0.3f);
 	bool open = true;
-	if (ImGui::Begin("FPS", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+	if (ImGui::Begin("FPS", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 	{
 		ImGui::Text("FPS : %4.0f", ImGui::GetIO().Framerate);
 		ImGui::End();

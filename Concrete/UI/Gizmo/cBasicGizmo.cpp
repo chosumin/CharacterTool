@@ -75,7 +75,7 @@ bool cBasicGizmo::IsIntersect(const D3DXMATRIX& world, const D3DXVECTOR3 & pos, 
 
 	for (UINT i = 0; i < _quads.size(); i++)
 	{
-		if (_quads[i]->IntersectsWith(ray))
+		if (_quads[i]->Contains(ray) == eContainmentType::Intersects)
 		{
 			_direction = GetDirection(i + _axises.size());
 			return true;
@@ -84,7 +84,7 @@ bool cBasicGizmo::IsIntersect(const D3DXMATRIX& world, const D3DXVECTOR3 & pos, 
 
 	for (UINT i = 0; i < _axises.size(); i++)
 	{
-		if (_axises[i]->IntersectsWith(ray))
+		if (_axises[i]->Contains(ray) == eContainmentType::Intersects)
 		{
 			_direction = GetDirection(i);
 			return true;

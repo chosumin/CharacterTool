@@ -33,7 +33,7 @@ cGameMain::cGameMain()
 
 void cGameMain::Init()
 {
-	_vecObject.emplace_back(make_shared<cEnvironment>());
+	_vecObject.emplace_back(make_shared<cEnvironment>(_globalVariable));
 	_vecObject.emplace_back(make_shared<cActorManager>(_globalVariable));
 
 	//제일 마지막에 추가

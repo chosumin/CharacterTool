@@ -1,6 +1,7 @@
 #pragma once
 #include "./Message/cBaseGameEntity.h"
 
+class cActor;
 class cActorManager :
 	public iExecutable,
 	public cBaseGameEntity
@@ -17,17 +18,28 @@ public:
 	virtual void PostRender() override;
 	virtual void ResizeScreen() override {}
 
-	// cBaseGameEntity을(를) 통해 상속됨
+	//메시지 처리
 	virtual void HandleMessage(const sTelegram & msg) override;
 private:
+	//메시지 처리 서브루틴 초기화
 	virtual void FunctionInitialize() override;
 
+	//시작 메시지 전달
 	void SendStartMessage();
 private:
-	weak_ptr<sGlobalVariable> _global;
-	shared_ptr<class cActor> _actor;
+	void StopScene();
 
-	shared_ptr<class cActor> _enemy;
+	//현재 수정 중인 액터 설정
+	void SetEditedActor(const weak_ptr<cActor>* actor);
+
+	//적 액터 설정
+	void SetEnemy(const weak_ptr<cActor>* actor);
+private:
+	weak_ptr<sGlobalVariable> _global;
+	
+	unique_ptr<class cCollisionManager> _collisionManager;
+	shared_ptr<cActor> _editedActor;
+	shared_ptr<cActor> _enemy;
 
 	bool _isStart;
 };

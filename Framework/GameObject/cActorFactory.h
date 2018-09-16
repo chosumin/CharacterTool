@@ -18,10 +18,12 @@ private:
 	void CreateCollider(Json::Value& root);
 	void CreateAnimator(Json::Value& root);
 	void CreateBehaviorTree(Json::Value& root);
+	void CreateBlackboard(Json::Value& root);
 	void CreateAction();
 private:
 	void CreateEventFrames(Json::Value& clipJson,
 						   shared_ptr<cAnimClip>& clip);
 private:
+	wstring _jsonPath;
 	shared_ptr<cActor> _actor;
 };

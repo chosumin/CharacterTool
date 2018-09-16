@@ -44,7 +44,8 @@ private:
 	void GetRadian(D3DXVECTOR3 *radian, const D3DXVECTOR3& angle);
 	void GetAxis(D3DXVECTOR3 *axis, const D3DXVECTOR3& angle);
 public:
-	//todo : Velocity, Direction
+	float Velocity;
+
 	D3DXVECTOR3		Position;
 	D3DXVECTOR3		Scaling;
 	D3DXVECTOR3		Rotation;

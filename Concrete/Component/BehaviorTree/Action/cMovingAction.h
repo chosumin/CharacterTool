@@ -2,6 +2,7 @@
 #include "./BehaviorTree/BaseTasks.h"
 
 class cActor;
+class cBlackboard;
 class cMovingAction : public cTask
 {
 public:
@@ -21,9 +22,15 @@ public:
 	virtual void SaveJson(Json::Value& root) override;
 private:
 	void MoveToTarget();
+	void RotateAndMove(OUT shared_ptr<sTransform> & transformPtr,
+					   const D3DXVECTOR3& actorDirection,
+					   const D3DXVECTOR3& targetDirection);
 	void MoveContantDistance();
+
+	void Move();
 private:
 	weak_ptr<cActor> _actor;
+	weak_ptr<cBlackboard> _blackboard;
 	weak_ptr<sTransform> _transform;
 	float _speed;
 
@@ -32,6 +39,12 @@ private:
 		CONTINUE, TO_TARGET, CONSTANT
 	}_type;
 
+	enum eDirection
+	{
+		FRONT, TARGET_REVERSE
+	}_direction;
+
 	float _distance;
 	float _remaining; //남은 거리
+	float _rotationSpeed;
 };

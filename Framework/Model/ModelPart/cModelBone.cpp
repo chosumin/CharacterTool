@@ -3,6 +3,7 @@
 #include "./Transform/sTransform.h"
 #include "./UI/Gizmo/cGizmo.h"
 #include "./Helper/cString.h"
+#include "./Helper/cMath.h"
 
 cModelBone::cModelBone()
 {

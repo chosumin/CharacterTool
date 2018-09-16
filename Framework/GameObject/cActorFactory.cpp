@@ -9,6 +9,7 @@
 #include "./Animator/cAnimator.h"
 #include "./Animator/cAnimClip.h"
 #include "./BehaviorTree/cBehaviorTree.h"
+#include "./Blackboard/cBlackboard.h"
 #include "./Helper/cString.h"
 #include "./Helper/cPath.h"
 
@@ -33,6 +34,8 @@ shared_ptr<cActor> cActorFactory::CreateActor(wstring jsonPath)
 {
 	InitActor();
 
+	_jsonPath = jsonPath;
+
 	Json::Value root;
 	Json::ReadData(jsonPath, &root);
 
@@ -45,7 +48,10 @@ shared_ptr<cActor> cActorFactory::CreateActor(wstring jsonPath)
 	CreateCollider(root);
 	CreateAnimator(root);
 	CreateBehaviorTree(root);
-	//todo : spec
+	CreateBlackboard(root);
+
+	_actor->TestUpdate();
+	_actor->GetModel().lock()->ResetBones();
 
 	return move(_actor);
 }
@@ -155,6 +161,57 @@ void cActorFactory::CreateBehaviorTree(Json::Value& root)
 
 	bTreePtr->SetName(wstrPath);
 	bTreePtr->LoadJson(treeValue);
+}
+
+void cActorFactory::CreateBlackboard(Json::Value & root)
+{
+	auto blackboardPtr = _actor->GetBlackboard().lock();
+
+	Json::Value blackboardJson = root["Blackboard"];
+	
+	blackboardPtr->SetJsonPath(_jsonPath);
+	blackboardPtr->ResetData();
+
+	////Å¸ÀÔ °¡Á®¿È
+	//int type;
+	//Json::GetValue(blackboardJson, "Inspector Type", type);
+	//blackboardPtr->SetChangeInspector(static_cast<cBlackboard::eInspectorType>(type));
+
+	////º¤ÅÍ3 º¯¼ö °¡Á®¿È
+	//Json::Value vector3Json = blackboardJson["Vector3"];
+	//for (auto&& vector3 : blackboardPtr->GetVector3s())
+	//{
+	//	D3DXVECTOR3 value;
+	//	Json::GetValue(vector3Json, vector3.first, value);
+	//	blackboardPtr->SetVector3(vector3.first, value);
+	//}
+
+	////ºÎ¿ï º¯¼ö °¡Á®¿È
+	//Json::Value boolJson = blackboardJson["Bool"];
+	//for (auto&& bools : blackboardPtr->GetBools())
+	//{
+	//	bool value;
+	//	Json::GetValue(boolJson, bools.first, value);
+	//	blackboardPtr->SetBool(bools.first, value);
+	//}
+	//
+	////ÇÃ·Ô º¯¼ö °¡Á®¿È
+	//Json::Value floatJson = blackboardJson["Float"];
+	//for (auto&& floats : blackboardPtr->GetFloats())
+	//{
+	//	float value;
+	//	Json::GetValue(floatJson, floats.first, value);
+	//	blackboardPtr->SetFloat(floats.first, value);
+	//}
+
+	////ÀÎÆ® º¯¼ö °¡Á®¿È
+	//Json::Value intJson = blackboardJson["Int"];
+	//for (auto&& ints : blackboardPtr->GetInts())
+	//{
+	//	int value;
+	//	Json::GetValue(intJson, ints.first, value);
+	//	blackboardPtr->SetInt(ints.first, value);
+	//}
 }
 
 void cActorFactory::CreateAction()

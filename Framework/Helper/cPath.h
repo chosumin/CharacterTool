@@ -39,6 +39,11 @@ public:
 	//파일명을 제외한 경로를 반환
 	static wstring GetDirectoryName(wstring path);
 
+	//절대 경로를 상대 경로로 변경
+	static string GetRelativePath(string path, string startString);
+	//절대 경로를 상대 경로로 변경
+	static wstring GetRelativePath(wstring path, wstring startString);
+
 	//확장자 반환
 	static string GetExtension(string path);
 	//확장자 반환
@@ -72,7 +77,8 @@ public:
 	static const WCHAR* FbxFilter;
 	static const WCHAR* AnimFbxFilter;
 	static const WCHAR* BehaviorTreeFilter;
-	static const WCHAR* TOP_UPPER_FOLDERNAME;
+	static const WCHAR* TOP_FOLDERNAME_WCHAR;
+	static const CHAR* TOP_FOLDERNAME_CHAR;
 private:
 	static BOOL IsThereOneFile(LPWSTR lpstrFilesWithPath);
 	static void OpenFiles(LPWSTR lpstrFilesWithPath, function<void(wstring)> func);

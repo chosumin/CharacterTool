@@ -159,16 +159,24 @@ void UI::cModelTool::ShowModelInspector()
 {
 	if (ImGui::CollapsingHeader("Model"))
 	{
-		ImGui::TextDisabled(_modelName.c_str());
-		ImGui::SameLine();
-		if (ImGui::Button("Load"))
+		ImGui::Text("Model Name :"); ImGui::SameLine();
+		ImGui::Text(_modelName.c_str());
+		if (ImGui::Button("Load Model"))
 		{
 			//todo : 이미 모델이 존재하면 팝업 띄워서 물어보기
 			OpenFile();
 		}
+	}
 
-		ShowMeshInfo();
-		//todo : 머티리얼 정보를 띄운다.
+	if (ImGui::CollapsingHeader("Material"))
+	{
+		if (ImGui::Button("Save Material"))
+		{
+			SaveMaterial();
+		}
+
+		//머티리얼 정보를 띄운다.
+		ShowMaterials();
 	}
 }
 
@@ -230,19 +238,161 @@ void UI::cModelTool::OpenModel(wstring path, wstring name)
 	cDebug::Log((_modelName + " Open!").c_str());
 }
 
-void UI::cModelTool::ShowMeshInfo()
+void UI::cModelTool::SaveMaterial()
 {
-	if (_model.expired())
+	auto modelPtr = _model.lock();
+	if (!modelPtr)
+	{
+		cDebug::Log("Create Model before Saving Material!");
+		return;
+	}
+
+	Json::Value root;
+
+	for (auto&& material : modelPtr->GetMaterials())
+	{
+		Json::Value val;
+
+		string name = cString::String(material->GetName());
+		Json::SetValue(val, "Name", name);
+
+		string shaderName = cString::String(material->GetShaderName());
+		shaderName = cPath::GetFileName(shaderName);
+		Json::SetValue(val, "ShaderName", shaderName);
+
+		Json::SetValue(val, "Ambient", *material->GetTextureColor(ColorType::AMBIENT));
+		Json::SetValue(val, "Diffuse", *material->GetTextureColor(ColorType::DIFFUSE));
+		Json::SetValue(val, "Emissive", *material->GetTextureColor(ColorType::EMISSIVE));
+		Json::SetValue(val, "Specular", *material->GetTextureColor(ColorType::SPECULAR));
+
+		Json::SetValue(val, "Shininess", *material->GetTextureColor(ColorType::SHININESS, 0));
+
+		SaveTextureFile(val, "DiffuseFile", material, TextureType::DIFFUSE);
+		SaveTextureFile(val, "SpecularFile", material, TextureType::SPECULAR);
+		SaveTextureFile(val, "EmissiveFile", material, TextureType::EMISSIVE);
+		SaveTextureFile(val, "NormalFile", material, TextureType::NORMAL);
+
+		root[name] = val;
+	}
+	
+	Json::WriteData(modelPtr->GetFilePath() + L".material", &root);
+
+	cDebug::Log("Save Material!");
+}
+
+void UI::cModelTool::SaveTextureFile(Json::Value & root, const string & jsonName, const shared_ptr<cMaterial>& material, TextureType type)
+{
+	string fileName = "";
+	auto texture = material->GetTextureMap(type).lock();
+	if (texture)
+	{
+		fileName = cString::String(texture->GetFile());
+		fileName = cPath::GetFileName(fileName);
+	}
+	Json::SetValue(root, jsonName, fileName);
+}
+
+void UI::cModelTool::ShowMaterials()
+{
+	auto modelPtr = _model.lock();
+	if (!modelPtr)
 		return;
 
-	ImGui::Separator();
-
-	auto meshes = _model.lock()->GetMeshes();
-	for (auto&& mesh : meshes)
+	int index = 0;
+	for (auto&& material : modelPtr->GetMaterials())
 	{
-		//todo : 메쉬 정보에 추가할 것들 여기에 삽입
-		ImGui::Text(cString::String(mesh->GetName()).c_str());
+		ImGui::PushID(index++);
+		{
+			string matName = cString::String(material->GetName());
+			ShowText("Material Name : ", cPath::GetFileName(matName));
+			ImGui::NewLine();
+
+			//쉐이더
+			string shaderName = cString::String(material->GetShaderName());
+			ShowText("Shader Name :", cPath::GetFileName(shaderName));
+			ImGui::SameLine();
+			if (ImGui::Button("Open"))
+			{
+				OpenShaderFile(material);
+			}
+
+			ShowTextureColors(index, material);
+			ImGui::Spacing();
+		}
+		ImGui::PopID();
+
+		ImGui::Separator();
 	}
+}
+
+void UI::cModelTool::OpenShaderFile(shared_ptr<cMaterial> material)
+{
+	cPath::OpenFileDialog(L"Open HLSL File", cPath::ShaderFilter, Shader, [&material](wstring path)
+	{
+		material->SetShader(path);
+	});
+}
+
+void UI::cModelTool::ShowTextureColors(int& index, shared_ptr<cMaterial> material)
+{
+	D3DXCOLOR* color;
+
+	ImGui::PushID(index++);
+	{
+		ImGui::Text("Ambient :");
+		color = material->GetTextureColor(ColorType::AMBIENT);
+		ImGui::SliderFloat4("", (*color), 0, 1);
+	}
+	ImGui::PopID();
+
+	ImGui::PushID(index++);
+	{
+		ImGui::Text("Diffuse :");
+		color = material->GetTextureColor(ColorType::DIFFUSE);
+		ImGui::SliderFloat4("", (*color), 0, 1);
+	}
+	ImGui::PopID();
+
+	ImGui::PushID(index++);
+	{
+		ImGui::Text("Specular :");
+		color = material->GetTextureColor(ColorType::SPECULAR);
+		ImGui::SliderFloat4("", (*color), 0, 1);
+	}
+	ImGui::PopID();
+
+	ImGui::PushID(index++);
+	{
+		float* shininess;
+		ImGui::Text("Normal :");
+		shininess = material->GetTextureColor(ColorType::SHININESS, 0);
+		ImGui::SliderFloat("", shininess, 0, 10);
+	}
+	ImGui::PopID();
+
+	auto texturePtr = material->GetTextureMap(TextureType::DIFFUSE).lock();
+	ShowTexture(texturePtr);
+
+	texturePtr = material->GetTextureMap(TextureType::SPECULAR).lock();
+	ShowTexture(texturePtr);
+
+	texturePtr = material->GetTextureMap(TextureType::NORMAL).lock();
+	ShowTexture(texturePtr);
+}
+
+void UI::cModelTool::ShowTexture(shared_ptr<cTexture> texturePtr)
+{
+	if (texturePtr)
+	{
+		ImGui::Image(texturePtr->GetView(), ImVec2(64, 64));
+		ImGui::SameLine();
+	}
+}
+
+void UI::cModelTool::ShowText(string name, string text)
+{
+	ImGui::TextColored(ImVec4(255,255,0,255), name.c_str());
+	ImGui::Text(text.c_str());
 }
 
 bool UI::cModelTool::AlertModel()
@@ -267,9 +417,11 @@ void UI::cModelTool::SaveJson(Json::Value& root)
 	if (!modelPtr)
 		return;
 
-	Json::SetValue(model, "FilePath", cString::String(modelPtr->GetFilePath()));
+	wstring relative = cPath::GetRelativePath(modelPtr->GetFilePath(), cPath::TOP_FOLDERNAME_WCHAR);
+	Json::SetValue(model, "FilePath", cString::String(relative));
 
-	//todo : 머티리얼 쉐이더 파일 저장
+	//머티리얼 쉐이더 파일 저장
+	SaveMaterial();
 
 	root["Model"] = model;
 }

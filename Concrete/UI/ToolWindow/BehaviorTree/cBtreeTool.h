@@ -5,6 +5,7 @@
 class cBehaviorTree;
 namespace UI
 {
+	class cBlackboardTool;
 	class cBtreeTool : public cTool
 	{
 	public:
@@ -12,6 +13,7 @@ namespace UI
 		~cBtreeTool();
 	public:
 		// cTool을(를) 통해 상속됨
+		virtual void Init() override;
 		virtual void Update() override;
 		virtual void Render() override;
 		virtual void ShowHierarchy(int i) override;
@@ -25,9 +27,17 @@ namespace UI
 		//삭제할 노드가 있다면 삭제
 		void DeleteNode(weak_ptr<cTask> task);
 	private:
+		/**************
+			버튼 관련
+		***************/
+		void LoadBehaviorTree();
+		void SaveBehaviorTree();
+	private:
 		/***********************
-			인스펙터 서브 루틴
+			행동트리 제작 화면
 		************************/
+		void ShowBehaviorTreeTool();
+
 		void DrawBackground();
 
 		//베지어 곡선 출력
@@ -67,9 +77,6 @@ namespace UI
 		void Scroll();
 
 		void EndBackground();
-
-		void LoadBehaviorTree();
-		void SaveBehaviorTree();
 	private:
 		//부모 점
 		ImVec2 GetNodeStart(shared_ptr<cTask> task);
@@ -83,7 +90,7 @@ namespace UI
 	private:
 		const float NODE_SLOT_RADIUS = 5.5f; //원 반지름
 		const ImVec2 NODE_WINDOW_PADDING = ImVec2(8.0f, 8.0f);
-		const float MOUSE_PADDING = -58.0f;
+		const float MOUSE_PADDING = 0;// -58.0f;
 		const float NODE_GAP = 25.0f; //자식 노드 선 간격
 		ImVec2 _scrolling = ImVec2(0.0f, 0.0f); //스크린 위치
 		
@@ -109,5 +116,7 @@ namespace UI
 		bool _clickMoveNode = false; //이동할 노드가 클릭되었는지
 
 		shared_ptr<cTask> _copiedTask;
+
+		shared_ptr<cBlackboardTool> _blackboardTool;
 	};
 }

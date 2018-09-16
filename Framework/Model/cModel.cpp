@@ -9,9 +9,23 @@
 #include "./Helper/cString.h"
 #include "./Helper/cMath.h"
 
+ID3D11RasterizerState* cModel::_rasterizer[2];
+bool cModel::_init = false;
+
 cModel::cModel()
 {
 	_buffer = make_shared<cModelBoneBuffer>();
+
+	if (_init == false)
+	{
+		D3D11_RASTERIZER_DESC desc;
+		cStates::GetRasterizerDesc(&desc);
+		cStates::CreateRasterizer(&desc, &_rasterizer[0]);
+
+		//desc.CullMode = D3D11_CULL_FRONT;
+		cStates::CreateRasterizer(&desc, &_rasterizer[1]);
+		_init = true;
+	}
 }
 
 cModel::~cModel()
@@ -58,8 +72,14 @@ void cModel::AnimateBone(UINT index, const D3DXMATRIX& pAnimated)
 
 void cModel::ResetBones()
 {
+	sTransform root;
 	for (auto&& bone : _bones)
-		*bone->_animatedTransform = *bone->_absoluteTransform * *_rootTransform.lock();
+	{
+		if (!_rootTransform.expired())
+			*bone->_animatedTransform = *bone->_absoluteTransform * *_rootTransform.lock();
+		else
+			*bone->_animatedTransform = *bone->_absoluteTransform * root;
+	}
 }
 
 void cModel::Update(const weak_ptr<sTransform> & rootTransform)
@@ -80,7 +100,14 @@ void cModel::Render()
 	_buffer->SetVSBuffer(2);
 	for (auto&& mesh : _meshes)
 	{
-		mesh->Render();
+		if (mesh->GetName() == L"Cape_Mesh")
+		{
+			D3D::GetDC()->RSSetState(_rasterizer[1]);
+			mesh->Render();
+			D3D::GetDC()->RSSetState(nullptr);
+		}
+		else
+			mesh->Render();
 	}
 }
 

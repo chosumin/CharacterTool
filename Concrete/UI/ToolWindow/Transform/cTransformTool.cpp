@@ -20,7 +20,6 @@ void UI::cTransformTool::Init()
 
 void UI::cTransformTool::Update()
 {
-	cGizmo::Get()->Update();
 }
 
 void UI::cTransformTool::Render()

@@ -24,6 +24,7 @@ struct sPlayerKey
 		:Name(name), Key(key) {}
 };
 
+struct sTransform;
 class cCommand;
 class cInputHandler : public cSingletone<cInputHandler>
 {

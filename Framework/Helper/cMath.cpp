@@ -9,10 +9,6 @@ const D3DXMATRIX cMath::MATRIX_IDENTITY =
 	0,0,1,0,
 	0,0,0,1
 };
-const int cMath::IntMinValue = -2147483648;
-const int cMath::IntMaxValue = 2147483647;
-const float cMath::FloatMinValue = -3.402823E+38f;
-const float cMath::FloatMaxValue = 3.402823E+38f;
 
 float cMath::ToRadian(float degree)
 {
@@ -126,9 +122,61 @@ float cMath::Lerp(float minVal, float maxVal, float i)
 float cMath::AngleBetweenTwoVectors(const D3DXVECTOR3 & vec1,
 									const D3DXVECTOR3 & vec2)
 {
-	float dot = D3DXVec3Dot(&vec1, &vec2);
+	D3DXVECTOR3 dir1 = vec1;
+	D3DXVec3Normalize(&dir1, &dir1);
+
+	D3DXVECTOR3 dir2 = vec2;
+	D3DXVec3Normalize(&dir2, &dir2);
+
+	float dot = D3DXVec3Dot(&dir1, &dir2);
+
+	//float dot = D3DXVec3Dot(&vec1, &vec2);
+
 	dot = acosf(dot);
 	return dot / RADIAN;
+}
+
+float cMath::DistancePointFromLine(const D3DXVECTOR3 & linePoint1, const D3DXVECTOR3 & linePoint2, const D3DXVECTOR3 & dotPoint)
+{
+	if (linePoint1 == dotPoint || linePoint2 == dotPoint)
+		return 0.0f;
+
+	D3DXVECTOR3 d0 = linePoint1 - dotPoint;
+	D3DXVECTOR3 d1 = linePoint2 - dotPoint;
+	D3DXVECTOR3 d2 = linePoint2 - linePoint1;
+
+	float a = D3DXVec3Length(&d0);
+	float b = D3DXVec3Length(&d1);
+	float c = D3DXVec3Length(&d2);
+
+	//선분 길이가 0일 때
+	if (c == 0.0f) return a;
+
+	D3DXVec3Normalize(&d0, &d0);
+	D3DXVec3Normalize(&d1, &d1);
+	D3DXVec3Normalize(&d2, &d2);
+
+	float angle0 = acosf(D3DXVec3Dot(&d1, &d2));
+	float angle1 = acosf(D3DXVec3Dot(&-d0, &d2)); //예각을 위해 -취함
+	float angle2 = acosf(D3DXVec3Dot(&d0, &d1));
+
+	//선분에서 수선을 내릴 수 없다면 선분 끝점과의 거리를 바로 구함
+	if (angle0 > PI / 2.0f)
+		return D3DXVec3Length(&(linePoint2 - dotPoint));
+
+	if (angle1 > PI / 2.0f)
+		return D3DXVec3Length(&(linePoint1 - dotPoint));
+
+	//선분과 매우 길이가 멀 때
+	if (angle2 == 0.0f)
+		return a <= b ? a : b;
+
+	//선분과 초근접
+	if (angle2 >= PI - D3DX_16F_EPSILON)
+		return 0.0f;
+
+	return a* b * sinf(angle2) / c;
+
 }
 
 int cMath::Random(int r1, int r2)

@@ -14,6 +14,10 @@ public:
 	D3DXVECTOR3 GetPosition() const		{ return position; }
 	D3DXVECTOR3 GetDelta() const { return position - prevPosition; }
 	D3DXVECTOR3 GetMoveValue() const	{ return wheelMoveValue; }
+	void SetMouseValue(const D3DXVECTOR3& value)
+	{
+		wheelMoveValue = value;
+	}
 
 	bool OnAnyKeyEvent() { return action; }
 public:

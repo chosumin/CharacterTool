@@ -138,8 +138,7 @@ void Fbx::Exporter::WriteMaterialData(Json::Value & root, wstring saveFolder, un
 	Json::Value val;
 	Json::SetValue(val, "Name", material->Name);
 
-	//hack : 쉐이더 파일 소프트 코딩
-	string shaderName = "999_Mesh.hlsl";
+	string shaderName = "DiffuseMap.hlsl";
 	Json::SetValue(val, "ShaderName", shaderName);
 
 	Json::SetValue(val, "Ambient", material->Ambient);
