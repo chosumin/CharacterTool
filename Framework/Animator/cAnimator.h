@@ -21,10 +21,10 @@ public:
 	void SetCurrentClip(const weak_ptr<cAnimClip> & clip, bool overwrite = true, float blendTime = 0.1f, bool isLoop = true);
 
 	//중복된 클립이 있는지 확인
-	bool Duplicated(weak_ptr<cAnimClip> clip);
+	bool Duplicated(const weak_ptr<cAnimClip> & clip);
 
 	//새 클립 추가
-	void AddClip(weak_ptr<cAnimClip> clip);
+	void AddClip(const shared_ptr<cAnimClip> & clip);
 
 	//클립 삭제
 	ClipIter DeleteClip(weak_ptr<cAnimClip> clip);

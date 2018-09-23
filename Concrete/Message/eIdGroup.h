@@ -6,4 +6,5 @@ enum class eIdGroup
 	COMRADE = 0x002,
 	ENEMY = 0x003,
 	CHARACTER_TOOL = 0x004,
+	TERRAIN = 0x005,
 };

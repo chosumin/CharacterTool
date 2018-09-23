@@ -40,8 +40,12 @@ public:
 	static wstring GetDirectoryName(wstring path);
 
 	//절대 경로를 상대 경로로 변경
+	//@param : 절대 경로
+	//@param : 프로젝트의 시작 파일명
 	static string GetRelativePath(string path, string startString);
 	//절대 경로를 상대 경로로 변경
+	//@param : 절대 경로
+	//@param : 프로젝트의 시작 파일명
 	static wstring GetRelativePath(wstring path, wstring startString);
 
 	//확장자 반환

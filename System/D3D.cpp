@@ -195,7 +195,7 @@ void D3D::CreateSwapChainAndDevice()
 	//포함할 다이렉트 버전
 	D3D_FEATURE_LEVEL featureLevels[] =
 	{
-		D3D_FEATURE_LEVEL_11_1,
+		//D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL_10_1,
 		D3D_FEATURE_LEVEL_10_0,

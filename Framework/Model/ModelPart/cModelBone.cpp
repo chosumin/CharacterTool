@@ -22,41 +22,20 @@ cModelBone::~cModelBone()
 void cModelBone::Animate(const D3DXMATRIX & animated, const D3DXMATRIX* root)
 {
 	if (_parentIndex < 0)
-		_animatedTransform->Matrix = animated * *root;
+	{
+		D3DXMatrixMultiply(&_animatedTransform->Matrix, &animated, root);
+	}
 	else
-		_animatedTransform->Matrix = animated * _parent.lock()->_animatedTransform->Matrix;
+	{
+		D3DXMatrixMultiply(&_animatedTransform->Matrix, &animated, &_parent.lock()->_animatedTransform->Matrix);
+	}
 
-	_skinnedTransform->Matrix = _invAbsoluteMatrix * _animatedTransform->Matrix;
-}
-
-vector<weak_ptr<cModelBone>>& cModelBone::GetChildren()
-{
-	return _children;
-}
-
-weak_ptr<sTransform> cModelBone::GetAbsoluteTransform() const
-{
-	return _absoluteTransform;
-}
-
-const D3DXMATRIX & cModelBone::GetInvAbsoluteMatrix() const
-{
-	return _invAbsoluteMatrix;
-}
-
-weak_ptr<sTransform> cModelBone::GetAnimatedTransform() const
-{
-	return _animatedTransform;
+	D3DXMatrixMultiply(&_skinnedTransform->Matrix, &_invAbsoluteMatrix, &_animatedTransform->Matrix);
 }
 
 const D3DXMATRIX & cModelBone::GetSkinnedMatrix() const
 {
 	return _skinnedTransform->Matrix;
-}
-
-const vector<shared_ptr<cCollider>>& cModelBone::GetColliders() const
-{
-	return _colliders;
 }
 
 void cModelBone::AddCollider(weak_ptr<cCollider> collider)

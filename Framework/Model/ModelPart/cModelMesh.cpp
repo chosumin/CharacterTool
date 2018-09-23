@@ -26,7 +26,7 @@ unique_ptr<cModelMesh> cModelMesh::Clone() const
 	return move(mesh);
 }
 
-weak_ptr<sTransform> cModelMesh::GetParentTransform() const
+const shared_ptr<sTransform> & cModelMesh::GetParentTransform() const
 {
 	return _parentBone.lock()->GetAbsoluteTransform();
 }
@@ -37,8 +37,8 @@ void cModelMesh::Binding()
 		part->Binding();
 }
 
-void cModelMesh::Render()
+void cModelMesh::Render(const bool & onShader)
 {
 	for (auto&& part : _meshParts)
-		part->Render();
+		part->Render(onShader);
 }

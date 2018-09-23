@@ -45,7 +45,7 @@ void cCollider::ResetState()
 	_cbuffer->Data.Intersect = 0;
 }
 
-weak_ptr<sTransform> cCollider::GetLocalTransform() const
+const shared_ptr<sTransform> & cCollider::GetLocalTransform() const
 {
 	return _localTransform;
 }
@@ -67,7 +67,7 @@ void cCollider::SetWorld(const D3DXMATRIX & world)
 	_worldTransform->SetMatrix(world);
 }
 
-weak_ptr<sTransform> cCollider::GetWorldTransform() const
+const shared_ptr<sTransform> & cCollider::GetWorldTransform() const
 {
 	return _worldTransform;
 }

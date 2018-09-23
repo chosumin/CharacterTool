@@ -12,7 +12,7 @@ public:
 	cModelMeshPart();
 	~cModelMeshPart();
 
-	void Render();
+	void Render(const bool & onShader = true);
 
 	// iClonable을(를) 통해 상속됨
 	virtual unique_ptr<cModelMeshPart> Clone() const override;

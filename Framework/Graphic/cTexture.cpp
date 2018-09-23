@@ -72,6 +72,36 @@ cTexture::~cTexture()
 	SAFE_RELEASE(_view);
 }
 
+void cTexture::SaveFile(wstring file, ID3D11Texture2D * src)
+{
+	D3D11_TEXTURE2D_DESC srcDesc;
+	src->GetDesc(&srcDesc);
+
+	ID3D11Texture2D* dest;
+	D3D11_TEXTURE2D_DESC destDesc;
+	ZeroMemory(&destDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	destDesc.Width = srcDesc.Width;
+	destDesc.Height = srcDesc.Height;
+	destDesc.MipLevels = 1;
+	destDesc.ArraySize = 1;
+	destDesc.Format = srcDesc.Format;
+	destDesc.SampleDesc = srcDesc.SampleDesc;
+	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	destDesc.Usage = D3D11_USAGE_STAGING;
+
+	HRESULT hr;
+	hr = D3D::GetDevice()->CreateTexture2D(&destDesc, NULL, &dest);
+	assert(SUCCEEDED(hr));
+
+	hr = D3DX11LoadTextureFromTexture(D3D::GetDC(), src, NULL, dest);
+	assert(SUCCEEDED(hr));
+
+	hr = D3DX11SaveTextureToFile(D3D::GetDC(), dest, D3DX11_IFF_PNG, file.c_str());
+	assert(SUCCEEDED(hr));
+
+	SAFE_RELEASE(dest);
+}
+
 D3D11_TEXTURE2D_DESC cTexture::ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels)
 {
 	HRESULT hr;
@@ -133,6 +163,14 @@ D3D11_TEXTURE2D_DESC cTexture::ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOL
 	SAFE_RELEASE(texture);
 
 	return desc;
+}
+
+void cTexture::SaveFile(wstring file)
+{
+	ID3D11Texture2D* srcTexture;
+	_view->GetResource((ID3D11Resource **)&srcTexture);
+
+	SaveFile(file, srcTexture);
 }
 
 void cTexture::LoadJson(cTexture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)

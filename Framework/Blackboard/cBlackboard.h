@@ -40,14 +40,21 @@ public:
 	{
 		return _me;
 	}
-	const weak_ptr<cActor> & GetEnemy() const
+
+	void ClearEnemies()
 	{
-		return _enemy;
+		_enemies.clear();
 	}
+
+	const vector<weak_ptr<cActor>> & GetEnemies() const
+	{
+		return _enemies;
+	}
+
 	//적 설정
 	void SetEnemy(const weak_ptr<cActor>& enemy)
 	{
-		_enemy = enemy;
+		_enemies.emplace_back(enemy);
 	}
 
 	//@brief : 변화를 검사하는 객체 변경
@@ -125,5 +132,6 @@ protected:
 	unordered_map<string, int> _ints;
 
 	weak_ptr<cActor> _me;
-	weak_ptr<cActor> _enemy;
+
+	vector<weak_ptr<cActor>> _enemies;
 };

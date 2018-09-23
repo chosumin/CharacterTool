@@ -39,10 +39,9 @@ void cAnimClip::GetKeyFrameSRT(const wstring & boneName, UINT index,
 							   OUT D3DXQUATERNION & q,
 							   OUT D3DXVECTOR3 & s)
 {
-	auto& keyFrame = _keyFrames[boneName]->FrameData[index];
-	t = keyFrame.Translation;
-	q = keyFrame.Rotation;
-	s = keyFrame.Scale;
+	t = _keyFrames[boneName]->FrameData[index].Translation;
+	q = _keyFrames[boneName]->FrameData[index].Rotation;
+	s = _keyFrames[boneName]->FrameData[index].Scale;
 }
 
 void cAnimClip::GetFrameTransform(OUT D3DXMATRIX& transformMatrix, const wstring& boneName, UINT count)

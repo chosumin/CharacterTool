@@ -20,12 +20,6 @@ void cBehaviorTree::Init()
 {
 }
 
-void cBehaviorTree::Run()
-{
-	_root->SetInitState(true);
-	_root->Run();
-}
-
 void cBehaviorTree::Update()
 {
 	auto curTaskPtr = _currentTask.lock();
@@ -42,14 +36,9 @@ void cBehaviorTree::Update()
 	}
 }
 
-weak_ptr<cRootTask> cBehaviorTree::GetRoot() const
+const shared_ptr<cRootTask> & cBehaviorTree::GetRoot() const
 {
 	return _root;
-}
-
-void cBehaviorTree::SetCurrentTask(const weak_ptr<cTask> & task)
-{
-	_currentTask = task;
 }
 
 void cBehaviorTree::LoadJson(Json::Value & root)

@@ -22,7 +22,7 @@ cModel::cModel()
 		cStates::GetRasterizerDesc(&desc);
 		cStates::CreateRasterizer(&desc, &_rasterizer[0]);
 
-		//desc.CullMode = D3D11_CULL_FRONT;
+		desc.CullMode = D3D11_CULL_NONE;
 		cStates::CreateRasterizer(&desc, &_rasterizer[1]);
 		_init = true;
 	}
@@ -91,65 +91,47 @@ void cModel::Update(const weak_ptr<sTransform> & rootTransform)
 	{
 		memcpy(&_skinnedTM[i], &_bones[i]->GetSkinnedMatrix(), sizeof(D3DXMATRIX));
 	}
-
-	_buffer->SetBones(&_skinnedTM[0], _skinnedTM.size());
 }
 
-void cModel::Render()
+void cModel::Render(const bool & onShader)
 {
+	_buffer->SetBones(&_skinnedTM[0], _skinnedTM.size());
 	_buffer->SetVSBuffer(2);
 	for (auto&& mesh : _meshes)
 	{
 		if (mesh->GetName() == L"Cape_Mesh")
 		{
 			D3D::GetDC()->RSSetState(_rasterizer[1]);
-			mesh->Render();
-			D3D::GetDC()->RSSetState(nullptr);
+			mesh->Render(onShader);
+			D3D::GetDC()->RSSetState(_rasterizer[0]);
 		}
 		else
-			mesh->Render();
+			mesh->Render(onShader);
 	}
 }
 
-vector<shared_ptr<cMaterial>>& cModel::GetMaterials()
+const shared_ptr<cMaterial> & cModel::GetMaterial(wstring name) const
 {
-	return _materials;
-}
-
-weak_ptr<cMaterial> cModel::GetMaterial(wstring name) const
-{
-	for (auto&& material : _materials)
+	return *find_if(_materials.begin(), _materials.end(), [&name](const shared_ptr<cMaterial>& mat)
 	{
-		if (material->GetName() == name)
-			return material;
-	}
-	return weak_ptr<cMaterial>();
+		return mat->GetName() == name;
+	});
 }
 
-weak_ptr<cModelMesh> cModel::GetMesh(wstring name)
+const shared_ptr<cModelMesh> & cModel::GetMesh(wstring name)
 {
-	for (auto&& mesh : _meshes)
+	return *find_if(_meshes.begin(), _meshes.end(), [&name](const shared_ptr<cModelMesh>& mesh)
 	{
-		if (mesh->_name == name)
-			return mesh;
-	}
-	return weak_ptr<cModelMesh>();
+		return mesh->_name == name;
+	});
 }
 
-const vector<shared_ptr<cModelBone>>& cModel::GetBones() const
+const shared_ptr<cModelBone> & cModel::GetBone(const wstring & name) const
 {
-	return _bones;
-}
-
-weak_ptr<cModelBone> cModel::GetBone(const wstring & name) const
-{
-	for (auto&& bone : _bones)
+	return *find_if(_bones.begin(), _bones.end(), [&name](const shared_ptr<cModelBone>& bone)
 	{
-		if (bone->GetName() == name)
-			return bone;
-	}
-
-	return weak_ptr<cModelBone>();
+		return bone->_name == name;
+	});
 }
 
 void cModel::SetPlayedBuffer(bool isPlayAnim)

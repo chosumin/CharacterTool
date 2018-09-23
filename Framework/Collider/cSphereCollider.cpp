@@ -75,7 +75,7 @@ eContainmentType cSphereCollider::ContainsSphere(const D3DXVECTOR3 & center, flo
 	D3DXVECTOR3 transformed;
 	GetTransformedCenter(transformed);
 
-	auto world = GetWorldTransform().lock();
+	auto& world = GetWorldTransform();
 	float tempRadius = _radius * world->GetScaleMatrix()._41;
 
 	float dstSquared = cMath::DistanceSquared(center, transformed);
@@ -132,7 +132,7 @@ ePlaneIntersectionType cSphereCollider::ContainsPlane(const D3DXVECTOR3 & normal
 
 float cSphereCollider::GetTransformedRadius()
 {
-	auto world = GetWorldTransform().lock();
+	auto& world = GetWorldTransform();
 	return _radius * world->GetScaleMatrix()._11;
 }
 

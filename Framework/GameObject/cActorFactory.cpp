@@ -51,7 +51,7 @@ shared_ptr<cActor> cActorFactory::CreateActor(wstring jsonPath)
 	CreateBlackboard(root);
 
 	_actor->TestUpdate();
-	_actor->GetModel().lock()->ResetBones();
+	_actor->GetModel()->ResetBones();
 
 	return move(_actor);
 }
@@ -67,7 +67,7 @@ void cActorFactory::InitActor()
 
 void cActorFactory::CreateTransform(Json::Value & root)
 {
-	auto& scale = _actor->GetTransform().lock()->Scaling;
+	auto& scale = _actor->GetTransform()->Scaling;
 	Json::GetValue(root["Transform"], "Scale", scale);
 }
 
@@ -90,7 +90,7 @@ void cActorFactory::CreateCollider(Json::Value& root)
 		//부모 본 불러옴
 		string boneName;
 		Json::GetValue(collider, "ParentName", boneName);
-		auto bone = _actor->GetModel().lock()->GetBone(cString::Wstring(boneName));
+		auto bone = _actor->GetModel()->GetBone(cString::Wstring(boneName));
 
 		//모양 가져옴
 		int shape;
@@ -107,15 +107,15 @@ void cActorFactory::CreateCollider(Json::Value& root)
 		Json::GetValue(collider, "LocalTM", mat);
 
 		//콜라이더 팩토리에서 생성
-		auto colliders = _actor->GetColliders().lock();
+		auto& colliders = _actor->GetColliders();
 		colliders->AddCollider(eType, eShape, bone, mat);
 	}
 }
 
 void cActorFactory::CreateAnimator(Json::Value& root)
 {
-	auto bones = _actor->GetModel().lock()->GetBones();
-	auto animator = _actor->GetAnimator().lock();
+	auto& bones = _actor->GetModel()->GetBones();
+	auto& animator = _actor->GetAnimator();
 
 	float speed;
 	Json::GetValue(root["Animations"], "Animation Speed", speed);
@@ -148,7 +148,7 @@ void cActorFactory::CreateBehaviorTree(Json::Value& root)
 	string filePath;
 	Json::GetValue(root, "Behavior Tree", filePath);
 
-	auto bTreePtr = _actor->GetBehaviorTree().lock();
+	auto& bTreePtr = _actor->GetBehaviorTree();
 	if (!bTreePtr)
 		assert(false && "행동트리를 추가하세요!");
 
@@ -165,7 +165,7 @@ void cActorFactory::CreateBehaviorTree(Json::Value& root)
 
 void cActorFactory::CreateBlackboard(Json::Value & root)
 {
-	auto blackboardPtr = _actor->GetBlackboard().lock();
+	auto& blackboardPtr = _actor->GetBlackboard();
 
 	Json::Value blackboardJson = root["Blackboard"];
 	

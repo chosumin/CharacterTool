@@ -54,7 +54,7 @@ void UI::cTransformTool::ShowTransform()
 		return;
 
 	auto actorPtr = _actor.lock();
-	if (actorPtr->GetTransform().expired())
+	if (!actorPtr->GetTransform())
 		return;
 
 	cDebug::Log("Transform Selected!");
@@ -64,7 +64,7 @@ void UI::cTransformTool::ShowTransform()
 void UI::cTransformTool::SaveJson(Json::Value& root)
 {
 	//스케일링만 저장되도록
-	auto& scale = _actor.lock()->GetTransform().lock()->Scaling;
+	auto& scale = _actor.lock()->GetTransform()->Scaling;
 	Json::Value transform;
 	Json::SetValue(transform, "Scale", scale);
 	root["Transform"] = transform;

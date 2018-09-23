@@ -4,6 +4,7 @@
 class cModelBone;
 class cModelMesh;
 class cMaterial;
+class cModelBoneBuffer;
 struct sTransform;
 class cModel :
 	public iCloneable<cModel>,
@@ -15,7 +16,7 @@ public:
 	~cModel();
 
 	void Update(const weak_ptr<sTransform> & rootTransform);
-	void Render();
+	void Render(const bool & onShader = true);
 
 	//iCloneable을(를) 통해 상속됨
 	virtual std::unique_ptr<cModel> Clone() const override;
@@ -32,22 +33,28 @@ public:
 	********************/
 	const wstring& GetFilePath() { return _modelPath; }
 
-	vector<shared_ptr<cMaterial>>& GetMaterials();
+	vector<shared_ptr<cMaterial>>& GetMaterials()
+	{
+		return _materials;
+	}
 
-	weak_ptr<cMaterial> GetMaterial(wstring name) const;
+	const shared_ptr<cMaterial> & GetMaterial(wstring name) const;
 
 	vector<shared_ptr<cModelMesh>>& GetMeshes() { return _meshes; }
 
 	UINT GetMeshCount() const { return _meshes.size(); }
-	weak_ptr<cModelMesh> GetMesh(UINT index) const { return _meshes[index]; }
-	weak_ptr<cModelMesh> GetMesh(wstring name);
+	const shared_ptr<cModelMesh> & GetMesh(UINT index) const { return _meshes[index]; }
+	const shared_ptr<cModelMesh> & GetMesh(wstring name);
 	
-	const vector<shared_ptr<cModelBone>>& GetBones() const;
+	const vector<shared_ptr<cModelBone>>& GetBones() const
+	{
+		return _bones;
+	}
 	UINT GetBoneCount() const { return _bones.size(); }
-	weak_ptr<cModelBone> GetBone(UINT index) const { return _bones[index]; }
-	weak_ptr<cModelBone> GetBone(const wstring& name) const;
+	const shared_ptr<cModelBone> & GetBone(UINT index) const { return _bones[index]; }
+	const shared_ptr<cModelBone> & GetBone(const wstring& name) const;
    
-	weak_ptr<cModelBone> GetRoot() const { return _rootBone; }
+	const weak_ptr<cModelBone> & GetRoot() const { return _rootBone; }
 
 	void SetPlayedBuffer(bool isPlayAnim);
 protected:
@@ -68,7 +75,7 @@ private:
 	vector<shared_ptr<cModelBone>> _bones;
 	vector<D3DXMATRIX> _skinnedTM;
 
-	shared_ptr<class cModelBoneBuffer> _buffer;
+	shared_ptr<cModelBoneBuffer> _buffer;
 
 	static ID3D11RasterizerState* _rasterizer[2];
 	static bool _init;

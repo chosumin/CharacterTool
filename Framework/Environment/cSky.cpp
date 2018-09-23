@@ -57,7 +57,9 @@ void cSky::Update()
 
 	D3DXMATRIX root;
 	D3DXMatrixIdentity(&root);
-	model->GetBone(L"Sphere").lock()->Animate(world, &root);
+
+	//hack : 스피어 하드코딩
+	model->GetBone(L"Sphere")->Animate(world, &root);
 	model->Update(weak_ptr<sTransform>());
 }
 

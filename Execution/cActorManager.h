@@ -13,7 +13,7 @@ public:
 	// iExecutable을(를) 통해 상속됨
 	virtual void Init() override;
 	virtual void Update() override;
-	virtual void PreRender() override {}
+	virtual void PreRender() override;
 	virtual void Render() override;
 	virtual void PostRender() override;
 	virtual void ResizeScreen() override {}
@@ -26,6 +26,7 @@ private:
 
 	//시작 메시지 전달
 	void SendStartMessage();
+	void SendRegisterActorMessage(const shared_ptr<cActor> & actor);
 private:
 	void StopScene();
 
@@ -34,12 +35,19 @@ private:
 
 	//적 액터 설정
 	void SetEnemy(const weak_ptr<cActor>* actor);
+
+	void SetOpponent();
+
+	void SetActorsPosition();
+	void SetCollision();
 private:
 	weak_ptr<sGlobalVariable> _global;
 	
 	unique_ptr<class cCollisionManager> _collisionManager;
 	shared_ptr<cActor> _editedActor;
-	shared_ptr<cActor> _enemy;
+	//shared_ptr<cActor> _enemy;
+
+	vector<shared_ptr<cActor>> _enemies;
 
 	bool _isStart;
 };

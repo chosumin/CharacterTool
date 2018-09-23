@@ -84,9 +84,6 @@
     <ClInclude Include="Common\iExecutable.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Execution\cModels.h">
-      <Filter>Execution</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Helper\cMath.h">
       <Filter>Framework\Helper</Filter>
     </ClInclude>
@@ -372,6 +369,12 @@
     <ClInclude Include="Concrete\UI\MenuBar\cCameraMenu.h">
       <Filter>Concrete\UI\MenuBar</Filter>
     </ClInclude>
+    <ClInclude Include="Framework\Graphic\cRenderTarget.h">
+      <Filter>Framework\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Light\cDirectionalLight.h">
+      <Filter>Framework\Light</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -435,9 +438,6 @@
     </ClCompile>
     <ClCompile Include="Framework\Model\cModel.cpp">
       <Filter>Framework\Component\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Execution\cModels.cpp">
-      <Filter>Execution</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Helper\cMath.cpp">
       <Filter>Framework\Helper</Filter>
@@ -682,6 +682,12 @@
     <ClCompile Include="Concrete\UI\MenuBar\cCameraMenu.cpp">
       <Filter>Concrete\UI\MenuBar</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\Graphic\cRenderTarget.cpp">
+      <Filter>Framework\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Light\cDirectionalLight.cpp">
+      <Filter>Framework\Light</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Common">
@@ -812,6 +818,9 @@
     </Filter>
     <Filter Include="Concrete\Component\BehaviorTree\Condition">
       <UniqueIdentifier>{0f9ec9a9-8a0c-44ec-88b7-887e02693a5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Light">
+      <UniqueIdentifier>{f4589f38-a249-4a1d-a601-e292244aa4ca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

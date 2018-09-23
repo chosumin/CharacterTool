@@ -17,5 +17,10 @@ enum class eMessageType
 
 	SET_FREE_POINT,
 	SET_EDITED_ACTOR_THIRD_POINT,
-	SET_ENEMY_ACTOR_THIRD_POINT
+	SET_ENEMY_ACTOR_THIRD_POINT,
+
+	/***********************
+		인게임 초기화 관련
+	************************/
+	REGISTER_ACTOR,
 };

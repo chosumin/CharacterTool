@@ -118,26 +118,26 @@ bool cUserInspector::OnAttackEvent()
 
 void cUserInspector::SetPositionData()
 {
-	auto boardPtr = _blackboard.lock();
-	if (!boardPtr)
-		return;
+	//auto boardPtr = _blackboard.lock();
+	//if (!boardPtr)
+	//	return;
 
-	//적의 위치 세팅
-	D3DXVECTOR3 targetPos;
-	auto enemyPtr = boardPtr->GetEnemy().lock();
-	if (enemyPtr)
-	{
-		enemyPtr->GetPosition(targetPos);
-		boardPtr->SetVector3("TargetPos", targetPos);
-	}
+	////적의 위치 세팅
+	//D3DXVECTOR3 targetPos;
+	//auto enemyPtr = boardPtr->GetEnemy().lock();
+	//if (enemyPtr)
+	//{
+	//	enemyPtr->GetPosition(targetPos);
+	//	boardPtr->SetVector3("TargetPos", targetPos);
+	//}
 
-	//자신의 위치 세팅
-	D3DXVECTOR3 myPos;
-	auto mePtr = boardPtr->GetActor().lock();
-	mePtr->GetPosition(myPos);
-	boardPtr->SetVector3("MyPos", myPos);
+	////자신의 위치 세팅
+	//D3DXVECTOR3 myPos;
+	//auto mePtr = boardPtr->GetActor().lock();
+	//mePtr->GetPosition(myPos);
+	//boardPtr->SetVector3("MyPos", myPos);
 
-	D3DXVECTOR3 gap = targetPos - myPos;
-	D3DXVec3Normalize(&gap, &gap);
-	boardPtr->SetVector3("TargetDirection", gap);
+	//D3DXVECTOR3 gap = targetPos - myPos;
+	//D3DXVec3Normalize(&gap, &gap);
+	//boardPtr->SetVector3("TargetDirection", gap);
 }

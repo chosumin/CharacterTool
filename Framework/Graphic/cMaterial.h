@@ -45,7 +45,7 @@ public:
 	//머티리얼 쉐이더 변경
 	void SetShader(string file);
 	void SetShader(wstring file);
-	void SetShader(shared_ptr<cShader> shader);
+	void SetShader(shared_ptr<cShader> & shader);
 
 	//반사 종류에 따른 색 반환
 	D3DXCOLOR* GetTextureColor(ColorType eType);
@@ -56,9 +56,15 @@ public:
 	void SetTextureColor(ColorType eType, float r, float g, float b, float value);
 
 	//반사 텍스쳐 컨테이너 반환
-	unordered_map<TextureType, shared_ptr<cTexture>> GetTextureMaps() const;
+	const unordered_map<TextureType, shared_ptr<cTexture>> & GetTextureMaps() const
+	{
+		return _textureMap;
+	}
 	//반사 텍스쳐 반환
-	weak_ptr<cTexture> GetTextureMap(TextureType eType);
+	const shared_ptr<cTexture> & GetTextureMap(TextureType eType)
+	{
+		return _textureMap[eType];
+	}
 
 	//반사 텍스쳐 변경
 	void SetTextureMap(TextureType eType, wstring file, D3DX11_IMAGE_LOAD_INFO * info = nullptr);
@@ -67,7 +73,7 @@ public:
 	/************
 		렌더링
 	*************/
-	void Render();
+	void Render(const bool & onShader = true);
 private:
 	void Initialize();
 	D3DXCOLOR& GetColor(ColorType eType);

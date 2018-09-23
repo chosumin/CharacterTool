@@ -15,7 +15,7 @@ public:
 	void Render();
 
 	void AddCollider(eColliderType type, eColliderShape shape,
-					 weak_ptr<cModelBone>& bone,
+					 const shared_ptr<cModelBone>& bone,
 					 const D3DXMATRIX& matrix);
 	void DeleteCollider();
 

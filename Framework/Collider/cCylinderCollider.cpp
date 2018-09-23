@@ -114,8 +114,8 @@ sLine cCylinderCollider::GetTransformedLine() const
 
 float cCylinderCollider::GetTransformedRadius() const
 {
-	auto world = GetWorldTransform();
-	return _radius * world.lock()->GetScaleMatrix()._11;
+	auto& world = GetWorldTransform();
+	return _radius * world->GetScaleMatrix()._11;
 }
 
 float cCylinderCollider::ClosestPtSegmentSegment(sLine line2)

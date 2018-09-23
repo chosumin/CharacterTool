@@ -1,18 +1,61 @@
 #include "stdafx.h"
 #include "cWorldGrid.h"
 #include "./Mesh/MeshUtility.h"
+#include "./Message/eIdGroup.h"
+#include "./Message/eMessageType.h"
+#include "./GameObject/cActor.h"
+#include "./Light/cDirectionalLight.h"
+#include "./Model/cModel.h"
+#include "./Graphic/cMaterial.h"
 
-cWorldGrid::cWorldGrid()
+cWorldGrid::cWorldGrid(weak_ptr<sGlobalVariable> global)
+	: _vertexSize(0)
 {
 	_world = make_unique<cWorldBuffer>();
-	_shader = cShader::Create(Shader + L"001_VertexC.hlsl");
+	_shader = cShader::Create(Shader + L"GridPlane.hlsl");
 
-	CreateVertices();
+	CreatePlane();
+
+	cMeshUtility<VertexType>::CreateVertexBuffer(&_vb, _vertices);
+
+	_vertexSize = _vertices.size();
+
+	//Create Blend State
+	{
+		D3D11_BLEND_DESC desc;
+		cStates::GetBlendDesc(&desc);
+		cStates::CreateBlend(&desc, &_alphaBlend[0]);
+
+		desc.RenderTarget[0].BlendEnable = true;
+		cStates::CreateBlend(&desc, &_alphaBlend[1]);
+	}
+
+	_directionalLight = make_unique<cDirectionalLight>(global);
 }
 
 cWorldGrid::~cWorldGrid()
 {
 	SAFE_RELEASE(_vb);
+	cEntityManager::Get()->RemoveEntity(GetID());
+}
+
+void cWorldGrid::Init()
+{
+	cEntityManager::Get()->RegisterEntity(eIdGroup::TERRAIN, shared_from_this());
+	FunctionInitialize();
+
+	_shadowBuffer = make_unique<cViewProjectionBuffer>();
+}
+
+void cWorldGrid::Update()
+{
+	_directionalLight->Update();
+}
+
+void cWorldGrid::PreRender()
+{
+	//그림자 맵
+	_directionalLight->Render();
 }
 
 void cWorldGrid::Render()
@@ -20,51 +63,49 @@ void cWorldGrid::Render()
 	if (cDebug::GetDebugMode() == false)
 		return;
 
+	auto view = _directionalLight->SRV();
+	D3D::GetDC()->PSSetShaderResources(5, 1, &view);
+
+	D3D::GetDC()->OMSetBlendState(_alphaBlend[1], nullptr, 0xFF);
+
 	_world->SetVSBuffer(1);
 	_shader->Render();
 
-	cMeshUtility<VertexType>::Render(_vb, _vertices.size(), D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	cMeshUtility<VertexType>::Render(_vb, _vertexSize, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	D3D::GetDC()->OMSetBlendState(_alphaBlend[0], nullptr, 0xFF);
 }
 
-void cWorldGrid::CreateVertices(int nNumHalfTile, float fInterval)
+void cWorldGrid::CreatePlane(float width, float height)
 {
-	float fMax = nNumHalfTile * fInterval;
-	float fMin = -nNumHalfTile * fInterval;
-
-	float normal = 0.7f;
-	float middle = 0.4f;
 	VertexType v;
-	for (int i = 1; i <= nNumHalfTile; i++)
+	v.color = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+	v.position = D3DXVECTOR3(-width * 0.5f, 0, -height * 0.5f);
+	_vertices.push_back(v);
+	v.position = D3DXVECTOR3(-width * 0.5f, 0, height * 0.5f);
+	_vertices.push_back(v);
+	v.position = D3DXVECTOR3(width * 0.5f, 0, -height * 0.5f);
+	_vertices.push_back(v);
+	v.position = D3DXVECTOR3(width * 0.5f, 0, -height * 0.5f);
+	_vertices.push_back(v);
+	v.position = D3DXVECTOR3(-width * 0.5f, 0, height * 0.5f);
+	_vertices.push_back(v);
+	v.position = D3DXVECTOR3(width * 0.5f, 0, height * 0.5f);
+	_vertices.push_back(v);
+}
+
+void cWorldGrid::HandleMessage(const sTelegram & msg)
+{
+	msgMap[msg.message](msg);
+}
+
+void cWorldGrid::FunctionInitialize()
+{
+	//액터 등록
+	msgMap[eMessageType::REGISTER_ACTOR] = [this](const sTelegram& msg)
 	{
-		if (i % 5 == 0)
-			v.color = { normal, normal, normal, normal };
-		else
-			v.color = { middle, middle, middle, middle };
-
-		v.position = D3DXVECTOR3(fMin, 0, i * fInterval); _vertices.push_back(v);
-		v.position = D3DXVECTOR3(fMax, 0, i * fInterval); _vertices.push_back(v);
-
-		v.position = D3DXVECTOR3(fMin, 0, -i * fInterval); _vertices.push_back(v);
-		v.position = D3DXVECTOR3(fMax, 0, -i * fInterval); _vertices.push_back(v);
-
-		v.position = D3DXVECTOR3(i * fInterval, 0, fMin); _vertices.push_back(v);
-		v.position = D3DXVECTOR3(i * fInterval, 0, fMax); _vertices.push_back(v);
-
-		v.position = D3DXVECTOR3(-i * fInterval, 0, fMin); _vertices.push_back(v);
-		v.position = D3DXVECTOR3(-i * fInterval, 0, fMax); _vertices.push_back(v);
-	}
-
-	v.color = { 1,0,0,1 };
-	v.position = D3DXVECTOR3(fMin, 0, 0); _vertices.push_back(v);
-	v.position = D3DXVECTOR3(fMax, 0, 0); _vertices.push_back(v);
-
-	v.color = { 0, 1, 0, 1 };
-	v.position = D3DXVECTOR3(0, fMin, 0); _vertices.push_back(v);
-	v.position = D3DXVECTOR3(0, fMax, 0); _vertices.push_back(v);
-
-	v.color = { 0, 0, 1, 1 };
-	v.position = D3DXVECTOR3(0, 0, fMin); _vertices.push_back(v);
-	v.position = D3DXVECTOR3(0, 0, fMax); _vertices.push_back(v);
-
-	cMeshUtility<VertexType>::CreateVertexBuffer(&_vb, _vertices);
+		auto actor = (shared_ptr<cActor>*)(msg.extraInfo);
+		_directionalLight->AddObject(*actor);
+	};
 }

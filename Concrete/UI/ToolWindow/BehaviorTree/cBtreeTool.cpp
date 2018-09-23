@@ -216,6 +216,7 @@ void UI::cBtreeTool::SaveBehaviorTree()
 		_bTree.lock()->SaveJson(root);
 
 		wstring temp = cPath::GetDirectoryName(path) + cPath::GetFileNameWithoutExtension(path);
+		temp = cPath::GetRelativePath(temp, cPath::TOP_FOLDERNAME_WCHAR);
 		temp += L".bt";
 
 		_bTree.lock()->SetName(temp);
@@ -239,23 +240,21 @@ void UI::cBtreeTool::DrawLinks()
 		DrawLink(task);
 }
 
-void UI::cBtreeTool::DrawLink(weak_ptr<cTask> task)
+void UI::cBtreeTool::DrawLink(const shared_ptr<cTask> & task)
 {
-	auto taskPtr = task.lock();
-
-	if (taskPtr->GetChildren() == nullptr)
+	if (task->GetChildren() == nullptr)
 		return;
 
-	if (taskPtr->GetHide())
+	if (task->GetHide())
 		return;
 
-	UINT count = taskPtr->GetChildren()->size();
+	UINT count = task->GetChildren()->size();
 	for (UINT i = 0; i < count; i++)
 	{
-		auto child = taskPtr->GetChildren()->at(i);
+		auto& child = task->GetChildren()->at(i);
 
 		//부모의 시작점
-		ImVec2 p1 = _offset + GetNodeEnd(taskPtr, i);
+		ImVec2 p1 = _offset + GetNodeEnd(task, i);
 
 		//자식의 도착점
 		ImVec2 p2 = _offset + GetNodeStart(child);
@@ -286,14 +285,13 @@ void UI::cBtreeTool::DrawNodes()
 	_drawList->ChannelsMerge();
 }
 
-void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
+void UI::cBtreeTool::DrawNode(OUT int& id, const shared_ptr<cTask> & task)
 {
-	auto taskPtr = task.lock();
-	if (!taskPtr)
+	if (!task)
 		return;
 
 	ImGui::PushID(id++);
-	ImVec2 node_rect_min = _offset + taskPtr->GetPosition();
+	ImVec2 node_rect_min = _offset + task->GetPosition();
 
 	_drawList->ChannelsSetCurrent(1); // Foreground
 	bool old_any_active = ImGui::IsAnyItemActive();
@@ -301,47 +299,46 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 
 	//노드 정보 출력
 	ImGui::BeginGroup();
-	taskPtr->RenderAllInfo();
+	task->RenderAllInfo();
 	ImGui::EndGroup();
 
 	bool node_widgets_active = (!old_any_active && ImGui::IsAnyItemActive());
 
 	//사이즈 지정
-	taskPtr->SetSize(ImGui::GetItemRectSize() + NODE_WINDOW_PADDING + NODE_WINDOW_PADDING);
-	auto taskSize = taskPtr->GetSize();
+	task->SetSize(ImGui::GetItemRectSize() + NODE_WINDOW_PADDING + NODE_WINDOW_PADDING);
+	auto taskSize = task->GetSize();
 
 	//너비는 자식 노드 수, 컨텐츠 사이즈 중 큰 것 선택
-	if(taskPtr->GetChildren())
-		taskPtr->SetSize(ImVec2(max(taskSize.x, taskPtr->GetChildren()->size() * NODE_GAP), taskSize.y));
-	ImVec2 node_rect_max = node_rect_min + taskPtr->GetSize();
+	if(task->GetChildren())
+		task->SetSize(ImVec2(max(taskSize.x, task->GetChildren()->size() * NODE_GAP), taskSize.y));
+	ImVec2 node_rect_max = node_rect_min + task->GetSize();
 
 	//노드 박스 출력
 	_drawList->ChannelsSetCurrent(0); // Background
 	ImGui::SetCursorScreenPos(node_rect_min);
-	ImGui::InvisibleButton("node", taskPtr->GetSize());
+	ImGui::InvisibleButton("node", task->GetSize());
 
 	//오른쪽 마우스 클릭
 	if (ImGui::IsItemHovered())
 	{
-		_hoveredTask = taskPtr;
+		_hoveredTask = task;
 		_openContextMenu |= ImGui::IsMouseClicked(1);
 	}
 
 	//노드 피킹
 	bool node_moving_active = ImGui::IsItemActive();
 	if (node_widgets_active || node_moving_active)
-		_selectedTask = taskPtr;
+		_selectedTask = task;
 
 	//노드 드래그
 	if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
-		taskPtr->SetPosition(taskPtr->GetPosition() + ImGui::GetIO().MouseDelta);
+		task->SetPosition(task->GetPosition() + ImGui::GetIO().MouseDelta);
 
 	//채움 색
-
 	//hack : 루트 하드코딩
 	ImU32 node_bg_color = ImGui::IsItemHovered() ? IM_COL32(75, 75, 75, 255) : IM_COL32(60, 60, 60, 255);
 
-	if (taskPtr->GetName() == "ROOT")
+	if (task->GetName() == "ROOT")
 		node_bg_color = IM_COL32(200, 200, 200, 255);
 
 
@@ -349,21 +346,21 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 	_drawList->AddRectFilled(node_rect_min, node_rect_max, node_bg_color, 4.0f);
 	_drawList->AddRect(node_rect_min, node_rect_max, IM_COL32(100, 100, 100, 255), 4.0f);
 
-	auto pos = taskPtr->GetPosition();
-	auto size = taskPtr->GetSize();
+	auto pos = task->GetPosition();
+	auto size = task->GetSize();
 	//부모에서 들어오는 점
 	ImVec2 p2 = _offset + ImVec2(pos.x + size.x * 0.5f, pos.y);
 	_drawList->AddCircleFilled(p2, NODE_SLOT_RADIUS, IM_COL32(150, 150, 150, 250));
 
 	ImGui::PopID();
 
-	if (taskPtr->GetHide())
+	if (task->GetHide())
 		return;
 
-	if (taskPtr->GetChildren() == nullptr)
+	if (task->GetChildren() == nullptr)
 		return;
 
-	UINT count = taskPtr->GetChildren()->size();
+	UINT count = task->GetChildren()->size();
 	//자식으로 나가는 점
 	for (UINT i = 0; i < count; i++)
 	{
@@ -378,7 +375,7 @@ void UI::cBtreeTool::DrawNode(OUT int& id, weak_ptr<cTask> task)
 	_drawList->AddCircleFilled(p1, NODE_SLOT_RADIUS, IM_COL32(0, 255, 0, 150));
 
 	//재귀
-	for (auto&& child : *taskPtr->GetChildren())
+	for (auto&& child : *task->GetChildren())
 		DrawNode(id, child);
 }
 
@@ -469,15 +466,14 @@ void UI::cBtreeTool::DrawAddMenu()
 		_parentOfNewTasks->GetChildren()->emplace_back(move(task));
 }
 
-void UI::cBtreeTool::SetNodePosition(weak_ptr<cTask> task, const ImVec2 & parentPos)
+void UI::cBtreeTool::SetNodePosition(shared_ptr<cTask> & task, const ImVec2 & parentPos)
 {
-	auto taskPtr = task.lock();
-	taskPtr->SetPosition(taskPtr->GetPosition() + parentPos);
+	task->SetPosition(task->GetPosition() + parentPos);
 
-	if (taskPtr->GetChildren())
+	if (task->GetChildren())
 	{
-		for (auto&& child : *taskPtr->GetChildren())
-			SetNodePosition(child, taskPtr->GetPosition());
+		for (auto&& child : *task->GetChildren())
+			SetNodePosition(child, task->GetPosition());
 	}
 }
 
@@ -499,7 +495,7 @@ void UI::cBtreeTool::ConnectNode()
 	{
 		for (UINT i = 0; i < _parentOfNewTasks->GetChildren()->size(); i++)
 		{
-			auto task = _parentOfNewTasks->GetChildren()->at(i);
+			auto& task = _parentOfNewTasks->GetChildren()->at(i);
 
 			auto circlePos = GetNodeStart(task);
 
@@ -554,16 +550,14 @@ void UI::cBtreeTool::ConnectNode()
 	}
 }
 
-void UI::cBtreeTool::FindConnectNode(const ImVec2& mousePos, weak_ptr<cTask> task)
+void UI::cBtreeTool::FindConnectNode(const ImVec2& mousePos, const shared_ptr<cTask> & task)
 {
-	auto taskPtr = task.lock();
-
-	auto pos = taskPtr->GetPosition();
-	auto size = taskPtr->GetSize();
+	auto pos = task->GetPosition();
+	auto size = task->GetSize();
 
 	ImVec2 addCircle = _offset + ImVec2(pos.x + size.x, pos.y + size.y);
 
-	if (taskPtr->GetChildren())
+	if (task->GetChildren())
 	{
 		if (Intersect(mousePos, addCircle))
 		{
@@ -571,7 +565,7 @@ void UI::cBtreeTool::FindConnectNode(const ImVec2& mousePos, weak_ptr<cTask> tas
 			_drawList->AddCircleFilled(addCircle, NODE_SLOT_RADIUS, IM_COL32(255, 0, 0, 150));
 		}
 
-		for (auto task2 : *taskPtr->GetChildren())
+		for (auto task2 : *task->GetChildren())
 			FindConnectNode(mousePos, task2);
 	}
 }
@@ -677,16 +671,15 @@ void UI::cBtreeTool::MoveNode()
 }
 
 void UI::cBtreeTool::SelectMoveNode(const ImVec2& mousePos,
-									weak_ptr<cTask> task,
+									const shared_ptr<cTask> & task,
 									function<void(weak_ptr<cTask>, UINT)> func)
 {
-	auto taskPtr = task.lock();
-	if (!taskPtr || !taskPtr->GetChildren())
+	if (!task || !task->GetChildren())
 		return;
 
-	for (UINT i = 0; i < taskPtr->GetChildren()->size(); i++)
+	for (UINT i = 0; i < task->GetChildren()->size(); i++)
 	{
-		auto circlePos = GetNodeEnd(taskPtr, i);
+		auto circlePos = GetNodeEnd(task, i);
 
 		if (Intersect(mousePos, circlePos))
 		{
@@ -696,7 +689,7 @@ void UI::cBtreeTool::SelectMoveNode(const ImVec2& mousePos,
 			func(task, i);
 		}
 
-		auto child = taskPtr->GetChildren()->at(i);
+		auto child = task->GetChildren()->at(i);
 		SelectMoveNode(mousePos, child, func);
 	}
 }
@@ -756,7 +749,7 @@ void UI::cBtreeTool::DeleteNode(weak_ptr<cTask> task)
 		DeleteNode(child);
 }
 
-ImVec2 UI::cBtreeTool::GetNodeStart(shared_ptr<cTask> task)
+ImVec2 UI::cBtreeTool::GetNodeStart(const shared_ptr<cTask> & task)
 {
 	auto pos = task->GetPosition();
 	auto size = task->GetSize();
@@ -764,11 +757,12 @@ ImVec2 UI::cBtreeTool::GetNodeStart(shared_ptr<cTask> task)
 	return ImVec2(pos.x + size.x * 0.5f, pos.y);
 }
 
-ImVec2 UI::cBtreeTool::GetNodeEnd(shared_ptr<cTask> task, UINT childNum)
+ImVec2 UI::cBtreeTool::GetNodeEnd(const shared_ptr<cTask> & task, UINT childNum)
 {
 	auto pos = task->GetPosition();
 	auto size = task->GetSize();
 
+	//ImVec2 p1 = _offset + ImVec2(pos.x + i * NODE_GAP, pos.y + size.y);
 	return ImVec2(pos.x + childNum * NODE_GAP, pos.y + size.y);
 }
 

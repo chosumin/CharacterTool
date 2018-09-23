@@ -29,12 +29,12 @@ public:
 
 	void ResetState();
 
-	weak_ptr<sTransform> GetLocalTransform() const;
+	const shared_ptr<sTransform> & GetLocalTransform() const;
 	void SetLocalTransform(const D3DXMATRIX& matrix);
 
 	D3DXMATRIX& GetWorld() const;
 	void SetWorld(const D3DXMATRIX& world);
-	weak_ptr<sTransform> GetWorldTransform() const;
+	const shared_ptr<sTransform> & GetWorldTransform() const;
 
 	eColliderType GetType() const { return _type; }
 	eColliderShape GetShape() const { return _shape; }

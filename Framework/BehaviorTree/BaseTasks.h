@@ -51,7 +51,10 @@ public:
 	/*******************
 		Getter Setter
 	********************/
-	virtual TaskList* GetChildren();
+	virtual TaskList* GetChildren()
+	{
+		return nullptr;
+	}
 
 	const string & GetName() const { return _taskName; }
 
@@ -68,9 +71,15 @@ public:
 
 	eState GetRunningState() { return _state; }
 	
-	weak_ptr<cTask> GetParent() const;
+	const weak_ptr<cTask> & GetParent() const
+	{
+		return _parent;
+	}
+
 	void SetParent(const weak_ptr<cTask> & parent)
-	{ _parent = parent; }
+	{ 
+		_parent = parent;
+	}
 
 	bool GetHide() const { return _hide; }
 protected:
@@ -100,7 +109,11 @@ public:
 	
 	virtual eState Run() override;
 
-	virtual TaskList* GetChildren() override;
+	virtual TaskList* GetChildren() override
+	{
+		return &_children;
+	}
+
 	virtual void RenderInfo() override;
 
 	virtual void AddChild(std::shared_ptr<cTask> child) override;
@@ -112,7 +125,11 @@ public:
 	virtual void LoadJson(Json::Value& root) override;
 	virtual void SaveJson(Json::Value& root) override;
 protected:
-	int _type; //selector, sequence, parallel
+	enum eCompositeType
+	{
+		SELECTOR, SEQUENCE, PARALLEL
+	}_type;
+	//int _type; //selector, sequence, parallel
 private:
 	TaskList _children;
 

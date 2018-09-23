@@ -15,14 +15,21 @@ public:
 	void Init();
 
 	//트리 순회하며 태스크 검색, 이벤트
-	void Run();
+	void Run()
+	{
+		_root->SetInitState(true);
+		_root->Run();
+	}
 
 	//Running 상태의 태스크 매 틱마다 처리
 	void Update();
 
-	weak_ptr<cRootTask> GetRoot() const;
+	const shared_ptr<cRootTask> & GetRoot() const;
 
-	void SetCurrentTask(const weak_ptr<cTask>& task);
+	void SetCurrentTask(const weak_ptr<cTask>& task)
+	{
+		_currentTask = task;
+	}
 
 	const wstring& GetDefaultName() const { return _defaultName; }
 	const wstring& GetName() const { return _name; }

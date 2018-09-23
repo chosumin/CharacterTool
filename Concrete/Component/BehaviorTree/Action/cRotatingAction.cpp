@@ -141,7 +141,7 @@ void cRotatingAction::SaveJson(Json::Value & root)
 void cRotatingAction::RotateTarget()
 {
 	auto actorPtr = _actor.lock();
-	auto blackboardPtr = actorPtr->GetBlackboard().lock();
+	auto& blackboardPtr = actorPtr->GetBlackboard();
 
 	if (!blackboardPtr)
 		return;
@@ -163,7 +163,7 @@ void cRotatingAction::RotateKeyboard()
 	auto actorPtr = _actor.lock();
 
 	//블랙보드에서 방향 가져옴
-	auto blackboard = actorPtr->GetBlackboard().lock();
+	auto& blackboard = actorPtr->GetBlackboard();
 	auto direction = blackboard->GetVector3("Direction");
 
 	//카메라 행렬로 변환된 방향 계산

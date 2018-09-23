@@ -28,10 +28,18 @@ bool cAiInspector::DiscoverTarget()
 
 	//적의 위치 세팅
 	D3DXVECTOR3 targetPos;
-	auto enemyPtr = boardPtr->GetEnemy().lock();
-	if (enemyPtr)
+	//auto enemyPtr = boardPtr->GetEnemy().lock();
+	/*if (enemyPtr)
 	{
 		enemyPtr->GetPosition(targetPos);
+		boardPtr->SetVector3("TargetPos", targetPos);
+	}*/
+
+	//fixme : 여러 타겟 중 하나 선택하는 알고리즘 만들기
+	auto& enemiesPtr = boardPtr->GetEnemies();
+	for (auto enemy : enemiesPtr)
+	{
+		enemy.lock()->GetPosition(targetPos);
 		boardPtr->SetVector3("TargetPos", targetPos);
 	}
 

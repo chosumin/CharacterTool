@@ -48,8 +48,8 @@ cTask::eState cComboAttackAction::Run()
 	if (!actorPtr)
 		return eState::FAILURE;
 
-	auto animatorPtr = actorPtr->GetAnimator().lock();
-	auto blackboardPtr = actorPtr->GetBlackboard().lock();
+	auto& animatorPtr = actorPtr->GetAnimator();
+	auto& blackboardPtr = actorPtr->GetBlackboard();
 
 	//blackboardPtr->SetBool("MeleeAttack", true);
 	const int& attackNumber = blackboardPtr->GetInt("AttackNumber");
@@ -159,7 +159,7 @@ void cComboAttackAction::EndCombo(shared_ptr<cBlackboard>& blackboardPtr)
 void cComboAttackAction::RenderInfo()
 {
 	auto actorPtr = _actor.lock();
-	auto clips = actorPtr->GetAnimator().lock()->GetClips();
+	auto& clips = actorPtr->GetAnimator()->GetClips();
 
 	ImGui::TextColored(ActionTextColor, _taskName.c_str());
 
@@ -212,7 +212,7 @@ void cComboAttackAction::LoadJson(Json::Value & root)
 	if (_selectedClip != "")
 	{
 		auto actorPtr = _actor.lock();
-		auto animPtr = actorPtr->GetAnimator().lock();
+		auto& animPtr = actorPtr->GetAnimator();
 
 		wstring clipName = cString::Wstring(_selectedClip);
 		for (auto&& clip : animPtr->GetClips())

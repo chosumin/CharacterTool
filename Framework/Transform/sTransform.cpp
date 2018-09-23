@@ -52,7 +52,8 @@ void sTransform::Update()
 	Rotate();
 	Translation();
 
-	Matrix = _scaleMatrix * _rotationMatrix;
+	D3DXMatrixMultiply(&Matrix, &_scaleMatrix, &_rotationMatrix);
+	//Matrix = _scaleMatrix * _rotationMatrix;
 	Matrix._41 = _positionMatrix._41, Matrix._42 = _positionMatrix._42, Matrix._43 = _positionMatrix._43;
 
 	_worldBuffer->SetMatrix(Matrix);
@@ -72,20 +73,12 @@ sTransform & sTransform::operator=(const sTransform & other)
 sTransform sTransform::operator*(const sTransform & other)
 {
 	sTransform t;
-	t.Matrix = Matrix * other.Matrix;
+
+	D3DXMatrixMultiply(&t.Matrix, &Matrix, &other.Matrix);
+	//t.Matrix = Matrix * other.Matrix;
 	t.Decompose();
 
 	return t;
-}
-
-void sTransform::Scale()
-{
-	D3DXMatrixScaling(&_scaleMatrix, Scaling.x, Scaling.y, Scaling.z);
-}
-
-void sTransform::Rotate()
-{
-	D3DXMatrixRotationQuaternion(&_rotationMatrix, &Quaternion);
 }
 
 void sTransform::Rotate(const D3DXVECTOR3 & axis, float deltaRadian)
@@ -130,6 +123,7 @@ void sTransform::RotateToFixedMatrix(const D3DXMATRIX& fixedMat, const D3DXVECTO
 			axis[0] = fixedMat(i, 0);
 			axis[1] = fixedMat(i, 1);
 			axis[2] = fixedMat(i, 2);
+			D3DXVec3Normalize(&axis, &axis);
 
 			D3DXVECTOR3 radian;
 			GetRadian(&radian, deltaAngle);
@@ -140,49 +134,14 @@ void sTransform::RotateToFixedMatrix(const D3DXMATRIX& fixedMat, const D3DXVECTO
 	}
 }
 
-void sTransform::Translation()
-{
-	_positionMatrix._41 = Position.x;
-	_positionMatrix._42 = Position.y;
-	_positionMatrix._43 = Position.z;
-}
-
-void sTransform::Move(float speed, const D3DXVECTOR3& direction)
-{
-	Velocity = speed;
-	Position += direction * speed * cFrame::Delta();
-}
-
 void sTransform::Move(float speed)
 {
 	Velocity = speed;
 
-	D3DXVECTOR3 dir = { 
-		_rotationMatrix._31,
-		_rotationMatrix._32,
-		_rotationMatrix._33 };
+	D3DXVECTOR3 dir;
+	GetDirection(dir);
 
 	Position += dir * speed * cFrame::Delta();
-}
-
-void sTransform::SetMatrix(const D3DXMATRIX & world)
-{
-	_worldBuffer->SetMatrix(world);
-}
-
-void sTransform::SetVSBuffer(UINT slot)
-{
-	_worldBuffer->SetVSBuffer(slot);
-}
-
-const D3DXMATRIX & sTransform::GetRotationMatrix() const
-{
-	return _rotationMatrix;
-}
-
-const D3DXMATRIX & sTransform::GetScaleMatrix() const
-{
-	return _scaleMatrix;
 }
 
 void sTransform::GetDirection(OUT D3DXVECTOR3 & direction)
@@ -190,6 +149,7 @@ void sTransform::GetDirection(OUT D3DXVECTOR3 & direction)
 	direction.x = _rotationMatrix._31;
 	direction.y = _rotationMatrix._32;
 	direction.z = _rotationMatrix._33;
+	D3DXVec3Normalize(&direction, &direction);
 }
 
 void sTransform::SetDirection(IN const D3DXVECTOR3 & direction)

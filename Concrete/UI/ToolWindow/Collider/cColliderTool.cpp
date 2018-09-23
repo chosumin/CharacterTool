@@ -122,7 +122,7 @@ void UI::cColliderTool::AddCollider()
 
 	auto type = _selectAttack ? eColliderType::COMBO_ATTACK : eColliderType::DAMAGE;
 
-	colliders->AddCollider(type, shape, _selectedBone,
+	colliders->AddCollider(type, shape, _selectedBone.lock(),
 						   cMath::MATRIX_IDENTITY);
 
 	cDebug::Log("Collider Added!");
@@ -241,7 +241,7 @@ void UI::cColliderTool::SaveJson(Json::Value& root)
 			int type = static_cast<int>(collider->GetType());
 			Json::SetValue(colliderJson, "Type", type);
 
-			auto tmPtr = collider->GetLocalTransform().lock();
+			auto& tmPtr = collider->GetLocalTransform();
 			Json::SetValue(colliderJson, "LocalTM", tmPtr->Matrix);
 
 			colliders.append(colliderJson);

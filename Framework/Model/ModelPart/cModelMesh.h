@@ -12,9 +12,9 @@ public:
 	cModelMesh();
 	~cModelMesh();
 
-	void Render();
+	void Render(const bool & onShader = true);
 
-	weak_ptr<struct sTransform> GetParentTransform() const;
+	const shared_ptr<struct sTransform> & GetParentTransform() const;
 	const wstring & GetName() const { return _name; }
 
 	int	GetParentBoneIndex() const { return _parentBoneIndex; }

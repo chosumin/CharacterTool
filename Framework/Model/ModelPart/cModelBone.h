@@ -23,18 +23,36 @@ public:
 
 	const wstring& GetName() { return _name; }
 
-	weak_ptr<cModelBone> GetParent() { return _parent; }
+	const weak_ptr<cModelBone> & GetParent() { return _parent; }
 
 	UINT GetChildCount() { return _children.size(); }
-	weak_ptr<cModelBone> GetChild(UINT index) { return _children[index]; }
-	vector<weak_ptr<cModelBone>>& GetChildren();
+	const weak_ptr<cModelBone> & GetChild(UINT index) { return _children[index]; }
+	vector<weak_ptr<cModelBone>>& GetChildren()
+	{
+		return _children;
+	}
 
-	weak_ptr<sTransform> GetAbsoluteTransform() const;
-	const D3DXMATRIX& GetInvAbsoluteMatrix() const;
-	weak_ptr<sTransform> GetAnimatedTransform() const;
+	const shared_ptr<sTransform> & GetAbsoluteTransform() const
+	{
+		return _absoluteTransform;
+	}
+
+	const D3DXMATRIX& GetInvAbsoluteMatrix() const
+	{
+		return _invAbsoluteMatrix;
+	}
+	const shared_ptr<sTransform> & GetAnimatedTransform() const
+	{
+		return _animatedTransform;
+	}
+
 	const D3DXMATRIX& GetSkinnedMatrix() const;
 
-	const vector<shared_ptr<cCollider>>& GetColliders() const;
+	const vector<shared_ptr<cCollider>>& GetColliders() const
+	{
+		return _colliders;
+	}
+
 	void AddCollider(weak_ptr<cCollider> collider);
 	void DeleteCollider(weak_ptr<cCollider> collider);
 private:

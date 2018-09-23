@@ -42,18 +42,18 @@ namespace UI
 
 		//베지어 곡선 출력
 		void DrawLinks();
-		void DrawLink(weak_ptr<cTask> task);
+		void DrawLink(const shared_ptr<cTask> & task);
 
 		//노드 출력
 		void DrawNodes();
-		void DrawNode(OUT int& id, weak_ptr<cTask> task);
+		void DrawNode(OUT int& id, const shared_ptr<cTask> & task);
 
 		//메뉴 팝업 출력
 		void DrawTextMenu();
 		//노드 생성 팝업
 		void DrawAddMenu();
 		//노드 위치 조정(부모 노드와 상대 위치만큼)
-		void SetNodePosition(weak_ptr<cTask> task, const ImVec2& parentPos);
+		void SetNodePosition(shared_ptr<cTask> & task, const ImVec2& parentPos);
 		//선택한 노드의 삭제, 복사 메뉴
 		void DrawNodeMenu();
 
@@ -62,7 +62,7 @@ namespace UI
 		//연결된 노드가 있는지 확인
 		//@param : 마우스 좌표
 		//@param : 재귀 노드
-		void FindConnectNode(const ImVec2& mousePos, weak_ptr<cTask> task);
+		void FindConnectNode(const ImVec2& mousePos, const shared_ptr<cTask> & task);
 
 		//트리 노드간 이동
 		void MoveNode();
@@ -71,7 +71,7 @@ namespace UI
 		//@param : 재귀 노드
 		//@param : 이동할 노드 선택 후 콜백 함수
 		void SelectMoveNode(const ImVec2& mousePos,
-							weak_ptr<cTask> task,
+							const shared_ptr<cTask> & task,
 							function<void(weak_ptr<cTask>, UINT)> func);
 
 		void Scroll();
@@ -79,9 +79,9 @@ namespace UI
 		void EndBackground();
 	private:
 		//부모 점
-		ImVec2 GetNodeStart(shared_ptr<cTask> task);
+		ImVec2 GetNodeStart(const shared_ptr<cTask> & task);
 		//자식 점
-		ImVec2 GetNodeEnd(shared_ptr<cTask> task, UINT childNum);
+		ImVec2 GetNodeEnd(const shared_ptr<cTask> & task, UINT childNum);
 		//마우스 위치
 		ImVec2 GetMousePos();
 

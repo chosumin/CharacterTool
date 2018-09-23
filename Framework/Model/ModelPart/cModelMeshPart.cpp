@@ -49,7 +49,7 @@ void cModelMeshPart::Binding()
 	}
 }
 
-void cModelMeshPart::Render()
+void cModelMeshPart::Render(const bool & onShader)
 {
 	UINT stride = sizeof(ModelVertexType);
 	UINT offset = 0;
@@ -59,7 +59,7 @@ void cModelMeshPart::Render()
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	if(!_material.expired())
-		_material.lock()->Render();
+		_material.lock()->Render(onShader);
 
 	D3D::GetDC()->DrawIndexed(_indices.size(), 0, 0);
 }

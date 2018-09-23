@@ -9,15 +9,14 @@ shared_ptr<cShader> cShader::Create(wstring shaderFile, string vsName, string ps
 	//쉐이더 캐시
 	static unordered_map<wstring, weak_ptr<cShader>> cache;
 
-	//트릭 구조체
-	struct make_shared_enabler : public cShader {
-		make_shared_enabler(wstring shaderFile, string vsName, string psName):cShader(shaderFile, vsName, psName) {}
-	};
-
 	//캐시에서 쉐이더 검색
 	auto shaderPtr = cache[shaderFile].lock();
 	if (shaderPtr == nullptr)
 	{
+		//트릭 구조체
+		struct make_shared_enabler : public cShader {
+			make_shared_enabler(wstring shaderFile, string vsName, string psName) :cShader(shaderFile, vsName, psName) {}
+		};
 		shaderPtr = make_shared<make_shared_enabler>(shaderFile, vsName, psName);
 		cache[shaderFile] = shaderPtr;
 	}
@@ -98,12 +97,19 @@ void cShader::CreatePixelShader()
 void cShader::CheckShaderError(ID3DBlob** outBlob, string name, string type)
 {
 	ID3DBlob *error = nullptr;
-	HRESULT hr = D3DX11CompileFromFile
+	/*HRESULT hr = D3DX11CompileFromFile
 	(
 		mShaderName.c_str(), nullptr, nullptr, name.c_str(), (type + "_5_0").c_str()
 		, D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr
 		, outBlob, &error, nullptr
+	);*/
+
+	HRESULT hr = D3DCompileFromFile
+	(
+		mShaderName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, name.c_str(), (type + "_5_0").c_str()
+		, 0, 0, outBlob, &error
 	);
+
 
 	if (FAILED(hr))
 	{
@@ -111,7 +117,7 @@ void cShader::CheckShaderError(ID3DBlob** outBlob, string name, string type)
 		{
 			string str = (const char *)error->GetBufferPointer();
 			MessageBoxA(NULL, str.c_str(), "Shader Error", MB_OK);
-			assert(false);
+			assert(false); 
 		}
 	}
 }

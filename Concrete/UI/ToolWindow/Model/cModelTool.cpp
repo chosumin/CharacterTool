@@ -283,7 +283,7 @@ void UI::cModelTool::SaveMaterial()
 void UI::cModelTool::SaveTextureFile(Json::Value & root, const string & jsonName, const shared_ptr<cMaterial>& material, TextureType type)
 {
 	string fileName = "";
-	auto texture = material->GetTextureMap(type).lock();
+	auto& texture = material->GetTextureMap(type);
 	if (texture)
 	{
 		fileName = cString::String(texture->GetFile());
@@ -341,7 +341,7 @@ void UI::cModelTool::ShowTextureColors(int& index, shared_ptr<cMaterial> materia
 	{
 		ImGui::Text("Ambient :");
 		color = material->GetTextureColor(ColorType::AMBIENT);
-		ImGui::SliderFloat4("", (*color), 0, 1);
+		ImGui::ColorEdit4("", (*color));
 	}
 	ImGui::PopID();
 
@@ -349,7 +349,7 @@ void UI::cModelTool::ShowTextureColors(int& index, shared_ptr<cMaterial> materia
 	{
 		ImGui::Text("Diffuse :");
 		color = material->GetTextureColor(ColorType::DIFFUSE);
-		ImGui::SliderFloat4("", (*color), 0, 1);
+		ImGui::ColorEdit4("", (*color));
 	}
 	ImGui::PopID();
 
@@ -357,7 +357,7 @@ void UI::cModelTool::ShowTextureColors(int& index, shared_ptr<cMaterial> materia
 	{
 		ImGui::Text("Specular :");
 		color = material->GetTextureColor(ColorType::SPECULAR);
-		ImGui::SliderFloat4("", (*color), 0, 1);
+		ImGui::ColorEdit4("", (*color));
 	}
 	ImGui::PopID();
 
@@ -370,14 +370,14 @@ void UI::cModelTool::ShowTextureColors(int& index, shared_ptr<cMaterial> materia
 	}
 	ImGui::PopID();
 
-	auto texturePtr = material->GetTextureMap(TextureType::DIFFUSE).lock();
+	auto& texturePtr = material->GetTextureMap(TextureType::DIFFUSE);
 	ShowTexture(texturePtr);
 
-	texturePtr = material->GetTextureMap(TextureType::SPECULAR).lock();
-	ShowTexture(texturePtr);
+	auto& texturePtr2 = material->GetTextureMap(TextureType::SPECULAR);
+	ShowTexture(texturePtr2);
 
-	texturePtr = material->GetTextureMap(TextureType::NORMAL).lock();
-	ShowTexture(texturePtr);
+	auto& texturePtr3 = material->GetTextureMap(TextureType::NORMAL);
+	ShowTexture(texturePtr3);
 }
 
 void UI::cModelTool::ShowTexture(shared_ptr<cTexture> texturePtr)

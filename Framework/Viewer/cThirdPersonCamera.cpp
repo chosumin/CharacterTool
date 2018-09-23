@@ -57,7 +57,7 @@ void cThirdPersonCamera::Update()
 
 	//마우스 회전에 따라 회전함
 	auto vRotation = cMouse::Get()->GetMoveValue();
-	Rotate(vRotation.x, vRotation.y, _rotationSpeed + 1.0f);
+	Rotate(vRotation.x, vRotation.y, _rotationSpeed + 3.0f);
 }
 
 void cThirdPersonCamera::PostRender()

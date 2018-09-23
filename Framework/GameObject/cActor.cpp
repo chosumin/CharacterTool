@@ -31,7 +31,6 @@ void cActor::Init()
 	_behaviorTree->Init();
 }
 
-//frame : 200프레임 소모
 void cActor::Update()
 {
 	if (_transform)
@@ -49,7 +48,6 @@ void cActor::Update()
 	if (_model)
 		_model->Update(_transform);
 
-	//frame : 100프레임 소모
 	if (_animator)
 		_animator->Update();
 
@@ -57,7 +55,6 @@ void cActor::Update()
 		_colliders->Update();
 }
 
-//=> 호출시 10프레임 소모
 void cActor::Render()
 {
 	if (_transform)
@@ -79,6 +76,20 @@ void cActor::Render()
 		_colliders->Render();*/
 }
 
+void cActor::RenderShadow()
+{
+	if (_model)
+	{
+		_model->SetPlayedBuffer(false);
+
+		if (_animator &&
+			_animator->GetMode() != cAnimator::Mode::STOP)
+			_model->SetPlayedBuffer(true);
+
+		_model->Render(false);
+	}
+}
+
 void cActor::TestUpdate()
 {
 	if (_transform)
@@ -95,6 +106,11 @@ void cActor::TestUpdate()
 		_colliders->Update();
 }
 
+void cActor::ClearEnemies()
+{
+	_blackboard->ClearEnemies();
+}
+
 void cActor::SetEnemy(const weak_ptr<cActor>& actor)
 {
 	_blackboard->SetEnemy(actor);
@@ -105,9 +121,8 @@ void cActor::StartScene()
 	_behaviorTree->Run();
 }
 
-void cActor::StopScene(const D3DXVECTOR3 & position)
+void cActor::StopScene()
 {
-	_transform->Position = position;
 	_animator->SetMode(cAnimator::Mode::STOP);
 	_blackboard->ResetData();
 }
@@ -138,18 +153,23 @@ bool cActor::Collide(const weak_ptr<class cCollider>& collider)
 
 bool cActor::Attack()
 {
-	auto enemyPtr = _blackboard->GetEnemy().lock();
-	if (!enemyPtr)
-		return false;
-
-	auto enemyCols = enemyPtr->GetColliders();
-	if (_colliders->Attack(enemyCols))
+	auto& enemies = _blackboard->GetEnemies();
+	for (auto&& enemy : enemies)
 	{
-		//적에게 메시지 전달
-		enemyPtr->Damage(downcasted_shared_from_this<cActor>());
-		return true;
-	}
+		auto enemyPtr = enemy.lock();
 
+		if (!enemyPtr)
+			return false;
+
+		auto enemyCols = enemyPtr->GetColliders();
+		if (_colliders->Attack(enemyCols))
+		{
+			//적에게 메시지 전달
+			enemyPtr->Damage(downcasted_shared_from_this<cActor>());
+			return true;
+		}
+	}
+	
 	return false;
 }
 
@@ -157,7 +177,7 @@ void cActor::Damage(const weak_ptr<cActor>& opponent)
 {
 	auto opponentPtr = opponent.lock();
 
-	auto transformPtr = opponentPtr->GetTransform().lock();
+	auto& transformPtr = opponentPtr->GetTransform();
 	
 	_blackboard->SetVector3("AttackerPosition", transformPtr->Position);
 	_blackboard->SetBool("Damage", true);
@@ -173,35 +193,9 @@ void cActor::FunctionInitialize()
 {
 }
 
-weak_ptr<cModel> cActor::GetModel() const
+const shared_ptr<cModel> & cActor::GetModel() const
 {
-	if(_model)
-		return _model;
-
-	return weak_ptr<cModel>();
-}
-
-weak_ptr<sTransform> cActor::GetTransform() const
-{
-	if(_transform)
-		return _transform;
-
-	return weak_ptr<sTransform>();
-}
-
-weak_ptr<cActorColliders> cActor::GetColliders() const
-{
-	return _colliders;
-}
-
-weak_ptr<cAnimator> cActor::GetAnimator() const
-{
-	return _animator;
-}
-
-weak_ptr<cBehaviorTree> cActor::GetBehaviorTree() const
-{
-	return _behaviorTree;
+	return _model;
 }
 
 void cActor::SetModel(weak_ptr<cModel> model)

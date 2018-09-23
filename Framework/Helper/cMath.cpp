@@ -129,7 +129,7 @@ float cMath::AngleBetweenTwoVectors(const D3DXVECTOR3 & vec1,
 	D3DXVec3Normalize(&dir2, &dir2);
 
 	float dot = D3DXVec3Dot(&dir1, &dir2);
-
+	dot = Clamp(dot, -1.0f, 1.0f);
 	//float dot = D3DXVec3Dot(&vec1, &vec2);
 
 	dot = acosf(dot);

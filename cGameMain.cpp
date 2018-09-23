@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "cGameMain.h"
-#include "./Execution/cModels.h"
 #include "./Execution/cEnvironment.h"
 #include "./Execution/cMenuBar.h"
 #include "./Execution/cUI.h"
@@ -75,6 +74,8 @@ void cGameMain::PreRender()
 
 void cGameMain::Render()
 {
+	D3D::Get()->SetRenderTarget();
+
 	D3DXMATRIX view, projection;
 	_globalVariable->MainCamera.lock()->GetMatrix(&view);
 	_globalVariable->Perspective->GetMatrix(&projection);

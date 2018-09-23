@@ -17,7 +17,6 @@ public:
 	virtual void ResizeScreen() override;
 private:
 	weak_ptr<sGlobalVariable> _global;
-	unique_ptr<class cWorldGrid> _grid;
-	unique_ptr<class cBasicMap> _map;
+	shared_ptr<class cWorldGrid> _grid;
 	unique_ptr<class cSky> _sky;
 };

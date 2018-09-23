@@ -79,6 +79,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(DH);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(DL);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -97,7 +99,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Library</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,7 +116,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Library</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,13 +130,14 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./;../Library;../Shader;./Common;./Framework;./Concrete;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Library</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,7 +157,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Users\poumi\Desktop\DX11_3D\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Library</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -198,7 +201,6 @@
     <ClInclude Include="Execution\cActorManager.h" />
     <ClInclude Include="Execution\cEnvironment.h" />
     <ClInclude Include="Execution\cMenuBar.h" />
-    <ClInclude Include="Execution\cModels.h" />
     <ClInclude Include="Execution\cUI.h" />
     <ClInclude Include="Framework\Animator\cAnimator.h" />
     <ClInclude Include="Framework\Animator\cAnimClip.h" />
@@ -234,6 +236,7 @@
     <ClInclude Include="Framework\Graphic\cMaterial.h" />
     <ClInclude Include="Framework\Graphic\ConstBuffer\cColliderBuffer.h" />
     <ClInclude Include="Framework\Graphic\ConstBuffer\cModelBoneBuffer.h" />
+    <ClInclude Include="Framework\Graphic\cRenderTarget.h" />
     <ClInclude Include="Framework\Graphic\cShader.h" />
     <ClInclude Include="Framework\Graphic\cTexture.h" />
     <ClInclude Include="Framework\Graphic\GlobalBuffers.h" />
@@ -251,6 +254,7 @@
     <ClInclude Include="Framework\Interface\iRenderable.h" />
     <ClInclude Include="Framework\Interface\iState.h" />
     <ClInclude Include="Framework\Interface\iTransformable.h" />
+    <ClInclude Include="Framework\Light\cDirectionalLight.h" />
     <ClInclude Include="Framework\Mesh\cArrow.h" />
     <ClInclude Include="Framework\Mesh\cBox.h" />
     <ClInclude Include="Framework\Mesh\cCapsule.h" />
@@ -320,7 +324,6 @@
     <ClCompile Include="Execution\cActorManager.cpp" />
     <ClCompile Include="Execution\cEnvironment.cpp" />
     <ClCompile Include="Execution\cMenuBar.cpp" />
-    <ClCompile Include="Execution\cModels.cpp" />
     <ClCompile Include="Execution\cUI.cpp" />
     <ClCompile Include="Framework\Animator\cAnimator.cpp" />
     <ClCompile Include="Framework\Animator\cAnimClip.cpp" />
@@ -352,6 +355,7 @@
     <ClCompile Include="Framework\GameObject\cActorGroup.cpp" />
     <ClCompile Include="Framework\GameObject\cGameObject.cpp" />
     <ClCompile Include="Framework\Graphic\cMaterial.cpp" />
+    <ClCompile Include="Framework\Graphic\cRenderTarget.cpp" />
     <ClCompile Include="Framework\Graphic\cShader.cpp" />
     <ClCompile Include="Framework\Graphic\cTexture.cpp" />
     <ClCompile Include="Framework\Graphic\cStates.cpp" />
@@ -361,6 +365,7 @@
     <ClCompile Include="Framework\Helper\cString.cpp" />
     <ClCompile Include="Framework\Helper\Json.cpp" />
     <ClCompile Include="Framework\Interaction\cCollisionManager.cpp" />
+    <ClCompile Include="Framework\Light\cDirectionalLight.cpp" />
     <ClCompile Include="Framework\Mesh\cArrow.cpp" />
     <ClCompile Include="Framework\Mesh\cBox.cpp" />
     <ClCompile Include="Framework\Mesh\cCapsule.cpp" />

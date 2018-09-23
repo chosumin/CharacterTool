@@ -46,8 +46,8 @@ cTask::eState cSingleAnimation::Run()
 	if (!actorPtr)
 		return eState::FAILURE;
 
-	auto animatorPtr = actorPtr->GetAnimator().lock();
-	auto blackboardPtr = actorPtr->GetBlackboard().lock();
+	auto& animatorPtr = actorPtr->GetAnimator();
+	auto& blackboardPtr = actorPtr->GetBlackboard();
 
 	bool str = _selectedClip == "Thug_Walk_Forward.anim";
 	if (_state == eState::NONE)
@@ -75,7 +75,7 @@ cTask::eState cSingleAnimation::Run()
 void cSingleAnimation::RenderInfo()
 {
 	auto actorPtr = _actor.lock();
-	auto clips = actorPtr->GetAnimator().lock()->GetClips();
+	auto& clips = actorPtr->GetAnimator()->GetClips();
 
 	ImGui::TextColored(ActionTextColor, _taskName.c_str());
 
@@ -119,7 +119,7 @@ void cSingleAnimation::LoadJson(Json::Value & root)
 	if (_selectedClip != "")
 	{
 		auto actorPtr = _actor.lock();
-		auto animPtr = actorPtr->GetAnimator().lock();
+		auto& animPtr = actorPtr->GetAnimator();
 
 		wstring clipName = cString::Wstring(_selectedClip);
 		for (auto&& clip : animPtr->GetClips())
@@ -206,15 +206,15 @@ cTask::eState cMultiAnimation::Run()
 	if (!actorPtr)
 		return eState::FAILURE;
 
-	auto animatorPtr = actorPtr->GetAnimator().lock();
-	auto blackboardPtr = actorPtr->GetBlackboard().lock();
+	auto& animatorPtr = actorPtr->GetAnimator();
+	auto& blackboardPtr = actorPtr->GetBlackboard();
 
 	if (_state == eState::NONE)
 	{				
 		//방향 결정
 		const auto& targetDir = blackboardPtr->GetVector3("TargetDirection");
 		
-		const auto& transformPtr = actorPtr->GetTransform().lock();
+		const auto& transformPtr = actorPtr->GetTransform();
 		D3DXVECTOR3 actorDir;
 		transformPtr->GetDirection(actorDir);
 
@@ -267,7 +267,7 @@ void cMultiAnimation::RenderInfo()
 	ImGui::NewLine();
 
 	auto actorPtr = _actor.lock();
-	auto animClips = actorPtr->GetAnimator().lock()->GetClips();
+	auto& animClips = actorPtr->GetAnimator()->GetClips();
 
 	int id = 0;
 	for (auto&& clip : _clips)
@@ -315,7 +315,7 @@ void cMultiAnimation::LoadJson(Json::Value & root)
 		if (name != "")
 		{
 			auto actorPtr = _actor.lock();
-			auto animPtr = actorPtr->GetAnimator().lock();
+			auto& animPtr = actorPtr->GetAnimator();
 
 			wstring clipName = cString::Wstring(name);
 			for (auto&& animClip : animPtr->GetClips())

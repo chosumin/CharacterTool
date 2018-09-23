@@ -66,7 +66,7 @@ void cAnimator::SetCurrentClip(const weak_ptr<cAnimClip> & clip, bool overwrite,
 	}
 }
 
-bool cAnimator::Duplicated(weak_ptr<cAnimClip> clip)
+bool cAnimator::Duplicated(const weak_ptr<cAnimClip> & clip)
 {
 	auto clipPtr = clip.lock();
 
@@ -79,9 +79,9 @@ bool cAnimator::Duplicated(weak_ptr<cAnimClip> clip)
 	return false;
 }
 
-void cAnimator::AddClip(weak_ptr<cAnimClip> clip)
+void cAnimator::AddClip(const shared_ptr<cAnimClip> & clip)
 {
-	_clips.emplace_back(clip.lock());
+	_clips.emplace_back(clip);
 }
 
 cAnimator::ClipIter cAnimator::DeleteClip(weak_ptr<cAnimClip> clip)
@@ -255,7 +255,6 @@ void cAnimator::UpdateBones()
 		return;
 
 	UINT size = modelPtr->GetBoneCount();
-	D3DXMATRIX localAnim;
 
 	//이전 클립 있으면 블렌딩, 아니면 현재 클립 그대로 전달
 	auto& prevClipPtr = _prev.Clip.lock();
@@ -277,7 +276,7 @@ void cAnimator::Blend(UINT size, shared_ptr<cModel>& modelPtr,
 	D3DXQUATERNION q[2];
 	for (UINT i = 0; i < size; i++)
 	{
-		auto& bone = modelPtr->GetBone(i).lock();
+		auto& bone = modelPtr->GetBone(i);
 
 		if (front->IsCorrectKeyFrame(bone->GetName()) == false)
 			return;
@@ -297,7 +296,7 @@ void cAnimator::Blend(UINT size, shared_ptr<cModel>& modelPtr,
 		D3DXMatrixScaling(&S, s[0].x, s[0].y, s[0].z);
 		D3DXMatrixRotationQuaternion(&R, &q[0]);
 
-		localAnim = S * R;
+		D3DXMatrixMultiply(&localAnim, &S, &R);
 		localAnim._41 = t[0].x, localAnim._42 = t[0].y, localAnim._43 = t[0].z;
 
 		//루트는 경로 고정(in-place)
@@ -312,23 +311,20 @@ void cAnimator::Blend(UINT size, shared_ptr<cModel>& modelPtr,
 }
 
 void cAnimator::GetCurrentClipMatrix(UINT size,
-										  shared_ptr<cModel>& modelPtr,
-										  shared_ptr<cAnimClip>& curClipPtr)
+									 shared_ptr<cModel>& modelPtr,
+									 shared_ptr<cAnimClip>& curClipPtr)
 {
 	D3DXMATRIX localAnim;
 
 	//현재 클립 프레임 행렬 전달
 	for (UINT i = 0; i < size; i++)
 	{
-		//frame : 다 빼면 220프레임, 추가하면 90프레임
-		auto& bone = modelPtr->GetBone(i).lock();
+		auto& bone = modelPtr->GetBone(i);
 
-		//frame : 40 프레임 차이
 		//일치하는 본인지 확인
 		if (curClipPtr->IsCorrectKeyFrame(bone->GetName()) == false)
 			return;
 
-		//frame : 30 프레임 차이
 		curClipPtr->GetFrameTransform(localAnim, bone->GetName(), _current.CurrentKeyFrame);
 
 		//루트는 경로 고정(in-place)

@@ -44,7 +44,7 @@ cTask::eState cSingleAttackAction::Run()
 	if (!actorPtr)
 		return _state = eState::FAILURE;
 
-	auto animatorPtr = actorPtr->GetAnimator().lock();
+	auto& animatorPtr = actorPtr->GetAnimator();
 
 	//최초 진입
 	if (_state == eState::NONE)
@@ -88,7 +88,7 @@ void cSingleAttackAction::Collide(const shared_ptr<cAnimClip> & clipPtr, const s
 	if (!onEvent)
 		return;
 
-	auto colliders = _actor.lock()->GetColliders().lock();
+	auto& colliders = _actor.lock()->GetColliders();
 
 	//충돌 처리
 	_actor.lock()->Attack();
@@ -97,7 +97,7 @@ void cSingleAttackAction::Collide(const shared_ptr<cAnimClip> & clipPtr, const s
 void cSingleAttackAction::RenderInfo()
 {
 	auto actorPtr = _actor.lock();
-	auto clips = actorPtr->GetAnimator().lock()->GetClips();
+	auto& clips = actorPtr->GetAnimator()->GetClips();
 
 	ImGui::TextColored(ActionTextColor, _taskName.c_str());
 
@@ -142,7 +142,7 @@ void cSingleAttackAction::LoadJson(Json::Value & root)
 	if (_selectedClip != "")
 	{
 		auto actorPtr = _actor.lock();
-		auto animPtr = actorPtr->GetAnimator().lock();
+		auto& animPtr = actorPtr->GetAnimator();
 
 		wstring clipName = cString::Wstring(_selectedClip);
 		for (auto&& clip : animPtr->GetClips())

@@ -70,16 +70,6 @@ bool cTask::RenderMenu()
 	return false;
 }
 
-cTask::TaskList * cTask::GetChildren()
-{
-	return nullptr;
-}
-
-weak_ptr<cTask> cTask::GetParent() const
-{
-	return _parent;
-}
-
 void cTask::LoadDefaultInfo(Json::Value & task)
 {
 	Json::GetValue(task, "Task Name", _taskName);
@@ -108,7 +98,7 @@ cCompositeTask::cCompositeTask(weak_ptr<cBehaviorTree> tree,
 							   const ImVec2& position,
 							   weak_ptr<cTask> parent)
 	: cTask(tree, "Composite Task", position, parent)
-	, _type(0)
+	, _type(eCompositeType::SELECTOR)
 	, _summury("")
 {
 }
@@ -205,11 +195,6 @@ cTask::eState cCompositeTask::Run()
 	return eState::NONE;
 }
 
-cCompositeTask::TaskList * cCompositeTask::GetChildren()
-{
-	return &_children;
-}
-
 void cCompositeTask::RenderInfo()
 {
 	if (_hide)
@@ -225,7 +210,9 @@ void cCompositeTask::RenderInfo()
 	ImGui::NewLine();
 
 	ImGui::PushID(0);
-	ImGui::Combo("", &_type, ITEMS, 3);
+	int type = static_cast<int>(_type);
+	ImGui::Combo("", &type, ITEMS, 3);
+	_type = static_cast<eCompositeType>(type);
 	ImGui::PopID();
 
 	ImGui::Checkbox("Hide sub-nodes", &_hide);
@@ -264,7 +251,10 @@ void cCompositeTask::LoadJson(Json::Value & root)
 {
 	LoadDefaultInfo(root);
 	
-	Json::GetValue(root, "Type", _type);
+	int type;
+	Json::GetValue(root, "Type", type);
+	_type = static_cast<eCompositeType>(type);
+
 	Json::GetValue(root, "Hide", _hide);
 
 	string summury;
@@ -278,7 +268,8 @@ void cCompositeTask::SaveJson(Json::Value & root)
 
 	SaveDefaultInfo(task);
 
-	Json::SetValue(task, "Type", _type);
+	int type = static_cast<int>(_type);
+	Json::SetValue(task, "Type", type);
 	Json::SetValue(task, "Hide", _hide);
 
 	string summury = _summury;
@@ -301,7 +292,7 @@ cRootTask::cRootTask()
 	:cCompositeTask(weak_ptr<cBehaviorTree>())
 {
 	_taskName = "ROOT";
-	_type = 0;
+	_type = eCompositeType::SELECTOR;
 }
 
 cRootTask::~cRootTask()

@@ -19,14 +19,16 @@ public:
 	void Init();
 	void Update();
 	void Render();
+	void RenderShadow();
 
 	//행동트리 제외한 컴포넌트 업데이트
 	void TestUpdate();
 
-	void SetEnemy(const weak_ptr<cActor>& actor);
+	void ClearEnemies();
+	void SetEnemy(const weak_ptr<cActor> & actors);
 
 	void StartScene();
-	void StopScene(const D3DXVECTOR3 & position);
+	void StopScene();
 
 	void GetPosition(D3DXVECTOR3& position);
 	void SetPosition(D3DXVECTOR3& position);
@@ -44,23 +46,35 @@ public:
 	void SetName(wstring&& name) { _name = name; }
 
 	//모델
-	weak_ptr<class cModel> GetModel() const;
+	const shared_ptr<cModel> & GetModel() const;
 	void SetModel(weak_ptr<cModel> model);
 
 	//트랜스폼
-	weak_ptr<struct sTransform> GetTransform() const;
+	const shared_ptr<struct sTransform> & GetTransform() const
+	{
+		return _transform;
+	}
 
 	//충돌체
-	weak_ptr<cActorColliders> GetColliders() const;
+	const shared_ptr<cActorColliders> & GetColliders() const
+	{
+		return _colliders;
+	}
 
 	//애니메이션
-	weak_ptr<cAnimator> GetAnimator() const;
+	const shared_ptr<cAnimator> & GetAnimator() const
+	{
+		return _animator;
+	}
 
 	//행동트리
-	weak_ptr<cBehaviorTree> GetBehaviorTree() const;
+	const shared_ptr<cBehaviorTree> & GetBehaviorTree() const
+	{
+		return _behaviorTree;
+	}
 	
 	//블랙보드
-	weak_ptr<cBlackboard> GetBlackboard() const 
+	shared_ptr<cBlackboard> & GetBlackboard() 
 	{ 
 		return _blackboard;
 	}

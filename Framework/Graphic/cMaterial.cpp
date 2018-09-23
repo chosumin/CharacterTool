@@ -48,7 +48,7 @@ void cMaterial::SetShader(wstring file)
 	_shader = cShader::Create(file);
 }
 
-void cMaterial::SetShader(shared_ptr<cShader> shader)
+void cMaterial::SetShader(shared_ptr<cShader> & shader)
 {
 	_shader = shader;
 }
@@ -74,16 +74,6 @@ void cMaterial::SetTextureColor(ColorType eType, float r, float g, float b, floa
 	SetTextureColor(eType, { r,g,b,1 }, value);
 }
 
-unordered_map<TextureType, shared_ptr<cTexture>> cMaterial::GetTextureMaps() const
-{
-	return _textureMap;
-}
-
-weak_ptr<cTexture> cMaterial::GetTextureMap(TextureType eType)
-{
-	return _textureMap[eType];
-}
-
 void cMaterial::SetTextureMap(TextureType eType, wstring file, D3DX11_IMAGE_LOAD_INFO * info)
 {
 	if(file.length() > 0)
@@ -95,9 +85,9 @@ void cMaterial::SetTextureMap(TextureType eType, string file, D3DX11_IMAGE_LOAD_
 	SetTextureMap(eType, cString::Wstring(file), info);
 }
 
-void cMaterial::Render()
+void cMaterial::Render(const bool & onShader)
 {
-	if(_shader)
+	if(onShader && _shader)
 		_shader->Render();
 
 	//텍스쳐 세팅

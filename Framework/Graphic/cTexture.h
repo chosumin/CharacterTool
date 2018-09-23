@@ -12,7 +12,10 @@ public:
 	//¼Ò¸êÀÚ
 	~cTexture();
 public:
+	static void SaveFile(wstring file, ID3D11Texture2D * src);
+public:
 	D3D11_TEXTURE2D_DESC ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels);
+	void SaveFile(wstring file);
 public:
 	/************
 	Getter Setter
